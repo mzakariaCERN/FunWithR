@@ -17,10 +17,16 @@ RefDate <- regmatches(Full_Essential_txt[4],regexpr("[0-9][0-9][0-9][0-9]-[0-9][
 RefYear <- substring(RefDate, 1, 4)
 RefMonth <- substring(RefDate, 6, 7)
 RefDay <- substring(RefDate, 9, 11)
+
 Full_DateAccurae_txt[14] ## the string containing the date
+RefDate <- regmatches(Full_DateAccurae_txt[14], regexpr("[0-9][0-9], [0-9][0-9][0-9][0-9]", Full_DateAccurae_txt[14]))
+RefYear <- substring(RefDate, 5, 8)
+RefDay <- substring(RefDate, 1,2)
+ToGetMonth <- regmatches(Full_DateAccurae_txt[14], regexpr(", [A-Z][a-z]+", Full_DateAccurae_txt[14]))
+RefMonth_2 <- regmatches(ToGetMonth, regexpr("[A-Z][a-z]+", ToGetMonth))
 
 
-RefDateProper <- paste(RefMonth, "/", RefDay, "/", RefYear)
+RefDateProper <- paste(RefMonth_2, "/", RefDay, "/", RefYear)
 testing <- as.data.frame(Full_data_txt)[27:525,1]
 ## here we set the patch for the csv files to be saved (notice "")
 setwd("C:/Users/Mohammed/Desktop/EARL_Tutorial/Scrapping")
