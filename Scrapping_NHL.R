@@ -1,21 +1,24 @@
 
 library('rvest')
 ## below we set the link to the game page (notice the '')
-#url <- 'http://www.nhl.com/scores/htmlreports/20162017/ES030411.HTM'
 url <- 'http://www.nhl.com/scores/htmlreports/20162017/ES030411.HTM'
-url <- 'http://www.nhl.com/scores/htmlreports/20162017/ES030133.HTM'
+#url <- 'http://www.nhl.com/scores/htmlreports/20162017/ES030133.HTM'
 webpage <- read_html(url)
 webpage
 Full_data <-  html_nodes(webpage,'.rborder')
 Essential <- html_nodes(webpage, '.tborder')
+DateAccurate <- html_nodes(webpage, 'td')
 Full_data_txt <- html_text(Full_data)
 Full_Essential_txt <- html_text(Essential)
+Full_DateAccurae_txt <- html_text(DateAccurate)
 
 Full_Essential_txt[4] ## the string containing date
 RefDate <- regmatches(Full_Essential_txt[4],regexpr("[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]", Full_Essential_txt[4])) 
 RefYear <- substring(RefDate, 1, 4)
 RefMonth <- substring(RefDate, 6, 7)
 RefDay <- substring(RefDate, 9, 11)
+Full_DateAccurae_txt[14] ## the string containing the date
+
 
 RefDateProper <- paste(RefMonth, "/", RefDay, "/", RefYear)
 testing <- as.data.frame(Full_data_txt)[27:525,1]
