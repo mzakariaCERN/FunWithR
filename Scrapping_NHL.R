@@ -25,6 +25,9 @@ RefDay <- substring(RefDate, 1,2)
 ToGetMonth <- regmatches(Full_DateAccurae_txt[14], regexpr(", [A-Z][a-z]+", Full_DateAccurae_txt[14]))
 RefMonth_2 <- regmatches(ToGetMonth, regexpr("[A-Z][a-z]+", ToGetMonth))
 
+## Here we convert the name of the month to a number reflecting its order
+mo2Num <- function(x) match(tolower(x), tolower(month.abb))
+RefMonth_2 <- mo2Num(RefMonth_2)
 
 RefDateProper <- paste(RefMonth_2, "/", RefDay, "/", RefYear)
 testing <- as.data.frame(Full_data_txt)[27:525,1]
