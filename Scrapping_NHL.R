@@ -1,8 +1,9 @@
 
 library('rvest')
 ## below we set the link to the game page (notice the '')
-url <- 'http://www.nhl.com/scores/htmlreports/20162017/ES030411.HTM'
+#url <- 'http://www.nhl.com/scores/htmlreports/20162017/ES030411.HTM'
 #url <- 'http://www.nhl.com/scores/htmlreports/20162017/ES030133.HTM'
+url <- 'http://www.nhl.com/scores/htmlreports/20162017/ES021108.HTM'
 webpage <- read_html(url)
 webpage
 Full_data <-  html_nodes(webpage,'.rborder')
@@ -24,7 +25,7 @@ RefYear <- substring(RefDate, 5, 8)
 RefDay <- substring(RefDate, 1,2)
 ToGetMonth <- regmatches(Full_DateAccurae_txt[14], regexpr(", [A-Z][a-z]+", Full_DateAccurae_txt[14]))
 RefMonth_2 <- regmatches(ToGetMonth, regexpr("[A-Z][a-z]+", ToGetMonth))
-
+RefMonth_2 <- substring(RefMonth_2, 1, 3)
 ## Here we convert the name of the month to a number reflecting its order
 mo2Num <- function(x) match(tolower(x), tolower(month.abb))
 RefMonth_2 <- mo2Num(RefMonth_2)
