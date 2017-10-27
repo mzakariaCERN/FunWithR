@@ -3,20 +3,22 @@ title: "Calculating Acceleration bands in NHL"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. 
 
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. 
 The data entered should have the following format (4 lines to be skipped, then 5 column table - no empty spaces!)
 
-
-# Export : 8/8/2017 11:17:53 AM				
-# Reference time : 10/17/2016 2:10:05 PM UTC				
-# CentisecTime : 147671340500				
-# DeviceId : 121				
-Period	Ticks	Timestamp	Hockey Stride Direction	Hockey Stride Accel
-Goalie Work	508	00:00:05.080	4	1.17640042304993
-Goalie Work	549	00:00:05.490	10	1.78826177120209
-
-
+```Export : 8/8/2017 11:17:53 AM				
+Reference time : 10/17/2016 2:10:05 PM UTC				
+CentisecTime : 147671340500				
+DeviceId : 121
+```
+```
+| Period      | Ticks| Timestamp     | Hockey Stride Direction  |  Hockey Stride Accel |
+|--------------|------|---------------|-----|-------------------|
+| Goalie_Work  |  508 | 00:00:05.080  | 	4	| 1.17640042304993  |   
+| Goalie_Work  |  549 |  00:00:05.490 |  10 |  1.78826177120209 |
+```
+This needs to be saved in a csv format
 
 list files in SFiveOutput and save them to a file
 ```{r}
