@@ -4,11 +4,14 @@ output:
   html_document:
     df_print: paged
     toc: yes
+    keep_md: true
+  
   html_notebook:
     highlight: espresso
     theme: readable
     toc: yes
 ---
+
 
 Required packages
 ```{r}
