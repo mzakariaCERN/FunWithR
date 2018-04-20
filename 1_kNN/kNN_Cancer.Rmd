@@ -1,0 +1,99 @@
+---
+title: "Tumer Classification with kNN"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    keep_md: true
+  
+  html_notebook:
+    highlight: espresso
+    theme: readable
+    toc: yes
+---
+
+
+Required packages
+```{r}
+#install.packages("class") # for kNN classification
+library(class)
+#install.packages("gmodels") # for CrossTable function at the evaluation
+library(gmodels)
+```
+
+
+```{r}
+#plot(cars)
+wbcd <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/1_kNN/wisc_bc_data.csv", stringsAsFactors = FALSE)
+
+str(wbcd)
+summary(wbcd)
+
+# remove id
+
+wbcd <- wbcd[-1]
+
+```
+
+Convert diagnosis into factors
+
+```{r}
+wbcd$diagnosis <- factor(wbcd$diagnosis, levels = c("M", "B"), labels = c("Malignant", "Benign"))
+round(prop.table(table(wbcd$diagnosis))*100, digits = 1)
+
+```
+
+Since different features have different scales, we introduce a function "normalize" to set the values withing a range of [0,1]
+
+```{r}
+normalize <- function(x){
+  return((x - min(x)) / (max(x) - min(x)))
+  
+  
+}
+```
+use lapply to get a list (the l in lappy) and then convert the list inso data frame
+
+```{r}
+
+wbcd_n <- apply(wbcd[2:31],2,normalize)
+#another choice 
+#wbcd_n <- as.data.frame(lapply(wbcd[2:31], normalize))
+
+
+
+```
+
+We split the data into training and testing (the records wehre already in random order, so no need to randomize further)
+
+```{r}
+wbcd_train <- wbcd_n[1:469,]
+wbcd_test <- wbcd_n[470:569,]
+
+```
+
+remove the labeling
+
+```{r}
+wbcd_train_labels <- wbcd[1:469, 1]
+wbcd_test_labels <- wbcd[470:569,1]
+
+```
+
+
+
+Building the classifier
+```{r}
+wbcd_test_pred <- knn(train = wbcd_train, test = wbcd_test, cl = wbcd_train_labels, k = 21)
+
+```
+
+
+
+Evaluating model performance 
+```{r}
+CrossTable(x = wbcd_test_labels, y = wbcd_test_pred, prop.chisq = FALSE)
+
+```
+
+
