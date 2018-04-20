@@ -1,12 +1,12 @@
 ---
 title: "Tumer Classification with kNN"
 output:
+  html_document:
+    df_print: paged
+    toc: yes
   html_notebook:
     highlight: espresso
     theme: readable
-    toc: yes
-  html_document:
-    df_print: paged
     toc: yes
 ---
 
