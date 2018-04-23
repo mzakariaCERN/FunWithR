@@ -1,15 +1,18 @@
 ---
 title: "Tumer Classification with kNN"
-output:
-  html_document:
-    df_print: paged
-    toc: yes
-    keep_md: true
+author: "Mohammed Zakaria"
+#output:
+#  html_document:
+#    df_print: paged
+#    toc: yes
+#    keep_md: true
+   
   
-  html_notebook:
-    highlight: espresso
-    theme: readable
-    toc: yes
+#  html_notebook:
+#    highlight: espresso
+#    theme: readable
+#    toc: yes
+output: github_document
 ---
 
 
@@ -152,7 +155,7 @@ m_cv_ROC_prediction <- predict(m_cv_ROC,wbcd_test)
 confusionMatrix(m_cv_ROC_prediction, wbcd_test_labels)
 
 m_cv_ROC_prediction_probs <- predict(m_cv_ROC,wbcd_test, type = "prob")
-head(m_cv_ROC_prediction_probs)
+#head(m_cv_ROC_prediction_probs)
 
 ROC <- roc(predictor=m_cv_ROC_prediction_probs$Malignant,
                response=wbcd_test_labels,
