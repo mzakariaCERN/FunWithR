@@ -128,7 +128,24 @@ $(document).ready(function () {
 <pre class="r"><code>#install.packages(&quot;class&quot;) # for kNN classification
 library(class)
 #install.packages(&quot;gmodels&quot;) # for CrossTable function at the evaluation
-library(gmodels)</code></pre>
+library(gmodels)
+#install.packages(&quot;caret&quot;) # for model tuning
+library(caret)</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## Loading required package: ggplot2</code></pre>
+<pre class="r"><code>#install.packages(&quot;e1071&quot;) # to help with model tuning
+library(e1071)
+#install.packages(&quot;pROC&quot;) # to make ROC plots
+library(pROC)   </code></pre>
+<pre><code>## Type 'citation(&quot;pROC&quot;)' for a citation.</code></pre>
+<pre><code>## 
+## Attaching package: 'pROC'</code></pre>
+<pre><code>## The following object is masked from 'package:gmodels':
+## 
+##     ci</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     cov, smooth, var</code></pre>
 <pre class="r"><code>#plot(cars)
 wbcd &lt;- read.csv(file=&quot;C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/1_kNN/wisc_bc_data.csv&quot;, stringsAsFactors = FALSE)
 
@@ -291,6 +308,131 @@ wbcd_test_labels &lt;- wbcd[470:569,1]</code></pre>
 ## -----------------|-----------|-----------|-----------|
 ## 
 ## </code></pre>
+<p>Tuning See what caret has to say about knn</p>
+<pre class="r"><code>modelLookup(&quot;knn&quot;)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["model"],"name":[1],"type":["chr"],"align":["left"]},{"label":["parameter"],"name":[2],"type":["fctr"],"align":["left"]},{"label":["label"],"name":[3],"type":["fctr"],"align":["left"]},{"label":["forReg"],"name":[4],"type":["lgl"],"align":["right"]},{"label":["forClass"],"name":[5],"type":["lgl"],"align":["right"]},{"label":["probModel"],"name":[6],"type":["lgl"],"align":["right"]}],"data":[{"1":"knn","2":"k","3":"#Neighbors","4":"TRUE","5":"TRUE","6":"TRUE","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>Let us do the tuning with some values for k</p>
+<pre class="r"><code>m&lt;- train(wbcd_train,  wbcd_train_labels, method = &quot;knn&quot;)
+m</code></pre>
+<pre><code>## k-Nearest Neighbors 
+## 
+## 469 samples
+##  30 predictor
+##   2 classes: 'Malignant', 'Benign' 
+## 
+## No pre-processing
+## Resampling: Bootstrapped (25 reps) 
+## Summary of sample sizes: 469, 469, 469, 469, 469, 469, ... 
+## Resampling results across tuning parameters:
+## 
+##   k  Accuracy   Kappa    
+##   5  0.9569514  0.9099604
+##   7  0.9557389  0.9072391
+##   9  0.9567306  0.9094007
+## 
+## Accuracy was used to select the optimal model using  the largest value.
+## The final value used for the model was k = 5.</code></pre>
+<p>Something fancies</p>
+<pre class="r"><code>m_cv &lt;- train(wbcd_train, wbcd_train_labels, method = &quot;knn&quot;,  trControl = trainControl(method = &quot;cv&quot;), tuneLength = 15)
+m_boot &lt;- train(wbcd_train, wbcd_train_labels, method = &quot;knn&quot;,  trControl = trainControl(method = &quot;boot&quot;), tuneLength = 15)
+
+ctrl &lt;- trainControl(classProbs = TRUE, method = &quot;boot&quot;)
+m_boot_ROC &lt;- train(wbcd_train, wbcd_train_labels, method = &quot;knn&quot;,  trControl = ctrl, tuneLength = 15, metric = &quot;ROC&quot;)</code></pre>
+<pre><code>## Warning in train.default(wbcd_train, wbcd_train_labels, method = &quot;knn&quot;, :
+## The metric &quot;ROC&quot; was not in the result set. Accuracy will be used instead.</code></pre>
+<pre class="r"><code>ctrl &lt;- trainControl(method = &quot;repeatedcv&quot;,   # 10fold cross validation
+                     number = 5,                            # do 5 repititions of cv
+                     summaryFunction=twoClassSummary,   # Use AUC to pick the best model
+                     classProbs=TRUE,
+                     allowParallel = TRUE)
+m_cv_ROC &lt;- train(wbcd_train, wbcd_train_labels,
+      method = &quot;knn&quot;,
+      metric = &quot;ROC&quot;,
+      trControl = ctrl)
+
+m_cv</code></pre>
+<pre><code>## k-Nearest Neighbors 
+## 
+## 469 samples
+##  30 predictor
+##   2 classes: 'Malignant', 'Benign' 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (10 fold) 
+## Summary of sample sizes: 422, 422, 422, 422, 422, 422, ... 
+## Resampling results across tuning parameters:
+## 
+##   k   Accuracy   Kappa    
+##    5  0.9637835  0.9245576
+##    7  0.9659112  0.9289372
+##    9  0.9637835  0.9244816
+##   11  0.9659112  0.9286312
+##   13  0.9637835  0.9242515
+##   15  0.9659112  0.9283951
+##   17  0.9616096  0.9193457
+##   19  0.9616096  0.9194224
+##   21  0.9573543  0.9105111
+##   23  0.9594820  0.9150428
+##   25  0.9573543  0.9104358
+##   27  0.9573543  0.9104358
+##   29  0.9552266  0.9057578
+##   31  0.9552266  0.9057578
+##   33  0.9530990  0.9009840
+## 
+## Accuracy was used to select the optimal model using  the largest value.
+## The final value used for the model was k = 15.</code></pre>
+<p>To get tons of details about the model and how it was tuned:</p>
+<pre class="r"><code>#str(m_cv)</code></pre>
+<p>Let us make a prediction</p>
+<pre class="r"><code>m_cv_ROC_prediction &lt;- predict(m_cv_ROC,wbcd_test)
+#CrossTable(x = wbcd_test_labels, y = m_cv_ROC_prediction, prop.chisq = FALSE)
+confusionMatrix(m_cv_ROC_prediction, wbcd_test_labels)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##            Reference
+## Prediction  Malignant Benign
+##   Malignant        23      2
+##   Benign            0     75
+##                                           
+##                Accuracy : 0.98            
+##                  95% CI : (0.9296, 0.9976)
+##     No Information Rate : 0.77            
+##     P-Value [Acc &gt; NIR] : 2.106e-09       
+##                                           
+##                   Kappa : 0.9452          
+##  Mcnemar's Test P-Value : 0.4795          
+##                                           
+##             Sensitivity : 1.000           
+##             Specificity : 0.974           
+##          Pos Pred Value : 0.920           
+##          Neg Pred Value : 1.000           
+##              Prevalence : 0.230           
+##          Detection Rate : 0.230           
+##    Detection Prevalence : 0.250           
+##       Balanced Accuracy : 0.987           
+##                                           
+##        'Positive' Class : Malignant       
+## </code></pre>
+<pre class="r"><code>m_cv_ROC_prediction_probs &lt;- predict(m_cv_ROC,wbcd_test, type = &quot;prob&quot;)
+head(m_cv_ROC_prediction_probs)</code></pre>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Malignant"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Benign"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.3333333","2":"0.6666667","_rn_":"1"},{"1":"0.0000000","2":"1.0000000","_rn_":"2"},{"1":"0.0000000","2":"1.0000000","_rn_":"3"},{"1":"0.0000000","2":"1.0000000","_rn_":"4"},{"1":"0.1111111","2":"0.8888889","_rn_":"5"},{"1":"0.0000000","2":"1.0000000","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<pre class="r"><code>ROC &lt;- roc(predictor=m_cv_ROC_prediction_probs$Malignant,
+               response=wbcd_test_labels,
+               levels=rev(levels(wbcd_test_labels)))
+
+ROC$auc</code></pre>
+<pre><code>## Area under the curve: 0.9994</code></pre>
+<pre class="r"><code>#Area under the curve: 0.8731
+plot(ROC,main=&quot;ROC for kNN&quot;)</code></pre>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 
 
 

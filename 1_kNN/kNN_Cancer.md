@@ -20,6 +20,44 @@ Required packages
 library(class)
 #install.packages("gmodels") # for CrossTable function at the evaluation
 library(gmodels)
+#install.packages("caret") # for model tuning
+library(caret)
+```
+
+```
+## Loading required package: lattice
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```r
+#install.packages("e1071") # to help with model tuning
+library(e1071)
+#install.packages("pROC") # to make ROC plots
+library(pROC)	
+```
+
+```
+## Type 'citation("pROC")' for a citation.
+```
+
+```
+## 
+## Attaching package: 'pROC'
+```
+
+```
+## The following object is masked from 'package:gmodels':
+## 
+##     ci
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     cov, smooth, var
 ```
 
 
@@ -242,5 +280,181 @@ CrossTable(x = wbcd_test_labels, y = wbcd_test_pred, prop.chisq = FALSE)
 ## 
 ## 
 ```
+Tuning
+See what caret has to say about knn
+
+```r
+modelLookup("knn")
+```
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["model"],"name":[1],"type":["chr"],"align":["left"]},{"label":["parameter"],"name":[2],"type":["fctr"],"align":["left"]},{"label":["label"],"name":[3],"type":["fctr"],"align":["left"]},{"label":["forReg"],"name":[4],"type":["lgl"],"align":["right"]},{"label":["forClass"],"name":[5],"type":["lgl"],"align":["right"]},{"label":["probModel"],"name":[6],"type":["lgl"],"align":["right"]}],"data":[{"1":"knn","2":"k","3":"#Neighbors","4":"TRUE","5":"TRUE","6":"TRUE","_rn_":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+
+Let us do the tuning with some values for k
 
 
+```r
+m<- train(wbcd_train,  wbcd_train_labels, method = "knn")
+m
+```
+
+```
+## k-Nearest Neighbors 
+## 
+## 469 samples
+##  30 predictor
+##   2 classes: 'Malignant', 'Benign' 
+## 
+## No pre-processing
+## Resampling: Bootstrapped (25 reps) 
+## Summary of sample sizes: 469, 469, 469, 469, 469, 469, ... 
+## Resampling results across tuning parameters:
+## 
+##   k  Accuracy   Kappa    
+##   5  0.9569514  0.9099604
+##   7  0.9557389  0.9072391
+##   9  0.9567306  0.9094007
+## 
+## Accuracy was used to select the optimal model using  the largest value.
+## The final value used for the model was k = 5.
+```
+
+Something fancies
+
+
+```r
+m_cv <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "cv"), tuneLength = 15)
+m_boot <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "boot"), tuneLength = 15)
+
+ctrl <- trainControl(classProbs = TRUE, method = "boot")
+m_boot_ROC <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = ctrl, tuneLength = 15, metric = "ROC")
+```
+
+```
+## Warning in train.default(wbcd_train, wbcd_train_labels, method = "knn", :
+## The metric "ROC" was not in the result set. Accuracy will be used instead.
+```
+
+```r
+ctrl <- trainControl(method = "repeatedcv",   # 10fold cross validation
+                     number = 5,							# do 5 repititions of cv
+                     summaryFunction=twoClassSummary,	# Use AUC to pick the best model
+                     classProbs=TRUE,
+                     allowParallel = TRUE)
+m_cv_ROC <- train(wbcd_train, wbcd_train_labels,
+      method = "knn",
+      metric = "ROC",
+      trControl = ctrl)
+
+m_cv
+```
+
+```
+## k-Nearest Neighbors 
+## 
+## 469 samples
+##  30 predictor
+##   2 classes: 'Malignant', 'Benign' 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (10 fold) 
+## Summary of sample sizes: 422, 422, 422, 422, 422, 422, ... 
+## Resampling results across tuning parameters:
+## 
+##   k   Accuracy   Kappa    
+##    5  0.9637835  0.9245576
+##    7  0.9659112  0.9289372
+##    9  0.9637835  0.9244816
+##   11  0.9659112  0.9286312
+##   13  0.9637835  0.9242515
+##   15  0.9659112  0.9283951
+##   17  0.9616096  0.9193457
+##   19  0.9616096  0.9194224
+##   21  0.9573543  0.9105111
+##   23  0.9594820  0.9150428
+##   25  0.9573543  0.9104358
+##   27  0.9573543  0.9104358
+##   29  0.9552266  0.9057578
+##   31  0.9552266  0.9057578
+##   33  0.9530990  0.9009840
+## 
+## Accuracy was used to select the optimal model using  the largest value.
+## The final value used for the model was k = 15.
+```
+
+
+To get tons of details about the model and how it was tuned:
+
+```r
+#str(m_cv)
+```
+
+Let us make a prediction
+
+```r
+m_cv_ROC_prediction <- predict(m_cv_ROC,wbcd_test)
+#CrossTable(x = wbcd_test_labels, y = m_cv_ROC_prediction, prop.chisq = FALSE)
+confusionMatrix(m_cv_ROC_prediction, wbcd_test_labels)
+```
+
+```
+## Confusion Matrix and Statistics
+## 
+##            Reference
+## Prediction  Malignant Benign
+##   Malignant        23      2
+##   Benign            0     75
+##                                           
+##                Accuracy : 0.98            
+##                  95% CI : (0.9296, 0.9976)
+##     No Information Rate : 0.77            
+##     P-Value [Acc > NIR] : 2.106e-09       
+##                                           
+##                   Kappa : 0.9452          
+##  Mcnemar's Test P-Value : 0.4795          
+##                                           
+##             Sensitivity : 1.000           
+##             Specificity : 0.974           
+##          Pos Pred Value : 0.920           
+##          Neg Pred Value : 1.000           
+##              Prevalence : 0.230           
+##          Detection Rate : 0.230           
+##    Detection Prevalence : 0.250           
+##       Balanced Accuracy : 0.987           
+##                                           
+##        'Positive' Class : Malignant       
+## 
+```
+
+```r
+m_cv_ROC_prediction_probs <- predict(m_cv_ROC,wbcd_test, type = "prob")
+head(m_cv_ROC_prediction_probs)
+```
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Malignant"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["Benign"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.3333333","2":"0.6666667","_rn_":"1"},{"1":"0.0000000","2":"1.0000000","_rn_":"2"},{"1":"0.0000000","2":"1.0000000","_rn_":"3"},{"1":"0.0000000","2":"1.0000000","_rn_":"4"},{"1":"0.1111111","2":"0.8888889","_rn_":"5"},{"1":"0.0000000","2":"1.0000000","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+
+```r
+ROC <- roc(predictor=m_cv_ROC_prediction_probs$Malignant,
+               response=wbcd_test_labels,
+               levels=rev(levels(wbcd_test_labels)))
+
+ROC$auc
+```
+
+```
+## Area under the curve: 0.9994
+```
+
+```r
+#Area under the curve: 0.8731
+plot(ROC,main="ROC for kNN")
+```
+
+![](kNN_Cancer_files/figure-html/unnamed-chunk-14-1.png)<!-- -->

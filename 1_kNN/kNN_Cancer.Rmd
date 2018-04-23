@@ -19,6 +19,12 @@ Required packages
 library(class)
 #install.packages("gmodels") # for CrossTable function at the evaluation
 library(gmodels)
+#install.packages("caret") # for model tuning
+library(caret)
+#install.packages("e1071") # to help with model tuning
+library(e1071)
+#install.packages("pROC") # to make ROC plots
+library(pROC)	
 ```
 
 
@@ -95,5 +101,64 @@ Evaluating model performance
 CrossTable(x = wbcd_test_labels, y = wbcd_test_pred, prop.chisq = FALSE)
 
 ```
+Tuning
+See what caret has to say about knn
+```{r}
+modelLookup("knn")
 
 
+```
+
+Let us do the tuning with some values for k
+
+```{r}
+m<- train(wbcd_train,  wbcd_train_labels, method = "knn")
+m
+```
+
+Something fancies
+
+```{r}
+m_cv <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "cv"), tuneLength = 15)
+m_boot <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "boot"), tuneLength = 15)
+
+ctrl <- trainControl(classProbs = TRUE, method = "boot")
+m_boot_ROC <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = ctrl, tuneLength = 15, metric = "ROC")
+
+ctrl <- trainControl(method = "repeatedcv",   # 10fold cross validation
+                     number = 5,							# do 5 repititions of cv
+                     summaryFunction=twoClassSummary,	# Use AUC to pick the best model
+                     classProbs=TRUE,
+                     allowParallel = TRUE)
+m_cv_ROC <- train(wbcd_train, wbcd_train_labels,
+      method = "knn",
+      metric = "ROC",
+      trControl = ctrl)
+
+m_cv
+
+```
+
+
+To get tons of details about the model and how it was tuned:
+```{r}
+#str(m_cv)
+```
+
+Let us make a prediction
+```{r}
+m_cv_ROC_prediction <- predict(m_cv_ROC,wbcd_test)
+#CrossTable(x = wbcd_test_labels, y = m_cv_ROC_prediction, prop.chisq = FALSE)
+confusionMatrix(m_cv_ROC_prediction, wbcd_test_labels)
+
+m_cv_ROC_prediction_probs <- predict(m_cv_ROC,wbcd_test, type = "prob")
+head(m_cv_ROC_prediction_probs)
+
+ROC <- roc(predictor=m_cv_ROC_prediction_probs$Malignant,
+               response=wbcd_test_labels,
+               levels=rev(levels(wbcd_test_labels)))
+
+ROC$auc
+#Area under the curve: 0.8731
+plot(ROC,main="ROC for kNN")
+```
