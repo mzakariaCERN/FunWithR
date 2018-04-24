@@ -37,9 +37,10 @@ https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wis
 and original data can be found under
 https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
 ```{r}
-#plot(cars)
 wbcd <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/1_kNN/wisc_bc_data.csv", stringsAsFactors = FALSE)
 
+
+dim(wbcd)
 str(wbcd)
 summary(wbcd)
 
@@ -124,10 +125,11 @@ m<- train(wbcd_train,  wbcd_train_labels, method = "knn")
 m
 ```
 
-Something fancies
+Something fancier
 
 ```{r}
-m_cv <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "cv"), tuneLength = 15)
+m_cv <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "cv"), tuneLength = 15) 
+# here tuneLength is how many values of k we are going to use
 m_boot <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "boot"), tuneLength = 15)
 
 ctrl <- trainControl(classProbs = TRUE, method = "boot")
@@ -159,7 +161,7 @@ m_cv_ROC_prediction <- predict(m_cv_ROC,wbcd_test)
 #CrossTable(x = wbcd_test_labels, y = m_cv_ROC_prediction, prop.chisq = FALSE)
 confusionMatrix(m_cv_ROC_prediction, wbcd_test_labels)
 
-m_cv_ROC_prediction_probs <- predict(m_cv_ROC,wbcd_test, type = "prob")
+m_cv_ROC_prediction_probs <- predict(m_cv_ROC,wbcd_test, type = "prob") # you need the prob option to get ROC
 #head(m_cv_ROC_prediction_probs)
 
 ROC <- roc(predictor=m_cv_ROC_prediction_probs$Malignant,

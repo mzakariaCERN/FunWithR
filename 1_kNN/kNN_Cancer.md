@@ -40,9 +40,15 @@ library(pROC)
 Pulling the data: The cancer data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: <https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv> and original data can be found under <https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/>
 
 ``` r
-#plot(cars)
 wbcd <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/1_kNN/wisc_bc_data.csv", stringsAsFactors = FALSE)
 
+
+dim(wbcd)
+```
+
+    ## [1] 569  32
+
+``` r
 str(wbcd)
 ```
 
@@ -270,17 +276,18 @@ m
     ## Resampling results across tuning parameters:
     ## 
     ##   k  Accuracy   Kappa    
-    ##   5  0.9556264  0.9072620
-    ##   7  0.9599887  0.9161188
-    ##   9  0.9607173  0.9176891
+    ##   5  0.9603930  0.9168980
+    ##   7  0.9624008  0.9212379
+    ##   9  0.9649740  0.9265361
     ## 
     ## Accuracy was used to select the optimal model using  the largest value.
     ## The final value used for the model was k = 9.
 
-Something fancies
+Something fancier
 
 ``` r
-m_cv <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "cv"), tuneLength = 15)
+m_cv <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "cv"), tuneLength = 15) 
+# here tuneLength is how many values of k we are going to use
 m_boot <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "boot"), tuneLength = 15)
 
 ctrl <- trainControl(classProbs = TRUE, method = "boot")
@@ -316,24 +323,24 @@ m_cv
     ## Resampling results across tuning parameters:
     ## 
     ##   k   Accuracy   Kappa    
-    ##    5  0.9614709  0.9190276
-    ##    7  0.9635985  0.9234078
-    ##    9  0.9657724  0.9276816
-    ##   11  0.9657724  0.9279699
-    ##   13  0.9615634  0.9190293
-    ##   15  0.9615634  0.9189611
-    ##   17  0.9594357  0.9143508
-    ##   19  0.9615634  0.9191879
-    ##   21  0.9615634  0.9189552
-    ##   23  0.9615634  0.9189552
-    ##   25  0.9573080  0.9099706
-    ##   27  0.9594357  0.9144262
-    ##   29  0.9551804  0.9054408
-    ##   31  0.9551804  0.9054408
-    ##   33  0.9530527  0.9009092
+    ##    5  0.9657724  0.9279805
+    ##    7  0.9636448  0.9233779
+    ##    9  0.9679001  0.9322885
+    ##   11  0.9679001  0.9320611
+    ##   13  0.9722017  0.9413385
+    ##   15  0.9679463  0.9322752
+    ##   17  0.9594357  0.9141453
+    ##   19  0.9615634  0.9190591
+    ##   21  0.9594357  0.9145275
+    ##   23  0.9551804  0.9056162
+    ##   25  0.9573080  0.9100712
+    ##   27  0.9573080  0.9099959
+    ##   29  0.9573080  0.9099959
+    ##   31  0.9551804  0.9053076
+    ##   33  0.9551804  0.9053076
     ## 
     ## Accuracy was used to select the optimal model using  the largest value.
-    ## The final value used for the model was k = 11.
+    ## The final value used for the model was k = 13.
 
 To get tons of details about the model and how it was tuned:
 
@@ -377,7 +384,7 @@ confusionMatrix(m_cv_ROC_prediction, wbcd_test_labels)
     ## 
 
 ``` r
-m_cv_ROC_prediction_probs <- predict(m_cv_ROC,wbcd_test, type = "prob")
+m_cv_ROC_prediction_probs <- predict(m_cv_ROC,wbcd_test, type = "prob") # you need the prob option to get ROC
 #head(m_cv_ROC_prediction_probs)
 
 ROC <- roc(predictor=m_cv_ROC_prediction_probs$Malignant,
@@ -387,7 +394,7 @@ ROC <- roc(predictor=m_cv_ROC_prediction_probs$Malignant,
 ROC$auc
 ```
 
-    ## Area under the curve: 0.9994
+    ## Area under the curve: 0.998
 
 ``` r
 plot(ROC,main="ROC for kNN")
