@@ -167,6 +167,6 @@ ROC <- roc(predictor=m_cv_ROC_prediction_probs$Malignant,
                levels=rev(levels(wbcd_test_labels)))
 
 ROC$auc
-#Area under the curve: 0.8731
+
 plot(ROC,main="ROC for kNN")
 ```

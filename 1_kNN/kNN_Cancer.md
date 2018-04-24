@@ -270,9 +270,9 @@ m
     ## Resampling results across tuning parameters:
     ## 
     ##   k  Accuracy   Kappa    
-    ##   5  0.9612994  0.9191900
-    ##   7  0.9629336  0.9226532
-    ##   9  0.9645400  0.9258463
+    ##   5  0.9556264  0.9072620
+    ##   7  0.9599887  0.9161188
+    ##   9  0.9607173  0.9176891
     ## 
     ## Accuracy was used to select the optimal model using  the largest value.
     ## The final value used for the model was k = 9.
@@ -312,28 +312,28 @@ m_cv
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (10 fold) 
-    ## Summary of sample sizes: 422, 422, 423, 422, 422, 422, ... 
+    ## Summary of sample sizes: 422, 422, 422, 422, 422, 422, ... 
     ## Resampling results across tuning parameters:
     ## 
     ##   k   Accuracy   Kappa    
-    ##    5  0.9659112  0.9287059
-    ##    7  0.9722942  0.9420038
-    ##    9  0.9701665  0.9373935
-    ##   11  0.9722942  0.9417725
-    ##   13  0.9744218  0.9463828
-    ##   15  0.9722942  0.9417758
-    ##   17  0.9701665  0.9373929
-    ##   19  0.9658187  0.9277397
-    ##   21  0.9616096  0.9191721
-    ##   23  0.9573543  0.9102635
-    ##   25  0.9616559  0.9195763
-    ##   27  0.9616559  0.9195763
-    ##   29  0.9594820  0.9146418
-    ##   31  0.9595282  0.9148140
-    ##   33  0.9573543  0.9100315
+    ##    5  0.9614709  0.9190276
+    ##    7  0.9635985  0.9234078
+    ##    9  0.9657724  0.9276816
+    ##   11  0.9657724  0.9279699
+    ##   13  0.9615634  0.9190293
+    ##   15  0.9615634  0.9189611
+    ##   17  0.9594357  0.9143508
+    ##   19  0.9615634  0.9191879
+    ##   21  0.9615634  0.9189552
+    ##   23  0.9615634  0.9189552
+    ##   25  0.9573080  0.9099706
+    ##   27  0.9594357  0.9144262
+    ##   29  0.9551804  0.9054408
+    ##   31  0.9551804  0.9054408
+    ##   33  0.9530527  0.9009092
     ## 
     ## Accuracy was used to select the optimal model using  the largest value.
-    ## The final value used for the model was k = 13.
+    ## The final value used for the model was k = 11.
 
 To get tons of details about the model and how it was tuned:
 
@@ -390,7 +390,6 @@ ROC$auc
     ## Area under the curve: 0.9994
 
 ``` r
-#Area under the curve: 0.8731
 plot(ROC,main="ROC for kNN")
 ```
 
