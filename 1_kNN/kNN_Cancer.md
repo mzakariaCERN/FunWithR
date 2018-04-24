@@ -37,6 +37,8 @@ library(pROC)
     ## 
     ##     cov, smooth, var
 
+Pulling the data: The cancer data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: <https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv> and original data can be found under <https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/>
+
 ``` r
 #plot(cars)
 wbcd <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/1_kNN/wisc_bc_data.csv", stringsAsFactors = FALSE)
@@ -268,12 +270,12 @@ m
     ## Resampling results across tuning parameters:
     ## 
     ##   k  Accuracy   Kappa    
-    ##   5  0.9596544  0.9161122
-    ##   7  0.9557988  0.9080360
-    ##   9  0.9596473  0.9159711
+    ##   5  0.9612994  0.9191900
+    ##   7  0.9629336  0.9226532
+    ##   9  0.9645400  0.9258463
     ## 
     ## Accuracy was used to select the optimal model using  the largest value.
-    ## The final value used for the model was k = 5.
+    ## The final value used for the model was k = 9.
 
 Something fancies
 
@@ -310,28 +312,28 @@ m_cv
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (10 fold) 
-    ## Summary of sample sizes: 422, 422, 422, 422, 423, 422, ... 
+    ## Summary of sample sizes: 422, 422, 423, 422, 422, 422, ... 
     ## Resampling results across tuning parameters:
     ## 
     ##   k   Accuracy   Kappa    
-    ##    5  0.9659112  0.9286528
-    ##    7  0.9701665  0.9374087
-    ##    9  0.9680389  0.9330291
-    ##   11  0.9786772  0.9551546
-    ##   13  0.9743756  0.9461660
-    ##   15  0.9722479  0.9416344
-    ##   17  0.9658649  0.9281088
-    ##   19  0.9659112  0.9281854
-    ##   21  0.9615634  0.9191481
-    ##   23  0.9594357  0.9146972
-    ##   25  0.9615634  0.9192288
-    ##   27  0.9572618  0.9098398
-    ##   29  0.9551804  0.9051242
-    ##   31  0.9551341  0.9053082
-    ##   33  0.9551341  0.9051562
+    ##    5  0.9659112  0.9287059
+    ##    7  0.9722942  0.9420038
+    ##    9  0.9701665  0.9373935
+    ##   11  0.9722942  0.9417725
+    ##   13  0.9744218  0.9463828
+    ##   15  0.9722942  0.9417758
+    ##   17  0.9701665  0.9373929
+    ##   19  0.9658187  0.9277397
+    ##   21  0.9616096  0.9191721
+    ##   23  0.9573543  0.9102635
+    ##   25  0.9616559  0.9195763
+    ##   27  0.9616559  0.9195763
+    ##   29  0.9594820  0.9146418
+    ##   31  0.9595282  0.9148140
+    ##   33  0.9573543  0.9100315
     ## 
     ## Accuracy was used to select the optimal model using  the largest value.
-    ## The final value used for the model was k = 11.
+    ## The final value used for the model was k = 13.
 
 To get tons of details about the model and how it was tuned:
 
@@ -376,18 +378,8 @@ confusionMatrix(m_cv_ROC_prediction, wbcd_test_labels)
 
 ``` r
 m_cv_ROC_prediction_probs <- predict(m_cv_ROC,wbcd_test, type = "prob")
-head(m_cv_ROC_prediction_probs)
-```
+#head(m_cv_ROC_prediction_probs)
 
-    ##   Malignant    Benign
-    ## 1 0.3333333 0.6666667
-    ## 2 0.0000000 1.0000000
-    ## 3 0.0000000 1.0000000
-    ## 4 0.0000000 1.0000000
-    ## 5 0.1111111 0.8888889
-    ## 6 0.0000000 1.0000000
-
-``` r
 ROC <- roc(predictor=m_cv_ROC_prediction_probs$Malignant,
                response=wbcd_test_labels,
                levels=rev(levels(wbcd_test_labels)))

@@ -31,6 +31,11 @@ library(pROC)
 ```
 
 
+Pulling the data: The cancer data is from Brett Lantz's "Machine Learning with R"
+a repo for the data is under this link:
+https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv
+and original data can be found under
+https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
 ```{r}
 #plot(cars)
 wbcd <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/1_kNN/wisc_bc_data.csv", stringsAsFactors = FALSE)
