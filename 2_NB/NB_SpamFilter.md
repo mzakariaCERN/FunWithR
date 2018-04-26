@@ -139,6 +139,51 @@ inspect(sms_corpus[1:3])
     ## Metadata:  7
     ## Content:  chars: 155
 
+To see one message, we need to grab that element in from the list, and conver it to characters
+
+``` r
+as.character(sms_corpus[[1]])
+```
+
+    ## [1] "Go until jurong point, crazy.. Available only in bugis n great world la e buffet... Cine there got amore wat..."
+
+This can be generalized using lapply
+
+``` r
+lapply(sms_corpus[1:2], as.character)
+```
+
+    ## $`1`
+    ## [1] "Go until jurong point, crazy.. Available only in bugis n great world la e buffet... Cine there got amore wat..."
+    ## 
+    ## $`2`
+    ## [1] "Ok lar... Joking wif u oni..."
+
+Next, we need to clean the text from special characters, capital letters etc, and convert it into separate words.
+
+First, convert to lower case
+
+``` r
+sms_corpus_clean <- tm_map(sms_corpus, content_transformer(tolower))
+```
+
+remember the first message starts with an upper case letter. Let us take a look now
+
+``` r
+as.character(sms_corpus_clean[[1]])
+```
+
+    ## [1] "go until jurong point, crazy.. available only in bugis n great world la e buffet... cine there got amore wat..."
+
+next thing, is to remove numbers from SMS. Though some might be useful for the sender/receiver. It doesn't play much value in spam/ham classification.
+
+``` r
+sms_corpus_clean <- tm_map(sms_corpus_clean, removeNumbers) # no need for content_tranformer b/c removeNumbers is built in tm. to see other
+# built in functions type getTransformations()
+```
+
+Next we remove filler (stop) words suc as: 'and', 'or', and 'but'
+
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
