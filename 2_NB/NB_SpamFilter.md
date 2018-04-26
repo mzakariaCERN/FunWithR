@@ -6,7 +6,7 @@ Required packages
 
 ``` r
 #install.packages("class") # for kNN classification
-library(class)
+#library(class)
 #install.packages("gmodels") # for CrossTable function at the evaluation
 library(gmodels)
 #install.packages("caret") # for model tuning
@@ -36,6 +36,20 @@ library(pROC)
     ## The following objects are masked from 'package:stats':
     ## 
     ##     cov, smooth, var
+
+``` r
+#install.packages("tm") # to handle text data
+library(tm)
+```
+
+    ## Loading required package: NLP
+
+    ## 
+    ## Attaching package: 'NLP'
+
+    ## The following object is masked from 'package:ggplot2':
+    ## 
+    ##     annotate
 
 Pulling the data: The cancer data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: <https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv> and original data can be found under <https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/>
 
@@ -82,6 +96,48 @@ table(sms_raw$type)
     ## 
     ##  ham spam 
     ## 4827  747
+
+After installing (loading) tm library, we need to create a container for all the text we are dealing with. This is called a corpus. WE will use VCorpus (for volatile corpus: corpus stored in memove, compare it to PCorpus, which is stored on disk).
+
+``` r
+sms_corpus <- VCorpus(VectorSource(sms_raw$text))
+typeof(sms_corpus)
+```
+
+    ## [1] "list"
+
+corpus can read from pdf of MS word using readerControl parameter. Check it out! Notice also that corpus is a list objects. So we can manipulate it as such.
+
+``` r
+print(sms_corpus)
+```
+
+    ## <<VCorpus>>
+    ## Metadata:  corpus specific: 0, document level (indexed): 0
+    ## Content:  documents: 5574
+
+``` r
+inspect(sms_corpus[1:3])
+```
+
+    ## <<VCorpus>>
+    ## Metadata:  corpus specific: 0, document level (indexed): 0
+    ## Content:  documents: 3
+    ## 
+    ## [[1]]
+    ## <<PlainTextDocument>>
+    ## Metadata:  7
+    ## Content:  chars: 111
+    ## 
+    ## [[2]]
+    ## <<PlainTextDocument>>
+    ## Metadata:  7
+    ## Content:  chars: 29
+    ## 
+    ## [[3]]
+    ## <<PlainTextDocument>>
+    ## Metadata:  7
+    ## Content:  chars: 155
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
