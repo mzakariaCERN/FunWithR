@@ -366,3 +366,89 @@ we apply the function on the columns
 sms_train <- apply(sms_dtm_freq_train, 2, convert_counts)
 sms_test <-  apply(sms_dtm_freq_test, 2, convert_counts)
 ```
+
+Next we build a Naive Bayes model to find the probability of the message being a spam or a ham based on the presence of words.
+
+``` r
+sms_classifier <- naiveBayes(sms_train, sms_train_labels)
+```
+
+making a prediction
+
+``` r
+sms_test_pred <- predict(sms_classifier, sms_test)
+```
+
+using CrossTables() for evaluation
+
+``` r
+CrossTable(sms_test_pred, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, dnn = c('predicted','actual'))
+```
+
+    ## 
+    ##  
+    ##    Cell Contents
+    ## |-------------------------|
+    ## |                       N |
+    ## |           N / Row Total |
+    ## |           N / Col Total |
+    ## |-------------------------|
+    ## 
+    ##  
+    ## Total Observations in Table:  1405 
+    ## 
+    ##  
+    ##              | actual 
+    ##    predicted |       ham |      spam | Row Total | 
+    ## -------------|-----------|-----------|-----------|
+    ##          ham |      1213 |        20 |      1233 | 
+    ##              |     0.984 |     0.016 |     0.878 | 
+    ##              |     0.993 |     0.109 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ##         spam |         9 |       163 |       172 | 
+    ##              |     0.052 |     0.948 |     0.122 | 
+    ##              |     0.007 |     0.891 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ## Column Total |      1222 |       183 |      1405 | 
+    ##              |     0.870 |     0.130 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ## 
+    ## 
+
+One way to improve on the model, is to set laplace more than zero. this way words with zero occurance in either class will not have an indisputable say of the classification
+
+``` r
+sms_classifier2 <- naiveBayes(sms_train, sms_train_labels, lablace = 2)
+sms_test_pred2 <- predict(sms_classifier2, sms_test)
+```
+
+``` r
+CrossTable(sms_test_pred2, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
+```
+
+    ## 
+    ##  
+    ##    Cell Contents
+    ## |-------------------------|
+    ## |                       N |
+    ## |           N / Col Total |
+    ## |-------------------------|
+    ## 
+    ##  
+    ## Total Observations in Table:  1405 
+    ## 
+    ##  
+    ##              | actual 
+    ##    predicted |       ham |      spam | Row Total | 
+    ## -------------|-----------|-----------|-----------|
+    ##          ham |      1213 |        20 |      1233 | 
+    ##              |     0.993 |     0.109 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ##         spam |         9 |       163 |       172 | 
+    ##              |     0.007 |     0.891 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ## Column Total |      1222 |       183 |      1405 | 
+    ##              |     0.870 |     0.130 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ## 
+    ##
