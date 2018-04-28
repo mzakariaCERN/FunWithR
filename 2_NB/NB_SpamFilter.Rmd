@@ -12,7 +12,8 @@ author: "Mohammed Zakaria"
 #    highlight: espresso
 #    theme: readable
 #    toc: yes
-output: github_document
+always_allow_html: yes
+#output: github_document
 
 ---
 
@@ -26,7 +27,7 @@ Required packages
 library(gmodels)
 #install.packages("caret") # for model tuning
 library(caret)
-#install.packages("e1071") # to help with model tuning
+#install.packages("e1071") # to give us Naive Bayes 
 library(e1071)
 #install.packages("pROC") # to make ROC plots
 library(pROC)	
@@ -34,6 +35,9 @@ library(pROC)
 library(tm)
 #install.packages("SnowballC") # for steaming
 library(SnowballC)
+#install.packages("wordcloud2") # to create word cloud
+library(wordcloud2)
+
 ```
 
 
@@ -169,7 +173,76 @@ sms_dtm2 <- DocumentTermMatrix(sms_corpus, control = list(tolower = TRUE, remove
 sms_dtm2
 ```
 
-notice there are minor differences between the two matrices. this is mainly due to the defualt stop words used. 
+notice there are minor differences between the two matrices. this is mainly due to cleaning the corpus after spliting it into words in the second 
+option. it also uses a slightly different choice for stop words. To fortce it to use the same stopwords:
+
+```{r}
+stopWords = function(x){removeWords(x, stopwords())}
+```
+and replace stopwrods = TRUE with that function
+
+Next step is splitting the data into training and testing. Since the data is randomized as is, no need to randomize it
+
+```{r}
+sms_dtm_train <- sms_dtm[1:4169, ]
+sms_dtm_test <- sms_dtm[4170: 5574, ]
+
+sms_train_labels <- sms_raw[1:4169, ]$type
+sms_test_labels <- sms_raw[4170: 5574, ]$type
+```
+
+
+Checking that ratio of spam to ham is close in both samples
+```{r}
+prop.table(table(sms_train_labels))
+prop.table(table(sms_test_labels))
+```
+
+
+create a word cloud. Lantz uses package wordcount. But I Think it is depreciated. So I am using wordcount2. Which needs a data frame with 
+word and frequency. which can be prepared from a TermDocumentMatrix (TDM, and not DTM)
+
+```{r}
+myTdm <- as.matrix(TermDocumentMatrix(sms_corpus, control = list(tolower = TRUE, removeNumbers = TRUE, stopwords = TRUE, removePunctuation = TRUE, steaming = TRUE)))
+FreqMat <- data.frame(ST = rownames(myTdm),
+Freq = rowSums(myTdm),
+row.names = NULL)
+
+
+wordcloud2(FreqMat, minSize = 50)
+
+```
+
+We can also do similar plots with ham and spam messages to compare between them
+
+
+Since the TDM has one feature per word, we have over 6000 features. Many of these features for words that were mentioned once or twice. These are unlikely to be useful in the classification. so we set a frequency filter to remove any word mentioned less than 5 times.
+
+```{r}
+sms_freq_words <- findFreqTerms(sms_dtm_train, 5)
+str(sms_freq_words)
+```
+
+remove every column that matches this vector
+```{r}
+sms_dtm_freq_train <- sms_dtm_train[, sms_freq_words]
+sms_dtm_freq_test  <- sms_dtm_test[,  sms_freq_words]
+```
+
+NB classifiers typically use categorical features. This poses an issue for sparce matrices (DTM) since the cell are numeric and measure the number of times a word appears in the same massage. To change it to categorical we convert it to yes/no
+
+```{r}
+convert_counts <- function(x){
+  x <- ifelse(x > 0, "yes", "no")
+}
+```
+
+
+we apply the function on the columns
+```{r}
+sms_train <- apply(sms_dtm_freq_train, 2, convert_counts)
+sms_test <-  apply(sms_dtm_freq_test, 2, convert_counts)
+```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
