@@ -13,7 +13,7 @@ author: "Mohammed Zakaria"
 #    theme: readable
 #    toc: yes
 always_allow_html: yes
-#output: github_document
+output: github_document
 
 ---
 
@@ -211,7 +211,7 @@ Freq = rowSums(myTdm),
 row.names = NULL)
 
 
-wordcloud2(FreqMat, minSize = 50)
+wc2 <- wordcloud2(FreqMat, minSize = 50)
 
 ```
 
