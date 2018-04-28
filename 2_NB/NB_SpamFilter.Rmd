@@ -5,14 +5,15 @@ author: "Mohammed Zakaria"
 #  html_document:
 #    df_print: paged
 #    toc: yes
-#    keep_md: true
-   
+#   keep_md: true
+#    always_allow_html: yes
+
   
 #  html_notebook:
 #    highlight: espresso
 #    theme: readable
 #    toc: yes
-always_allow_html: yes
+always_allow_html: yes # this is for wordcloud2 output
 output: github_document
 
 ---
@@ -40,6 +41,7 @@ library(wordcloud2)
 #install.packages("widgetframe")
 #library(widgetframe)
 #devtools::install_github('ramnathv/htmlwidgets')
+library(wordcloud)
 ```
 
 
@@ -201,7 +203,26 @@ prop.table(table(sms_test_labels))
 ```
 
 
-create a word cloud. Lantz uses package wordcount. But I Think it is depreciated. So I am using wordcount2. Which needs a data frame with 
+create a word cloud. Lantz uses package wordcount. I will replicate that here and use another package: wordcloud2 that gives js plots with interactive elements
+
+
+```{r}
+wordcloud(sms_corpus_clean, min.freq = 50, random.order = FALSE)
+```
+
+Let us do a cloud for only spam and ham
+
+```{r}
+spam <- subset(sms_raw, type == "spam")
+ham <- subset(sms_raw, type = "ham")
+wordcloud(spam$text, max.words = 40, scale = c(3, .5))
+wordcloud(ham$text, max.words= 40, scale= c(3, .5))
+```
+
+
+
+
+Next I will use wordcount2. Which needs a data frame with 
 word and frequency. which can be prepared from a TermDocumentMatrix (TDM, and not DTM)
 
 ```{r}
@@ -212,10 +233,12 @@ row.names = NULL)
 
 
 wc2 <- wordcloud2(FreqMat, minSize = 50)
+wc2
 
 ```
 
-We can also do similar plots with ham and spam messages to compare between them
+We can also do similar plots with ham and spam messages to compare between them. Notice that you need to set always_allow_html: yes
+in yaml and you can only see the interactive image in html. so it was difficult to deploy on github. 
 
 
 Since the TDM has one feature per word, we have over 6000 features. Many of these features for words that were mentioned once or twice. These are unlikely to be useful in the classification. so we set a frequency filter to remove any word mentioned less than 5 times.
@@ -246,8 +269,3 @@ sms_train <- apply(sms_dtm_freq_train, 2, convert_counts)
 sms_test <-  apply(sms_dtm_freq_test, 2, convert_counts)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
