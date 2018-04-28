@@ -32,6 +32,8 @@ library(e1071)
 library(pROC)	
 #install.packages("tm") # to handle text data
 library(tm)
+#install.packages("SnowballC") # for steaming
+library(SnowballC)
 ```
 
 
@@ -115,6 +117,59 @@ sms_corpus_clean <- tm_map(sms_corpus_clean, removeNumbers) # no need for conten
 
 Next we remove filler (stop) words suc as: 'and', 'or', and 'but'
 
+```{r}
+sms_corpus_clean <- tm_map(sms_corpus_clean, removeWords, stopwords())
+```
+
+Notice that stoprwords returns a vector of the words we need to consider as such. We can thus add a remove words from the list to modify the
+selection
+
+Next, we remove any punctuation
+
+
+```{r}
+sms_corpus_clean <- tm_map(sms_corpus_clean, removePunctuation)
+
+```
+
+Notice that this function will join words that have punctuation marks between them without any space. Ex: "Hi...Hi" will become "HiHi"
+To fix this we can create a function like
+
+```{r}
+replacePunctuation <- function(x){gsub("[[:punct:]]", " ", x)}
+```
+the above function can be used with tm_map
+
+Next, we return all words to their root (AKA: steaming). To do this install and/or load SnowballC
+
+
+```{r}
+sms_corpus_clean <- tm_map(sms_corpus_clean, stemDocument)
+```
+
+
+next, to remove any extra white space
+```{r}
+sms_corpus_clean <- tm_map(sms_corpus_clean, stripWhitespace)
+```
+
+Finally, we need to convert the messages into word (AKA tokenization). We will convert the corpus into Document Term Matrix: rows are SMS 
+messages, and columns are word. Think of it as creating dummy variables for each word.
+
+```{r}
+sms_dtm <- DocumentTermMatrix(sms_corpus_clean)
+
+sms_dtm
+```
+
+Notice that we could have create a DTM from the raw corpus with all the pre-processing in one command
+```{r}
+sms_dtm2 <- DocumentTermMatrix(sms_corpus, control = list(tolower = TRUE, removeNumbers = TRUE, stopwords = TRUE, removePunctuation = TRUE, steaming = TRUE))
+
+sms_dtm2
+```
+
+notice there are minor differences between the two matrices. this is mainly due to the defualt stop words used. 
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 

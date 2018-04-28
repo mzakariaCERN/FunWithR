@@ -51,6 +51,11 @@ library(tm)
     ## 
     ##     annotate
 
+``` r
+#install.packages("SnowballC") # for steaming
+library(SnowballC)
+```
+
 Pulling the data: The cancer data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: <https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv> and original data can be found under <https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/>
 
 ``` r
@@ -183,6 +188,68 @@ sms_corpus_clean <- tm_map(sms_corpus_clean, removeNumbers) # no need for conten
 ```
 
 Next we remove filler (stop) words suc as: 'and', 'or', and 'but'
+
+``` r
+sms_corpus_clean <- tm_map(sms_corpus_clean, removeWords, stopwords())
+```
+
+Notice that stoprwords returns a vector of the words we need to consider as such. We can thus add a remove words from the list to modify the selection
+
+Next, we remove any punctuation
+
+``` r
+sms_corpus_clean <- tm_map(sms_corpus_clean, removePunctuation)
+```
+
+Notice that this function will join words that have punctuation marks between them without any space. Ex: "Hi...Hi" will become "HiHi" To fix this we can create a function like
+
+``` r
+replacePunctuation <- function(x){gsub("[[:punct:]]", " ", x)}
+```
+
+the above function can be used with tm\_map
+
+Next, we return all words to their root (AKA: steaming). To do this install and/or load SnowballC
+
+``` r
+sms_corpus_clean <- tm_map(sms_corpus_clean, stemDocument)
+```
+
+next, to remove any extra white space
+
+``` r
+sms_corpus_clean <- tm_map(sms_corpus_clean, stripWhitespace)
+```
+
+Finally, we need to convert the messages into word (AKA tokenization). We will convert the corpus into Document Term Matrix: rows are SMS messages, and columns are word. Think of it as creating dummy variables for each word.
+
+``` r
+sms_dtm <- DocumentTermMatrix(sms_corpus_clean)
+
+sms_dtm
+```
+
+    ## <<DocumentTermMatrix (documents: 5574, terms: 6604)>>
+    ## Non-/sparse entries: 42631/36768065
+    ## Sparsity           : 100%
+    ## Maximal term length: 40
+    ## Weighting          : term frequency (tf)
+
+Notice that we could have create a DTM from the raw corpus with all the pre-processing in one command
+
+``` r
+sms_dtm2 <- DocumentTermMatrix(sms_corpus, control = list(tolower = TRUE, removeNumbers = TRUE, stopwords = TRUE, removePunctuation = TRUE, steaming = TRUE))
+
+sms_dtm2
+```
+
+    ## <<DocumentTermMatrix (documents: 5574, terms: 8364)>>
+    ## Non-/sparse entries: 44221/46576715
+    ## Sparsity           : 100%
+    ## Maximal term length: 40
+    ## Weighting          : term frequency (tf)
+
+notice there are minor differences between the two matrices. this is mainly due to the defualt stop words used.
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
