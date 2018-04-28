@@ -233,6 +233,7 @@ row.names = NULL)
 
 
 wc2 <- wordcloud2(FreqMat, minSize = 50)
+wc2
 
 
 ```
