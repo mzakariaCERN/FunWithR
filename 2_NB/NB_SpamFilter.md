@@ -69,6 +69,51 @@ library(wordcloud)
 
     ## Loading required package: RColorBrewer
 
+``` r
+library(klaR) # nb library used by caret
+```
+
+    ## Loading required package: MASS
+
+``` r
+library(ROCR) # another way to do ROC
+```
+
+    ## Loading required package: gplots
+
+    ## 
+    ## Attaching package: 'gplots'
+
+    ## The following object is masked from 'package:wordcloud':
+    ## 
+    ##     textplot
+
+    ## The following object is masked from 'package:stats':
+    ## 
+    ##     lowess
+
+``` r
+#install.packages("ggplot2")
+library(ggplot2)
+#install.packages("dplyr")
+library(dplyr)
+```
+
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following object is masked from 'package:MASS':
+    ## 
+    ##     select
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
 Pulling the data: The cancer data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: <https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv> and original data can be found under <https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/>
 
 ``` r
@@ -366,3 +411,373 @@ we apply the function on the columns
 sms_train <- apply(sms_dtm_freq_train, 2, convert_counts)
 sms_test <-  apply(sms_dtm_freq_test, 2, convert_counts)
 ```
+
+Next we build a Naive Bayes model to find the probability of the message being a spam or a ham based on the presence of words.
+
+``` r
+sms_classifier <- naiveBayes(sms_train, sms_train_labels)
+```
+
+making a prediction
+
+``` r
+sms_test_pred <- predict(sms_classifier, sms_test)
+```
+
+using CrossTables() for evaluation
+
+``` r
+CrossTable(sms_test_pred, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, dnn = c('predicted','actual'))
+```
+
+    ## 
+    ##  
+    ##    Cell Contents
+    ## |-------------------------|
+    ## |                       N |
+    ## |           N / Row Total |
+    ## |           N / Col Total |
+    ## |-------------------------|
+    ## 
+    ##  
+    ## Total Observations in Table:  1405 
+    ## 
+    ##  
+    ##              | actual 
+    ##    predicted |       ham |      spam | Row Total | 
+    ## -------------|-----------|-----------|-----------|
+    ##          ham |      1213 |        20 |      1233 | 
+    ##              |     0.984 |     0.016 |     0.878 | 
+    ##              |     0.993 |     0.109 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ##         spam |         9 |       163 |       172 | 
+    ##              |     0.052 |     0.948 |     0.122 | 
+    ##              |     0.007 |     0.891 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ## Column Total |      1222 |       183 |      1405 | 
+    ##              |     0.870 |     0.130 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ## 
+    ## 
+
+``` r
+probs <- predict(sms_classifier, sms_test, type="raw")
+# plot ROC curve
+pred <- prediction(probs[, "spam"], sms_test_labels)
+perf_nb <- performance(pred, measure='tpr', x.measure='fpr')
+plot(perf_nb)
+```
+
+![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-31-1.png)
+
+``` r
+performance(pred, 'auc')
+```
+
+    ## An object of class "performance"
+    ## Slot "x.name":
+    ## [1] "None"
+    ## 
+    ## Slot "y.name":
+    ## [1] "Area under the ROC curve"
+    ## 
+    ## Slot "alpha.name":
+    ## [1] "none"
+    ## 
+    ## Slot "x.values":
+    ## list()
+    ## 
+    ## Slot "y.values":
+    ## [[1]]
+    ## [1] 0.9951057
+    ## 
+    ## 
+    ## Slot "alpha.values":
+    ## list()
+
+``` r
+# plot calibration
+data.frame(predicted=probs[, "spam"], actual=sms_test_labels) %>%
+  group_by(predicted=round(predicted*10)/10) %>%
+  summarize(num=n(), actual=mean(actual == "spam")) %>%
+  ggplot(data=., aes(x=predicted, y=actual, size=num)) +
+  geom_point() +
+  geom_abline(a=1, b=0, linetype=2) +
+  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
+  scale_y_continuous(labels=scales::percent, lim=c(0,1))
+```
+
+    ## Warning: Ignoring unknown parameters: a, b
+
+![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-32-1.png)
+
+They points are distributed evenly. So no sign of over confidence.
+
+``` r
+data.frame(predicted=probs, actual=sms_test_labels) %>%
+  ggplot(data=., aes(x=predicted.spam)) +
+  geom_density(aes(fill=sms_test_labels), alpha=0.5) +
+  xlab('Predicted probability of spam') +
+  scale_fill_discrete(name="Actual label") +
+  theme(legend.position=c(0.8,0.8))
+```
+
+![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-33-1.png)
+
+One way to improve on the model, is to set laplace more than zero. this way words with zero occurance in either class will not have an indisputable say of the classification
+
+``` r
+sms_classifier2 <- naiveBayes(sms_train, sms_train_labels, lablace = 2)
+sms_test_pred2 <- predict(sms_classifier2, sms_test)
+```
+
+``` r
+CrossTable(sms_test_pred2, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
+```
+
+    ## 
+    ##  
+    ##    Cell Contents
+    ## |-------------------------|
+    ## |                       N |
+    ## |           N / Col Total |
+    ## |-------------------------|
+    ## 
+    ##  
+    ## Total Observations in Table:  1405 
+    ## 
+    ##  
+    ##              | actual 
+    ##    predicted |       ham |      spam | Row Total | 
+    ## -------------|-----------|-----------|-----------|
+    ##          ham |      1213 |        20 |      1233 | 
+    ##              |     0.993 |     0.109 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ##         spam |         9 |       163 |       172 | 
+    ##              |     0.007 |     0.891 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ## Column Total |      1222 |       183 |      1405 | 
+    ##              |     0.870 |     0.130 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ## 
+    ## 
+
+``` r
+probs_2 <- predict(sms_classifier2, sms_test, type="raw")
+# plot ROC curve
+pred <- prediction(probs_2[, "spam"], sms_test_labels)
+perf_nb_2 <- performance(pred, measure='tpr', x.measure='fpr')
+#plot(perf_nb_2)
+performance(pred, 'auc')
+```
+
+    ## An object of class "performance"
+    ## Slot "x.name":
+    ## [1] "None"
+    ## 
+    ## Slot "y.name":
+    ## [1] "Area under the ROC curve"
+    ## 
+    ## Slot "alpha.name":
+    ## [1] "none"
+    ## 
+    ## Slot "x.values":
+    ## list()
+    ## 
+    ## Slot "y.values":
+    ## [[1]]
+    ## [1] 0.9951057
+    ## 
+    ## 
+    ## Slot "alpha.values":
+    ## list()
+
+``` r
+# plot calibration
+#data.frame(predicted=probs_2[, "spam"], actual=sms_test_labels) %>%
+#  group_by(predicted=round(predicted*10)/10) %>%
+#  summarize(num=n(), actual=mean(actual == "spam")) %>%
+#  ggplot(data=., aes(x=predicted, y=actual, size=num)) +
+#  geom_point() +
+#  geom_abline(a=1, b=0, linetype=2) +
+#  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
+#  scale_y_continuous(labels=scales::percent, lim=c(0,1))
+```
+
+Lets compary the two ROC curves
+
+``` r
+# plot ROC for each method
+roc_nb   <- data.frame(fpr=unlist(perf_nb@x.values), tpr=unlist(perf_nb@y.values))
+roc_nb$method <- "naive bayes"
+roc_nb_2 <- data.frame(fpr=unlist(perf_nb_2@x.values), tpr=unlist(perf_nb_2@y.values))
+roc_nb_2$method <- "nive bayes 2"
+rbind(roc_nb, roc_nb_2) %>%
+  ggplot(data=., aes(x=fpr, y=tpr, linetype=method, color=method)) + 
+  geom_line() +
+  geom_abline(a=1, b=0, linetype=2) +
+  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
+  scale_y_continuous(labels=scales::percent, lim=c(0,1)) +
+  theme(legend.position=c(0.8,0.2), legend.title=element_blank())
+```
+
+    ## Warning: Ignoring unknown parameters: a, b
+
+![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-38-1.png)
+
+Next we need to investigate if hypertuning can get us a better result. First, let us see what caret has to say about Naive Bayes
+
+``` r
+modelLookup("nb")
+```
+
+    ##   model parameter                label forReg forClass probModel
+    ## 1    nb        fL   Laplace Correction  FALSE     TRUE      TRUE
+    ## 2    nb usekernel    Distribution Type  FALSE     TRUE      TRUE
+    ## 3    nb    adjust Bandwidth Adjustment  FALSE     TRUE      TRUE
+
+So we have 3 parameters to tune
+
+``` r
+sms_classifier3<- train(sms_train, sms_train_labels, method = "nb", verbose = FALSE)
+sms_classifier3
+```
+
+    ## Naive Bayes 
+    ## 
+    ## 4169 samples
+    ## 1158 predictors
+    ##    2 classes: 'ham', 'spam' 
+    ## 
+    ## No pre-processing
+    ## Resampling: Bootstrapped (25 reps) 
+    ## Summary of sample sizes: 4169, 4169, 4169, 4169, 4169, 4169, ... 
+    ## Resampling results across tuning parameters:
+    ## 
+    ##   usekernel  Accuracy   Kappa    
+    ##   FALSE      0.9791466  0.9034894
+    ##    TRUE      0.9791466  0.9034894
+    ## 
+    ## Tuning parameter 'fL' was held constant at a value of 0
+    ## Tuning
+    ##  parameter 'adjust' was held constant at a value of 1
+    ## Accuracy was used to select the optimal model using  the largest value.
+    ## The final values used for the model were fL = 0, usekernel = FALSE
+    ##  and adjust = 1.
+
+``` r
+sms_test_pred3 <- predict(sms_classifier3, sms_test)
+CrossTable(sms_test_pred3, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
+```
+
+    ## 
+    ##  
+    ##    Cell Contents
+    ## |-------------------------|
+    ## |                       N |
+    ## |           N / Col Total |
+    ## |-------------------------|
+    ## 
+    ##  
+    ## Total Observations in Table:  1405 
+    ## 
+    ##  
+    ##              | actual 
+    ##    predicted |       ham |      spam | Row Total | 
+    ## -------------|-----------|-----------|-----------|
+    ##          ham |      1213 |        20 |      1233 | 
+    ##              |     0.993 |     0.109 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ##         spam |         9 |       163 |       172 | 
+    ##              |     0.007 |     0.891 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ## Column Total |      1222 |       183 |      1405 | 
+    ##              |     0.870 |     0.130 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ## 
+    ## 
+
+I turned the verbose flag off, the output is very large. if you turn it on, you notice the first few messages are: predictions failed for Resample01: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical function model fit failed for Resample01: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : (subscript) logical subscript too long predictions failed for Resample02: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical function model fit failed for Resample02: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : (subscript) logical subscript too long predictions failed for Resample03: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical function model fit failed for Resample03: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : (subscript) logical subscript too long predictions failed for Resample04: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical function model fit failed for Resample04: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : (subscript) logical subscript too long predictions failed for Resample05: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical function model fit failed for Resample05: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : (subscript) logical subscript too long
+
+which is bother some. we are not getting an output ofr most of the tuning choices, except the kernel
+
+``` r
+trellis.par.set(caretTheme())
+densityplot(sms_classifier3, pch = "|")
+```
+
+![](NB_SpamFilter_files/figure-markdown_github/distributions%20of%20the%20tuning%20parameters%20across%20tuning%20parameters.-1.png)
+
+if you check str(sms\_classifier3) default method is boot, let us try cv
+
+``` r
+sms_classifier4<- train(sms_train, sms_train_labels, method = "nb", trControl=trainControl(method='cv',number=10));
+sms_classifier4
+```
+
+    ## Naive Bayes 
+    ## 
+    ## 4169 samples
+    ## 1158 predictors
+    ##    2 classes: 'ham', 'spam' 
+    ## 
+    ## No pre-processing
+    ## Resampling: Cross-Validated (10 fold) 
+    ## Summary of sample sizes: 3752, 3753, 3753, 3753, 3752, 3752, ... 
+    ## Resampling results across tuning parameters:
+    ## 
+    ##   usekernel  Accuracy   Kappa    
+    ##   FALSE      0.9810447  0.9150134
+    ##    TRUE      0.9810447  0.9150134
+    ## 
+    ## Tuning parameter 'fL' was held constant at a value of 0
+    ## Tuning
+    ##  parameter 'adjust' was held constant at a value of 1
+    ## Accuracy was used to select the optimal model using  the largest value.
+    ## The final values used for the model were fL = 0, usekernel = FALSE
+    ##  and adjust = 1.
+
+``` r
+sms_test_pred4 <- predict(sms_classifier4, sms_test)
+CrossTable(sms_test_pred4, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
+```
+
+    ## 
+    ##  
+    ##    Cell Contents
+    ## |-------------------------|
+    ## |                       N |
+    ## |           N / Col Total |
+    ## |-------------------------|
+    ## 
+    ##  
+    ## Total Observations in Table:  1405 
+    ## 
+    ##  
+    ##              | actual 
+    ##    predicted |       ham |      spam | Row Total | 
+    ## -------------|-----------|-----------|-----------|
+    ##          ham |      1213 |        20 |      1233 | 
+    ##              |     0.993 |     0.109 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ##         spam |         9 |       163 |       172 | 
+    ##              |     0.007 |     0.891 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ## Column Total |      1222 |       183 |      1405 | 
+    ##              |     0.870 |     0.130 |           | 
+    ## -------------|-----------|-----------|-----------|
+    ## 
+    ## 
+
+Trying to use ROC, not sure why we get an error
+
+ctrl &lt;- trainControl(method = "cv",
+summaryFunction=twoClassSummary, classProbs=TRUE, allowParallel = FALSE) m\_cv\_ROC &lt;- train(sms\_train, sms\_train\_labels, method = "nb", metric = "ROC", trControl = ctrl)
+
+m\_cv\_ROC sms\_test\_pred5 &lt;- predict(m\_cv\_ROC, sms\_test) CrossTable(sms\_test\_pred5, sms\_test\_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
+
+sometimes we get this error: task 1 failed - "non-numeric argument to mathematical function". changed to cv, and removed parallel. it seems to work!
+
+trellis.par.set(caretTheme()) densityplot(m\_cv\_ROC, pch = "|")
+
+> References 1. <https://rpubs.com/jhofman/nb_vs_lr> 2. <https://topepo.github.io/caret/model-training-and-tuning.html>
