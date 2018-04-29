@@ -655,8 +655,8 @@ sms_classifier3
     ## Resampling results across tuning parameters:
     ## 
     ##   usekernel  Accuracy   Kappa    
-    ##   FALSE      0.9828722  0.9245183
-    ##    TRUE      0.9828722  0.9245183
+    ##   FALSE      0.9791466  0.9034894
+    ##    TRUE      0.9791466  0.9034894
     ## 
     ## Tuning parameter 'fL' was held constant at a value of 0
     ## Tuning
@@ -723,12 +723,12 @@ sms_classifier4
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (10 fold) 
-    ## Summary of sample sizes: 3752, 3752, 3752, 3752, 3753, 3753, ... 
+    ## Summary of sample sizes: 3752, 3753, 3753, 3753, 3752, 3752, ... 
     ## Resampling results across tuning parameters:
     ## 
     ##   usekernel  Accuracy   Kappa    
-    ##   FALSE      0.9810453  0.9150055
-    ##    TRUE      0.9810453  0.9150055
+    ##   FALSE      0.9810447  0.9150134
+    ##    TRUE      0.9810447  0.9150134
     ## 
     ## Tuning parameter 'fL' was held constant at a value of 0
     ## Tuning
@@ -780,4 +780,4 @@ sometimes we get this error: task 1 failed - "non-numeric argument to mathematic
 
 trellis.par.set(caretTheme()) densityplot(m\_cv\_ROC, pch = "|")
 
-References 1. <https://rpubs.com/jhofman/nb_vs_lr> 2. <https://topepo.github.io/caret/model-training-and-tuning.html>
+> References 1. <https://rpubs.com/jhofman/nb_vs_lr> 2. <https://topepo.github.io/caret/model-training-and-tuning.html>
