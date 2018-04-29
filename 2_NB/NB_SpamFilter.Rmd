@@ -42,6 +42,12 @@ library(wordcloud2)
 #library(widgetframe)
 #devtools::install_github('ramnathv/htmlwidgets')
 library(wordcloud)
+library(klaR) # nb library used by caret
+library(ROCR) # another way to do ROC
+#install.packages("ggplot2")
+library(ggplot2)
+#install.packages("dplyr")
+library(dplyr)
 ```
 
 
@@ -289,6 +295,44 @@ CrossTable(sms_test_pred, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, d
 ```
 
 
+```{r}
+probs <- predict(sms_classifier, sms_test, type="raw")
+# plot ROC curve
+pred <- prediction(probs[, "spam"], sms_test_labels)
+perf_nb <- performance(pred, measure='tpr', x.measure='fpr')
+plot(perf_nb)
+performance(pred, 'auc')
+```
+
+
+
+
+```{r}
+# plot calibration
+data.frame(predicted=probs[, "spam"], actual=sms_test_labels) %>%
+  group_by(predicted=round(predicted*10)/10) %>%
+  summarize(num=n(), actual=mean(actual == "spam")) %>%
+  ggplot(data=., aes(x=predicted, y=actual, size=num)) +
+  geom_point() +
+  geom_abline(a=1, b=0, linetype=2) +
+  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
+  scale_y_continuous(labels=scales::percent, lim=c(0,1))
+```
+
+They points are distributed evenly. So no sign of over confidence. 
+
+```{r}
+data.frame(predicted=probs, actual=sms_test_labels) %>%
+  ggplot(data=., aes(x=predicted.spam)) +
+  geom_density(aes(fill=sms_test_labels), alpha=0.5) +
+  xlab('Predicted probability of spam') +
+  scale_fill_discrete(name="Actual label") +
+  theme(legend.position=c(0.8,0.8))
+```
+
+
+
+
 One way to improve on the model, is to set laplace more than zero. this way words with zero occurance in either class will not have an indisputable say of the classification
 
 ```{r}
@@ -300,3 +344,144 @@ sms_test_pred2 <- predict(sms_classifier2, sms_test)
 CrossTable(sms_test_pred2, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
 ```
 
+
+```{r}
+probs_2 <- predict(sms_classifier2, sms_test, type="raw")
+# plot ROC curve
+pred <- prediction(probs_2[, "spam"], sms_test_labels)
+perf_nb_2 <- performance(pred, measure='tpr', x.measure='fpr')
+plot(perf_nb_2)
+performance(pred, 'auc')
+```
+
+
+
+```{r}
+# plot calibration
+data.frame(predicted=probs_2[, "spam"], actual=sms_test_labels) %>%
+  group_by(predicted=round(predicted*10)/10) %>%
+  summarize(num=n(), actual=mean(actual == "spam")) %>%
+  ggplot(data=., aes(x=predicted, y=actual, size=num)) +
+  geom_point() +
+  geom_abline(a=1, b=0, linetype=2) +
+  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
+  scale_y_continuous(labels=scales::percent, lim=c(0,1))
+
+```
+
+
+
+Lets compary the two ROC curves
+
+```{r}
+# plot ROC for each method
+roc_nb   <- data.frame(fpr=unlist(perf_nb@x.values), tpr=unlist(perf_nb@y.values))
+roc_nb$method <- "naive bayes"
+roc_nb_2 <- data.frame(fpr=unlist(perf_nb_2@x.values), tpr=unlist(perf_nb_2@y.values))
+roc_nb_2$method <- "nive bayes 2"
+rbind(roc_nb, roc_nb_2) %>%
+  ggplot(data=., aes(x=fpr, y=tpr, linetype=method, color=method)) + 
+  geom_line() +
+  geom_abline(a=1, b=0, linetype=2) +
+  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
+  scale_y_continuous(labels=scales::percent, lim=c(0,1)) +
+  theme(legend.position=c(0.8,0.2), legend.title=element_blank())
+```
+
+
+
+Next we need to investigate if hypertuning can get us a better result. First, let us see what caret has to say about Naive Bayes
+
+```{r}
+modelLookup("nb")
+```
+
+So we have 3 parameters to tune
+
+```{r Tuning 3 parameters with caret default}
+sms_classifier3<- train(sms_train, sms_train_labels, method = "nb", verbose = FALSE)
+sms_classifier3
+sms_test_pred3 <- predict(sms_classifier3, sms_test)
+CrossTable(sms_test_pred3, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
+
+
+```
+
+
+I turned the verbose flag off, the output is very large. if you turn it on, you notice the first few messages are:
+predictions failed for Resample01: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : 
+  non-numeric argument to mathematical function
+model fit failed for Resample01: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : 
+  (subscript) logical subscript too long
+predictions failed for Resample02: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : 
+  non-numeric argument to mathematical function
+model fit failed for Resample02: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : 
+  (subscript) logical subscript too long
+predictions failed for Resample03: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : 
+  non-numeric argument to mathematical function
+model fit failed for Resample03: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : 
+  (subscript) logical subscript too long
+predictions failed for Resample04: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : 
+  non-numeric argument to mathematical function
+model fit failed for Resample04: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : 
+  (subscript) logical subscript too long
+predictions failed for Resample05: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : 
+  non-numeric argument to mathematical function
+model fit failed for Resample05: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : 
+  (subscript) logical subscript too long
+  
+which is bother some. we are not getting an output ofr most of the tuning choices, except the kernel
+
+```{r distributions of the tuning parameters across tuning parameters.}
+trellis.par.set(caretTheme())
+densityplot(sms_classifier3, pch = "|")
+```
+
+
+
+
+
+
+
+if you check str(sms_classifier3) default method is boot, let us try cv
+
+
+
+```{r Tuning_CV}
+sms_classifier4<- train(sms_train, sms_train_labels, method = "nb", trControl=trainControl(method='cv',number=10));
+sms_classifier4
+sms_test_pred4 <- predict(sms_classifier4, sms_test)
+CrossTable(sms_test_pred4, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
+```
+
+Trying to use ROC, not sure why we get an error
+
+```{r Tuning_ROC}
+ctrl <- trainControl(method = "cv",   # 10fold cross validation
+                     
+                     summaryFunction=twoClassSummary,   # Use AUC to pick the best model
+                     classProbs=TRUE,
+                     allowParallel = FALSE)
+m_cv_ROC <- train(sms_train, sms_train_labels,
+      method = "nb",
+      metric = "ROC",
+      trControl = ctrl)
+
+m_cv_ROC
+sms_test_pred5 <- predict(m_cv_ROC, sms_test)
+CrossTable(sms_test_pred5, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
+```
+
+sometimes we get this error: task 1 failed - "non-numeric argument to mathematical function". changed to cv, and removed parallel. it seems to work! 
+
+```{r}
+trellis.par.set(caretTheme())
+densityplot(m_cv_ROC, pch = "|")
+```
+
+
+
+
+References
+https://rpubs.com/jhofman/nb_vs_lr
+https://topepo.github.io/caret/model-training-and-tuning.html
