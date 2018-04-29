@@ -482,5 +482,5 @@ densityplot(m_cv_ROC, pch = "|")
 
 
 References
-https://rpubs.com/jhofman/nb_vs_lr
-https://topepo.github.io/caret/model-training-and-tuning.html
+1. https://rpubs.com/jhofman/nb_vs_lr
+2. https://topepo.github.io/caret/model-training-and-tuning.html
