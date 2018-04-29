@@ -398,7 +398,7 @@ modelLookup("nb")
 
 So we have 3 parameters to tune
 
-```{r Tuning 3 parameters with caret default}
+```{r Tuning 3 parameters with caret default, warning=FALSE}
 sms_classifier3<- train(sms_train, sms_train_labels, method = "nb", verbose = FALSE)
 sms_classifier3
 sms_test_pred3 <- predict(sms_classifier3, sms_test)
@@ -456,28 +456,28 @@ CrossTable(sms_test_pred4, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, 
 
 Trying to use ROC, not sure why we get an error
 
-```{r Tuning_ROC}
-ctrl <- trainControl(method = "cv",   # 10fold cross validation
-                     
-                     summaryFunction=twoClassSummary,   # Use AUC to pick the best model
-                     classProbs=TRUE,
-                     allowParallel = FALSE)
-m_cv_ROC <- train(sms_train, sms_train_labels,
-      method = "nb",
-      metric = "ROC",
-      trControl = ctrl)
+#```{r Tuning_ROC}
+#ctrl <- trainControl(method = "cv",   # 10fold cross validation
+#                     
+#                     summaryFunction=twoClassSummary,   # Use AUC to pick the best model
+#                     classProbs=TRUE,
+#                     allowParallel = FALSE)
+#m_cv_ROC <- train(sms_train, sms_train_labels,
+#      method = "nb",
+#      metric = "ROC",
+#      trControl = ctrl)
 
-m_cv_ROC
-sms_test_pred5 <- predict(m_cv_ROC, sms_test)
-CrossTable(sms_test_pred5, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
-```
+#m_cv_ROC
+#sms_test_pred5 <- predict(m_cv_ROC, sms_test)
+#CrossTable(sms_test_pred5, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
+#```
 
 sometimes we get this error: task 1 failed - "non-numeric argument to mathematical function". changed to cv, and removed parallel. it seems to work! 
 
-```{r}
-trellis.par.set(caretTheme())
-densityplot(m_cv_ROC, pch = "|")
-```
+#```{r}
+#trellis.par.set(caretTheme())
+#densityplot(m_cv_ROC, pch = "|")
+#```
 
 
 
