@@ -654,9 +654,9 @@ sms_classifier3
     ## Summary of sample sizes: 4169, 4169, 4169, 4169, 4169, 4169, ... 
     ## Resampling results across tuning parameters:
     ## 
-    ##   usekernel  Accuracy   Kappa   
-    ##   FALSE      0.9825264  0.922463
-    ##    TRUE      0.9825264  0.922463
+    ##   usekernel  Accuracy   Kappa    
+    ##   FALSE      0.9791782  0.9077355
+    ##    TRUE      0.9791782  0.9077355
     ## 
     ## Tuning parameter 'fL' was held constant at a value of 0
     ## Tuning
@@ -723,12 +723,12 @@ sms_classifier4
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (10 fold) 
-    ## Summary of sample sizes: 3752, 3752, 3752, 3751, 3753, 3751, ... 
+    ## Summary of sample sizes: 3751, 3752, 3752, 3753, 3752, 3752, ... 
     ## Resampling results across tuning parameters:
     ## 
-    ##   usekernel  Accuracy   Kappa   
-    ##   FALSE      0.9812926  0.916513
-    ##    TRUE      0.9812926  0.916513
+    ##   usekernel  Accuracy   Kappa    
+    ##   FALSE      0.9820184  0.9196574
+    ##    TRUE      0.9820184  0.9196574
     ## 
     ## Tuning parameter 'fL' was held constant at a value of 0
     ## Tuning
@@ -771,13 +771,8 @@ CrossTable(sms_test_pred4, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, 
 
 Trying to use ROC, not sure why we get an error
 
-ctrl &lt;- trainControl(method = "cv", \# 10fold cross validation
-
-                     summaryFunction=twoClassSummary,   # Use AUC to pick the best model
-                     classProbs=TRUE,
-                     allowParallel = FALSE)
-
-m\_cv\_ROC &lt;- train(sms\_train, sms\_train\_labels, method = "nb", metric = "ROC", trControl = ctrl)
+ctrl &lt;- trainControl(method = "cv",
+summaryFunction=twoClassSummary, classProbs=TRUE, allowParallel = FALSE) m\_cv\_ROC &lt;- train(sms\_train, sms\_train\_labels, method = "nb", metric = "ROC", trControl = ctrl)
 
 m\_cv\_ROC sms\_test\_pred5 &lt;- predict(m\_cv\_ROC, sms\_test) CrossTable(sms\_test\_pred5, sms\_test\_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
 
