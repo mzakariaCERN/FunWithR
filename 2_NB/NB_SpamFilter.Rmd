@@ -21,7 +21,7 @@ output: github_document
 
 
 Required packages
-```{r}
+```{r Install and load needed packages}
 #install.packages("class") # for kNN classification
 #library(class)
 #install.packages("gmodels") # for CrossTable function at the evaluation
@@ -48,6 +48,8 @@ library(ROCR) # another way to do ROC
 library(ggplot2)
 #install.packages("dplyr")
 library(dplyr)
+#install.packages("styler")
+#library(styler) # introduces better code style
 ```
 
 
@@ -194,11 +196,11 @@ and replace stopwrods = TRUE with that function
 Next step is splitting the data into training and testing. Since the data is randomized as is, no need to randomize it
 
 ```{r}
-sms_dtm_train <- sms_dtm[1:4169, ]
-sms_dtm_test <- sms_dtm[4170: 5574, ]
+sms_dtm_train <- sms_dtm[1:4169,]
+sms_dtm_test <- sms_dtm[4170:5574,]
 
-sms_train_labels <- sms_raw[1:4169, ]$type
-sms_test_labels <- sms_raw[4170: 5574, ]$type
+sms_train_labels <- sms_raw[1:4169,]$type
+sms_test_labels <- sms_raw[4170:5574,]$type
 ```
 
 
@@ -222,7 +224,7 @@ Let us do a cloud for only spam and ham
 spam <- subset(sms_raw, type == "spam")
 ham <- subset(sms_raw, type = "ham")
 wordcloud(spam$text, max.words = 40, scale = c(3, .5))
-wordcloud(ham$text, max.words= 40, scale= c(3, .5))
+wordcloud(ham$text, max.words = 40, scale = c(3, .5))
 ```
 
 
@@ -232,15 +234,22 @@ Next I will use wordcount2. Which needs a data frame with
 word and frequency. which can be prepared from a TermDocumentMatrix (TDM, and not DTM)
 
 ```{r}
-myTdm <- as.matrix(TermDocumentMatrix(sms_corpus, control = list(tolower = TRUE, removeNumbers = TRUE, stopwords = TRUE, removePunctuation = TRUE, steaming = TRUE)))
-FreqMat <- data.frame(ST = rownames(myTdm),
-Freq = rowSums(myTdm),
-row.names = NULL)
-
-
-wc2 <- wordcloud2(FreqMat, minSize = 50)
-
-
+myTdm <-
+  as.matrix(TermDocumentMatrix(
+  sms_corpus,
+  control = list(
+  tolower = TRUE,
+  removeNumbers = TRUE,
+  stopwords = TRUE,
+  removePunctuation = TRUE,
+  steaming = TRUE
+  )
+  ))
+  FreqMat <- data.frame(ST = rownames(myTdm),
+  Freq = rowSums(myTdm),
+  row.names = NULL)
+  
+  wc2 <- wordcloud2(FreqMat, minSize = 50)
 ```
 
 We can also do similar plots with ham and spam messages to compare between them. Notice that you need to set always_allow_html: yes
@@ -257,13 +266,13 @@ str(sms_freq_words)
 remove every column that matches this vector
 ```{r}
 sms_dtm_freq_train <- sms_dtm_train[, sms_freq_words]
-sms_dtm_freq_test  <- sms_dtm_test[,  sms_freq_words]
+sms_dtm_freq_test  <- sms_dtm_test[, sms_freq_words]
 ```
 
 NB classifiers typically use categorical features. This poses an issue for sparce matrices (DTM) since the cell are numeric and measure the number of times a word appears in the same massage. To change it to categorical we convert it to yes/no
 
 ```{r}
-convert_counts <- function(x){
+convert_counts <- function(x) {
   x <- ifelse(x > 0, "yes", "no")
 }
 ```
@@ -296,10 +305,10 @@ CrossTable(sms_test_pred, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, d
 
 
 ```{r}
-probs <- predict(sms_classifier, sms_test, type="raw")
+probs <- predict(sms_classifier, sms_test, type = "raw")
 # plot ROC curve
 pred <- prediction(probs[, "spam"], sms_test_labels)
-perf_nb <- performance(pred, measure='tpr', x.measure='fpr')
+perf_nb <- performance(pred, measure = 'tpr', x.measure = 'fpr')
 plot(perf_nb)
 performance(pred, 'auc')
 ```
@@ -309,25 +318,25 @@ performance(pred, 'auc')
 
 ```{r}
 # plot calibration
-data.frame(predicted=probs[, "spam"], actual=sms_test_labels) %>%
-  group_by(predicted=round(predicted*10)/10) %>%
-  summarize(num=n(), actual=mean(actual == "spam")) %>%
-  ggplot(data=., aes(x=predicted, y=actual, size=num)) +
+data.frame(predicted = probs[, "spam"], actual = sms_test_labels) %>%
+  group_by(predicted = round(predicted * 10) / 10) %>%
+  summarize(num = n(), actual = mean(actual == "spam")) %>%
+  ggplot(data = ., aes(x = predicted, y = actual, size = num)) +
   geom_point() +
-  geom_abline(a=1, b=0, linetype=2) +
-  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
-  scale_y_continuous(labels=scales::percent, lim=c(0,1))
+  geom_abline(a = 1, b = 0, linetype = 2) +
+  scale_x_continuous(labels = scales::percent, lim = c(0, 1)) +
+  scale_y_continuous(labels = scales::percent, lim = c(0, 1))
 ```
 
 They points are distributed evenly. So no sign of over confidence. 
 
 ```{r}
-data.frame(predicted=probs, actual=sms_test_labels) %>%
-  ggplot(data=., aes(x=predicted.spam)) +
-  geom_density(aes(fill=sms_test_labels), alpha=0.5) +
+data.frame(predicted = probs, actual = sms_test_labels) %>%
+  ggplot(data = ., aes(x = predicted.spam)) +
+  geom_density(aes(fill = sms_test_labels), alpha = 0.5) +
   xlab('Predicted probability of spam') +
-  scale_fill_discrete(name="Actual label") +
-  theme(legend.position=c(0.8,0.8))
+  scale_fill_discrete(name = "Actual label") +
+  theme(legend.position = c(0.8, 0.8))
 ```
 
 
@@ -375,17 +384,27 @@ Lets compary the two ROC curves
 
 ```{r}
 # plot ROC for each method
-roc_nb   <- data.frame(fpr=unlist(perf_nb@x.values), tpr=unlist(perf_nb@y.values))
-roc_nb$method <- "naive bayes"
-roc_nb_2 <- data.frame(fpr=unlist(perf_nb_2@x.values), tpr=unlist(perf_nb_2@y.values))
-roc_nb_2$method <- "nive bayes 2"
-rbind(roc_nb, roc_nb_2) %>%
-  ggplot(data=., aes(x=fpr, y=tpr, linetype=method, color=method)) + 
+roc_nb   <-
+  data.frame(fpr = unlist(perf_nb@x.values),
+  tpr = unlist(perf_nb@y.values))
+  roc_nb$method <- "naive bayes"
+  roc_nb_2 <-
+  data.frame(fpr = unlist(perf_nb_2@x.values),
+  tpr = unlist(perf_nb_2@y.values))
+  roc_nb_2$method <- "nive bayes 2"
+  rbind(roc_nb, roc_nb_2) %>%
+  ggplot(data = ., aes(
+  x = fpr,
+  y = tpr,
+  linetype = method,
+  color = method
+  )) +
   geom_line() +
-  geom_abline(a=1, b=0, linetype=2) +
-  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
-  scale_y_continuous(labels=scales::percent, lim=c(0,1)) +
-  theme(legend.position=c(0.8,0.2), legend.title=element_blank())
+  geom_abline(a = 1, b = 0, linetype = 2) +
+  scale_x_continuous(labels = scales::percent, lim = c(0, 1)) +
+  scale_y_continuous(labels = scales::percent, lim = c(0, 1)) +
+  theme(legend.position = c(0.8, 0.2),
+  legend.title = element_blank())
 ```
 
 
