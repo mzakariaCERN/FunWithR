@@ -16,14 +16,14 @@ author: "Mohammed Zakaria"
 always_allow_html: yes # this is for wordcloud2 output
 output: github_document
 ---
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
 
-```{r libraries}
+
+```{r libraries, message=FALSE, warning= TRUE}
 
 library(ggplot2)
+#install.packages("C50") # for DT algorithm
+library(C50)
 ```
 
 
@@ -36,7 +36,44 @@ str(credit)
 summary(credit)
 ```
 
-```{r}
+from str() we see that the target feature is actually numerical representing a categorical variable (default vs. no default)
+```{r convert target feature into factor}
+credit$default <- factor(credit$default)
+
+
+```
+
+
+```{r checking few interesting features}
 table(credit$checking_balance)
+
+table(credit$default)
+
+```
+
+We divide the data 90:10. WE cannot assume that the data is random. So let us do that
+
+```{r Randomize sample}
+set.seed(123)
+train_sample <- sample(1000, 900) # get 900 randomly selected numbers, each between 0 and 1000
+str(train_sample)
+credit_train <- credit[train_sample, ]
+credit_test <- credit[-train_sample,]
+```
+
+
+```{r check if the target feature is equally represented}
+prop.table(table(credit_train$default))
+prop.table(table(credit_test$default))
+
+```
+
+Close! So we can proceed.
+
+```{r Train model with default parameters}
+# remove the "default" feature since this is the target one
+credit_model <- C5.0(credit_train[-21], credit_train$default)
+credit_model
+
 ```
 
