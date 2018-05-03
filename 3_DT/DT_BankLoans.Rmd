@@ -1,0 +1,79 @@
+---
+title: "Bank Loan classifier with Naive Bays"
+author: "Mohammed Zakaria"
+#output:
+#  html_document:
+#    df_print: paged
+#    toc: yes
+#   keep_md: true
+#    always_allow_html: yes
+
+  
+#  html_notebook:
+#    highlight: espresso
+#    theme: readable
+#    toc: yes
+always_allow_html: yes # this is for wordcloud2 output
+output: github_document
+---
+
+
+
+```{r libraries, message=FALSE, warning= TRUE}
+
+library(ggplot2)
+#install.packages("C50") # for DT algorithm
+library(C50)
+```
+
+
+Pulling the data: The cancer data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: https://github.com/stedy/Machine-Learning-with-R-datasets/blob/master/credit.csv and original data can be found under https://archive.ics.uci.edu/ml
+
+```{r getting data}
+credit <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/3_DT/Data/credit.csv", stringsAsFactors = FALSE)
+str(credit)
+
+summary(credit)
+```
+
+from str() we see that the target feature is actually numerical representing a categorical variable (default vs. no default)
+```{r convert target feature into factor}
+credit$default <- factor(credit$default)
+
+
+```
+
+
+```{r checking few interesting features}
+table(credit$checking_balance)
+
+table(credit$default)
+
+```
+
+We divide the data 90:10. WE cannot assume that the data is random. So let us do that
+
+```{r Randomize sample}
+set.seed(123)
+train_sample <- sample(1000, 900) # get 900 randomly selected numbers, each between 0 and 1000
+str(train_sample)
+credit_train <- credit[train_sample, ]
+credit_test <- credit[-train_sample,]
+```
+
+
+```{r check if the target feature is equally represented}
+prop.table(table(credit_train$default))
+prop.table(table(credit_test$default))
+
+```
+
+Close! So we can proceed.
+
+```{r Train model with default parameters}
+# remove the "default" feature since this is the target one
+credit_model <- C5.0(credit_train[-21], credit_train$default)
+credit_model
+
+```
+
