@@ -20,7 +20,7 @@ output: github_document
 
 
 ```{r libraries, message=FALSE, warning= TRUE}
-
+library(gmodels) # for CrossTable
 library(ggplot2)
 #install.packages("C50") # for DT algorithm
 library(C50)
@@ -36,9 +36,9 @@ str(credit)
 summary(credit)
 ```
 
-from str() we see that the target feature is actually numerical representing a categorical variable (default vs. no default)
+from str() we see that the target feature is actually numerical representing a categorical variable (default vs. no default) and we see that it has 1 for no default and 2 for default. we will label them to make it more readable
 ```{r convert target feature into factor}
-credit$default <- factor(credit$default)
+credit$default <- factor(credit$default, labels = c('No', 'YES'))
 
 
 ```
@@ -74,7 +74,7 @@ Close! So we can proceed.
 # remove the "default" feature since this is the target one
 credit_model <- C5.0(credit_train[-21], credit_train$default)
 credit_model
-
+#summary(credit_model) # uncomment to see summary for all the trees used
 ```
 
 Here, number of samples is the number of examples
@@ -89,3 +89,37 @@ summary(credit_model)
 we understand a line like
 checking_balance in {unknown,> 200 DM}: 1 (412/50)
 by saying that if we checking balance was unknown, or larger than 200 DM, then we are in class one. (we have 412 examples that we got right, and 50 that we classified wrongly based on this rule)
+
+```{r Predict}
+credit_predict <- predict(credit_model, credit_test)
+```
+
+
+```{r}
+CrossTable(credit_test$default, credit_predict, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, prop.t = TRUE, dnn = c('actual defualt','predicted default')) # prop.c is for proportionaliy calculation per column
+```
+
+From the table we can calculate the accuracy as .6 + .14 = 0.74. The model was particularly bad in missing 0.19 of the cases where there was a default. We can try improving the model using boosting
+
+```{r modeling using boosting}
+credit_boost10 <- C5.0(credit_train[-21], credit_train$default, trials = 10)
+credit_boost10
+```
+Notice how the average tree size has schrunk! 
+
+```{r}
+credit_boost_pred10 <- predict(credit_boost10, credit_test)
+CrossTable(credit_test$default, credit_boost_pred10, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, prop.t = TRUE, dnn = c('actual defualt','predicted default')) # prop.c is for proportionaliy calculation per column
+```
+
+slight improvement accuracy is now 76% and the error rate is %17
+
+Another approcah is to make one type of mistakes costier than the other
+```{r Create a cost mistake}
+matrix_dimentions <- list(c("no", "yes"), c("no", "yes"))
+names(matrix_dimentions) <- c("predicted", "actual")
+matrix_dimentions
+
+
+```
+
