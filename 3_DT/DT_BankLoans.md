@@ -171,7 +171,7 @@ summary(credit_model)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Thu May 03 23:06:26 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Thu May 03 23:09:09 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -322,3 +322,5 @@ summary(credit_model)
     ## 
     ## 
     ## Time: 0.0 secs
+
+we understand a line like checking\_balance in {unknown,&gt; 200 DM}: 1 (412/50) by saying that if we checking balance was unknown, or larger than 200 DM, then we are in class one. (we have 412 examples that we got right, and 50 that we classified wrongly based on this rule)
