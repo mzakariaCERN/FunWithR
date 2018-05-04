@@ -77,3 +77,12 @@ credit_model
 
 ```
 
+Here, number of samples is the number of examples
+number of predictors is the number of features used
+tree size is how many decision the depth of the tree is
+
+More details can be seen from the summary function
+```{r}
+summary(credit_model)
+```
+

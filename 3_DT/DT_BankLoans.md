@@ -157,3 +157,168 @@ credit_model
     ## Tree size: 54 
     ## 
     ## Non-standard options: attempt to group attributes
+
+Here, number of samples is the number of examples number of predictors is the number of features used tree size is how many decision the depth of the tree is
+
+More details can be seen from the summary function
+
+``` r
+summary(credit_model)
+```
+
+    ## 
+    ## Call:
+    ## C5.0.default(x = credit_train[-21], y = credit_train$default)
+    ## 
+    ## 
+    ## C5.0 [Release 2.07 GPL Edition]      Thu May 03 23:06:26 2018
+    ## -------------------------------
+    ## 
+    ## Class specified by attribute `outcome'
+    ## 
+    ## Read 900 cases (21 attributes) from undefined.data
+    ## 
+    ## Decision tree:
+    ## 
+    ## checking_balance in {unknown,> 200 DM}: 1 (412/50)
+    ## checking_balance in {1 - 200 DM,< 0 DM}:
+    ## :...other_debtors = guarantor:
+    ##     :...months_loan_duration > 36: 2 (4/1)
+    ##     :   months_loan_duration <= 36:
+    ##     :   :...installment_plan in {none,stores}: 1 (24)
+    ##     :       installment_plan = bank:
+    ##     :       :...purpose in {others,car (used),radio/tv,business,furniture,
+    ##     :           :           education,repairs,retraining,
+    ##     :           :           domestic appliances}: 1 (7/1)
+    ##     :           purpose = car (new): 2 (3)
+    ##     other_debtors in {none,co-applicant}:
+    ##     :...credit_history = critical: 1 (102/30)
+    ##         credit_history = fully repaid: 2 (27/6)
+    ##         credit_history = fully repaid this bank:
+    ##         :...other_debtors = none: 2 (26/8)
+    ##         :   other_debtors = co-applicant: 1 (2)
+    ##         credit_history in {delayed,repaid}:
+    ##         :...savings_balance in {501 - 1000 DM,> 1000 DM}: 1 (19/3)
+    ##             savings_balance = 101 - 500 DM:
+    ##             :...other_debtors = co-applicant: 2 (3)
+    ##             :   other_debtors = none:
+    ##             :   :...personal_status in {divorced male,
+    ##             :       :                   married male}: 2 (6/1)
+    ##             :       personal_status = single male:
+    ##             :       :...age <= 41: 1 (15/2)
+    ##             :       :   age > 41: 2 (2)
+    ##             :       personal_status = female:
+    ##             :       :...installment_rate <= 3: 1 (4/1)
+    ##             :           installment_rate > 3: 2 (4)
+    ##             savings_balance = unknown:
+    ##             :...credit_history = delayed: 1 (8)
+    ##             :   credit_history = repaid:
+    ##             :   :...foreign_worker = no: 1 (2)
+    ##             :       foreign_worker = yes:
+    ##             :       :...checking_balance = < 0 DM:
+    ##             :           :...telephone = none: 2 (11/2)
+    ##             :           :   telephone = yes:
+    ##             :           :   :...amount <= 5045: 1 (5/1)
+    ##             :           :       amount > 5045: 2 (2)
+    ##             :           checking_balance = 1 - 200 DM:
+    ##             :           :...residence_history > 3: 1 (9)
+    ##             :               residence_history <= 3: [S1]
+    ##             savings_balance = < 100 DM:
+    ##             :...months_loan_duration > 39:
+    ##                 :...residence_history <= 1: 1 (2)
+    ##                 :   residence_history > 1: 2 (19/1)
+    ##                 months_loan_duration <= 39:
+    ##                 :...purpose in {others,domestic appliances}: 1 (3)
+    ##                     purpose in {car (new),retraining}: 2 (47/16)
+    ##                     purpose = car (used):
+    ##                     :...amount <= 8086: 1 (9/1)
+    ##                     :   amount > 8086: 2 (5)
+    ##                     purpose = education:
+    ##                     :...checking_balance = 1 - 200 DM: 1 (2)
+    ##                     :   checking_balance = < 0 DM: 2 (5)
+    ##                     purpose = repairs:
+    ##                     :...residence_history <= 3: 2 (4/1)
+    ##                     :   residence_history > 3: 1 (3)
+    ##                     purpose = business:
+    ##                     :...credit_history = delayed: 2 (2)
+    ##                     :   credit_history = repaid:
+    ##                     :   :...age <= 34: 1 (5)
+    ##                     :       age > 34: 2 (2)
+    ##                     purpose = radio/tv:
+    ##                     :...employment_length in {unemployed,
+    ##                     :   :                     0 - 1 yrs}: 2 (14/5)
+    ##                     :   employment_length = 4 - 7 yrs: 1 (3)
+    ##                     :   employment_length = > 7 yrs:
+    ##                     :   :...amount <= 932: 2 (2)
+    ##                     :   :   amount > 932: 1 (7)
+    ##                     :   employment_length = 1 - 4 yrs:
+    ##                     :   :...months_loan_duration <= 15: 1 (6)
+    ##                     :       months_loan_duration > 15:
+    ##                     :       :...amount <= 3275: 2 (7)
+    ##                     :           amount > 3275: 1 (2)
+    ##                     purpose = furniture:
+    ##                     :...residence_history <= 1: 1 (8/1)
+    ##                         residence_history > 1:
+    ##                         :...installment_plan in {bank,stores}: 1 (3/1)
+    ##                             installment_plan = none:
+    ##                             :...telephone = yes: 2 (7/1)
+    ##                                 telephone = none:
+    ##                                 :...months_loan_duration > 27: 2 (3)
+    ##                                     months_loan_duration <= 27: [S2]
+    ## 
+    ## SubTree [S1]
+    ## 
+    ## property in {unknown/none,building society savings}: 2 (4)
+    ## property = other: 1 (6)
+    ## property = real estate:
+    ## :...job = skilled employee: 2 (2)
+    ##     job in {mangement self-employed,unskilled resident,
+    ##             unemployed non-resident}: 1 (2)
+    ## 
+    ## SubTree [S2]
+    ## 
+    ## checking_balance = 1 - 200 DM: 2 (5/2)
+    ## checking_balance = < 0 DM:
+    ## :...property in {unknown/none,real estate,building society savings}: 1 (8)
+    ##     property = other:
+    ##     :...installment_rate <= 1: 1 (2)
+    ##         installment_rate > 1: 2 (4)
+    ## 
+    ## 
+    ## Evaluation on training data (900 cases):
+    ## 
+    ##      Decision Tree   
+    ##    ----------------  
+    ##    Size      Errors  
+    ## 
+    ##      54  135(15.0%)   <<
+    ## 
+    ## 
+    ##     (a)   (b)    <-classified as
+    ##    ----  ----
+    ##     589    44    (a): class 1
+    ##      91   176    (b): class 2
+    ## 
+    ## 
+    ##  Attribute usage:
+    ## 
+    ##  100.00% checking_balance
+    ##   54.22% other_debtors
+    ##   50.00% credit_history
+    ##   32.56% savings_balance
+    ##   25.22% months_loan_duration
+    ##   19.78% purpose
+    ##   10.11% residence_history
+    ##    7.33% installment_plan
+    ##    5.22% telephone
+    ##    4.78% foreign_worker
+    ##    4.56% employment_length
+    ##    4.33% amount
+    ##    3.44% personal_status
+    ##    3.11% property
+    ##    2.67% age
+    ##    1.56% installment_rate
+    ##    0.44% job
+    ## 
+    ## 
+    ## Time: 0.0 secs
