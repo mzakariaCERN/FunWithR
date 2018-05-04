@@ -77,3 +77,15 @@ credit_model
 
 ```
 
+Here, number of samples is the number of examples
+number of predictors is the number of features used
+tree size is how many decision the depth of the tree is
+
+More details can be seen from the summary function
+```{r}
+summary(credit_model)
+```
+
+we understand a line like
+checking_balance in {unknown,> 200 DM}: 1 (412/50)
+by saying that if we checking balance was unknown, or larger than 200 DM, then we are in class one. (we have 412 examples that we got right, and 50 that we classified wrongly based on this rule)
