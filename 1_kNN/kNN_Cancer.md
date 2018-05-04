@@ -276,9 +276,9 @@ m
     ## Resampling results across tuning parameters:
     ## 
     ##   k  Accuracy   Kappa    
-    ##   5  0.9603930  0.9168980
-    ##   7  0.9624008  0.9212379
-    ##   9  0.9649740  0.9265361
+    ##   5  0.9532225  0.9016210
+    ##   7  0.9579799  0.9113459
+    ##   9  0.9583948  0.9120300
     ## 
     ## Accuracy was used to select the optimal model using  the largest value.
     ## The final value used for the model was k = 9.
@@ -319,28 +319,28 @@ m_cv
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (10 fold) 
-    ## Summary of sample sizes: 422, 422, 422, 422, 422, 422, ... 
+    ## Summary of sample sizes: 422, 422, 423, 422, 422, 422, ... 
     ## Resampling results across tuning parameters:
     ## 
     ##   k   Accuracy   Kappa    
-    ##    5  0.9657724  0.9279805
-    ##    7  0.9636448  0.9233779
-    ##    9  0.9679001  0.9322885
-    ##   11  0.9679001  0.9320611
-    ##   13  0.9722017  0.9413385
-    ##   15  0.9679463  0.9322752
-    ##   17  0.9594357  0.9141453
-    ##   19  0.9615634  0.9190591
-    ##   21  0.9594357  0.9145275
-    ##   23  0.9551804  0.9056162
-    ##   25  0.9573080  0.9100712
-    ##   27  0.9573080  0.9099959
-    ##   29  0.9573080  0.9099959
-    ##   31  0.9551804  0.9053076
-    ##   33  0.9551804  0.9053076
+    ##    5  0.9638298  0.9244825
+    ##    7  0.9617021  0.9199534
+    ##    9  0.9659574  0.9287146
+    ##   11  0.9638298  0.9241822
+    ##   13  0.9638298  0.9242557
+    ##   15  0.9637835  0.9239481
+    ##   17  0.9659112  0.9284031
+    ##   19  0.9659574  0.9284839
+    ##   21  0.9595745  0.9148835
+    ##   23  0.9617021  0.9194120
+    ##   25  0.9595745  0.9148017
+    ##   27  0.9595282  0.9146468
+    ##   29  0.9552266  0.9054899
+    ##   31  0.9594820  0.9143245
+    ##   33  0.9573080  0.9094478
     ## 
     ## Accuracy was used to select the optimal model using  the largest value.
-    ## The final value used for the model was k = 13.
+    ## The final value used for the model was k = 9.
 
 To get tons of details about the model and how it was tuned:
 
@@ -394,7 +394,7 @@ ROC <- roc(predictor=m_cv_ROC_prediction_probs$Malignant,
 ROC$auc
 ```
 
-    ## Area under the curve: 0.998
+    ## Area under the curve: 0.9994
 
 ``` r
 plot(ROC,main="ROC for kNN")
