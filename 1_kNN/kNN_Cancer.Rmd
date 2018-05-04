@@ -17,7 +17,7 @@ output: github_document
 
 
 Required packages
-```{r message=FALSE, warning= TRUE}
+```{r message=FALSE, warning= TRUE }
 #install.packages("class") # for kNN classification
 library(class)
 #install.packages("gmodels") # for CrossTable function at the evaluation

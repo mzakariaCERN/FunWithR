@@ -11,31 +11,11 @@ library(class)
 library(gmodels)
 #install.packages("caret") # for model tuning
 library(caret)
-```
-
-    ## Loading required package: lattice
-
-    ## Loading required package: ggplot2
-
-``` r
 #install.packages("e1071") # to help with model tuning
 library(e1071)
 #install.packages("pROC") # to make ROC plots
 library(pROC)   
 ```
-
-    ## Type 'citation("pROC")' for a citation.
-
-    ## 
-    ## Attaching package: 'pROC'
-
-    ## The following object is masked from 'package:gmodels':
-    ## 
-    ##     ci
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     cov, smooth, var
 
 Pulling the data: The cancer data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: <https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv> and original data can be found under <https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/>
 
@@ -276,12 +256,12 @@ m
     ## Resampling results across tuning parameters:
     ## 
     ##   k  Accuracy   Kappa    
-    ##   5  0.9532225  0.9016210
-    ##   7  0.9579799  0.9113459
-    ##   9  0.9583948  0.9120300
+    ##   5  0.9583253  0.9126987
+    ##   7  0.9575739  0.9110036
+    ##   9  0.9583090  0.9124165
     ## 
     ## Accuracy was used to select the optimal model using  the largest value.
-    ## The final value used for the model was k = 9.
+    ## The final value used for the model was k = 5.
 
 Something fancier
 
@@ -319,28 +299,28 @@ m_cv
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (10 fold) 
-    ## Summary of sample sizes: 422, 422, 423, 422, 422, 422, ... 
+    ## Summary of sample sizes: 422, 423, 422, 422, 422, 422, ... 
     ## Resampling results across tuning parameters:
     ## 
     ##   k   Accuracy   Kappa    
-    ##    5  0.9638298  0.9244825
-    ##    7  0.9617021  0.9199534
-    ##    9  0.9659574  0.9287146
-    ##   11  0.9638298  0.9241822
-    ##   13  0.9638298  0.9242557
-    ##   15  0.9637835  0.9239481
-    ##   17  0.9659112  0.9284031
-    ##   19  0.9659574  0.9284839
-    ##   21  0.9595745  0.9148835
-    ##   23  0.9617021  0.9194120
-    ##   25  0.9595745  0.9148017
-    ##   27  0.9595282  0.9146468
-    ##   29  0.9552266  0.9054899
-    ##   31  0.9594820  0.9143245
-    ##   33  0.9573080  0.9094478
+    ##    5  0.9658649  0.9286890
+    ##    7  0.9679926  0.9332873
+    ##    9  0.9658649  0.9287556
+    ##   11  0.9637373  0.9240054
+    ##   13  0.9679926  0.9327690
+    ##   15  0.9680389  0.9330166
+    ##   17  0.9595282  0.9149693
+    ##   19  0.9637835  0.9241066
+    ##   21  0.9574006  0.9106573
+    ##   23  0.9552729  0.9062024
+    ##   25  0.9574006  0.9108126
+    ##   27  0.9616559  0.9194243
+    ##   29  0.9552729  0.9058983
+    ##   31  0.9552729  0.9059750
+    ##   33  0.9531452  0.9014433
     ## 
     ## Accuracy was used to select the optimal model using  the largest value.
-    ## The final value used for the model was k = 9.
+    ## The final value used for the model was k = 15.
 
 To get tons of details about the model and how it was tuned:
 
@@ -394,7 +374,7 @@ ROC <- roc(predictor=m_cv_ROC_prediction_probs$Malignant,
 ROC$auc
 ```
 
-    ## Area under the curve: 0.9994
+    ## Area under the curve: 0.998
 
 ``` r
 plot(ROC,main="ROC for kNN")
