@@ -84,6 +84,7 @@ tree size is how many decision the depth of the tree is
 More details can be seen from the summary function
 ```{r}
 summary(credit_model)
+#plot(credit_model)
 ```
 
 we understand a line like
@@ -117,9 +118,40 @@ slight improvement accuracy is now 76% and the error rate is %17
 Another approcah is to make one type of mistakes costier than the other
 ```{r Create a cost mistake}
 matrix_dimentions <- list(c("no", "yes"), c("no", "yes"))
-names(matrix_dimentions) <- c("predicted", "actual")
+tnames(matrix_dimentions) <- c("predicted", "actual")
 matrix_dimentions
 
 
+```
+
+Assuming that a loan default cost us 4 times as a missed opportunity. We will set the error matrix as the following
+```{r setting cost matrix values}
+error_cost <- matrix(c(0, 1, 4, 0), nrow = 2, dimnames = matrix_dimentions) ## causes problem (trees won't grow), had to do it without dimnames!
+error_cost2 <- matrix(c(0, 1, 4, 0), nrow = 2)
+
+error_cost
+error_cost2
+```
+
+
+
+```{r Decision Trees with cost matrix}
+credit_cost <- C5.0(credit_train[-21], credit_train$default, costs = error_cost2)
+credit_cost_pred <- predict(credit_cost, credit_test)
+CrossTable(credit_test$default, credit_cost_pred, prop.r = FALSE, prop.c = FALSE, prop.chisq = FALSE, dnn = c('actual default', 'predicted default'))
+
+```
+Notice that the total accuracy is now 59% But the type of errors has varied and the more costly error has been reduced. 
+
+
+C5.0 can create an initial tree model then decompose the tree structure into a set of mutually exclusive rules. These rules can then be pruned and modified into a smaller set of potentially overlapping rules. The rules can be created using the rules option:
+
+```{r Rule based models}
+credit_model_rules <- C5.0(credit_train[-21], credit_train$default, rules = TRUE)
+credit_model_rules
+```
+
+```{r}
+summary(credit_model_rules)
 ```
 
