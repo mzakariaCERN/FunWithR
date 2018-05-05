@@ -155,3 +155,8 @@ credit_model_rules
 summary(credit_model_rules)
 ```
 
+
+
+
+References
+https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html
