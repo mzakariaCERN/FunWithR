@@ -24,10 +24,12 @@ library(gmodels) # for CrossTable
 library(ggplot2)
 #install.packages("C50") # for DT algorithm
 library(C50)
+library(caret)
+library(pROC)
 ```
 
 
-Pulling the data: The cancer data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: https://github.com/stedy/Machine-Learning-with-R-datasets/blob/master/credit.csv and original data can be found under https://archive.ics.uci.edu/ml
+Pulling the data: The credit data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: https://github.com/stedy/Machine-Learning-with-R-datasets/blob/master/credit.csv and original data can be found under https://archive.ics.uci.edu/ml
 
 ```{r getting data}
 credit <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/3_DT/Data/credit.csv", stringsAsFactors = FALSE)
@@ -118,7 +120,7 @@ slight improvement accuracy is now 76% and the error rate is %17
 Another approcah is to make one type of mistakes costier than the other
 ```{r Create a cost mistake}
 matrix_dimentions <- list(c("no", "yes"), c("no", "yes"))
-tnames(matrix_dimentions) <- c("predicted", "actual")
+names(matrix_dimentions) <- c("predicted", "actual")
 matrix_dimentions
 
 
@@ -155,8 +157,89 @@ credit_model_rules
 summary(credit_model_rules)
 ```
 
+```{r ROC}
+probs <- predict(credit_boost10, credit_test, type = "prob")
+# plot ROC curve
+ROC <- roc(predictor=probs[,1], 
+               response=credit_test$default,
+               levels=rev(levels(credit_test$default)))
+plot(ROC)
+ROC$auc
+```
+
+credit_boost_pred10 <- predict(credit_boost10, credit_test)
+CrossTable(credit_test$default, credit_boost_pred10, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, prop.t = TRUE, dnn = c('actual defualt','predicted default')) # prop.c is for proportionaliy calculation per column
+
+```{r}
+probs <- predict(credit_boost10, credit_test, type = "prob")
+# plot ROC curve
+pred <- ROCR::prediction(probs[, 2], credit_test$default)
+perf_dt_10 <- ROCR::performance(pred, measure = 'tpr', x.measure = 'fpr')
+plot(perf_dt_10)
+performance(pred, 'auc')
+```
+
+
+```{r}
+data.frame(predicted=probs, actual=credit_test$default) %>%
+  ggplot(data=., aes(x=predicted.No)) +
+  geom_density(aes(fill=credit_test$default), alpha=0.5) +
+  xlab('Predicted probability of NO') +
+  scale_fill_discrete(name="Actual label") +
+  theme(legend.position=c(0.8,0.8))
+```
+credit_predict <- predict(credit_model, credit_test)
+
+
+```{r}
+probs_1 <- predict(credit_model, credit_test, type = "prob")
+# plot ROC curve
+pred_1 <- prediction(probs_1[, 2], credit_test$default)
+perf_dt_1 <- performance(pred_1, measure = 'tpr', x.measure = 'fpr')
+plot(perf_dt_1)
+performance(pred_1, 'auc')
+```
+
+credit_cost_pred <- predict(credit_cost, credit_test)
+
+#```{r trying to use ROC with cost}
+#probs_cost <- predict(credit_cost, credit_test, type = "prob")
+#pred_cost <- prediction(probs_cost[,2], credit_test$default)
+#perf_dt_cost <- performance(pred_cost, measure = 'tpr', x.measure = 'fpr')
+#plot(perf_dt_cost)
+#performance(pred_cost, 'auc')
+#```
+
+From the manual we see that:
+When the
+cost
+argument is used in the main function, class probabilities derived from the class
+distribution in the terminal nodes may not be consistent with the final predicted class.   For this
+reason, requesting class probabilities from a model using unequal costs will throw an error
+
+This post suggests a fix: https://stackoverflow.com/questions/32633764/error-in-predict-when-using-c-50-with-costs-and-predict-with-type-prob-to-draw
+
+
+
+```{r}
+# plot ROC for each method
+roc_dt_1   <- data.frame(fpr=unlist(perf_dt_1@x.values), tpr=unlist(perf_dt_1@y.values))
+roc_dt_1$method <- "DT 1"
+roc_dt_10 <- data.frame(fpr=unlist(perf_dt_10@x.values), tpr=unlist(perf_dt_10@y.values))
+roc_dt_10$method <- "DT 10"
+rbind(roc_dt_1, roc_dt_10) %>%
+  ggplot(data=., aes(x=fpr, y=tpr, linetype=method, color=method)) + 
+  geom_line() +
+  geom_abline(a=1, b=0, linetype=2) +
+  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
+  scale_y_continuous(labels=scales::percent, lim=c(0,1)) +
+  theme(legend.position=c(0.8,0.2), legend.title=element_blank())
+```
 
 
 
 References
 https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html
+
+https://cran.r-project.org/web/packages/C50/C50.pdf
+
