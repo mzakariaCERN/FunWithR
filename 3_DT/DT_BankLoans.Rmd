@@ -26,6 +26,7 @@ library(ggplot2)
 library(C50)
 library(caret)
 library(pROC)
+library(dplyr)
 ```
 
 
@@ -174,15 +175,15 @@ CrossTable(credit_test$default, credit_boost_pred10, prop.chisq = FALSE, prop.c 
 probs <- predict(credit_boost10, credit_test, type = "prob")
 # plot ROC curve
 pred <- ROCR::prediction(probs[, 2], credit_test$default)
-perf_dt_10 <- ROCR::performance(pred, measure = 'tpr', x.measure = 'fpr')
-plot(perf_dt_10)
-performance(pred, 'auc')
+perf_dt_10 <- ROCR::performance(pred,  'tpr',  'fpr')
+#plot(perf_dt_10) complains about coersing s4 into numeric, so we did it manually
+plot(perf_dt_10@x.values[[1]], perf_dt_10@y.values[[1]], type = "l")
+ROCR::performance(pred, 'auc')
 ```
 
 
 ```{r}
-data.frame(predicted=probs, actual=credit_test$default) %>%
-  ggplot(data=., aes(x=predicted.No)) +
+data.frame(predicted=probs, actual=credit_test$default) %>% ggplot(data=., aes(x=predicted.No)) +
   geom_density(aes(fill=credit_test$default), alpha=0.5) +
   xlab('Predicted probability of NO') +
   scale_fill_discrete(name="Actual label") +
@@ -194,10 +195,11 @@ credit_predict <- predict(credit_model, credit_test)
 ```{r}
 probs_1 <- predict(credit_model, credit_test, type = "prob")
 # plot ROC curve
-pred_1 <- prediction(probs_1[, 2], credit_test$default)
-perf_dt_1 <- performance(pred_1, measure = 'tpr', x.measure = 'fpr')
-plot(perf_dt_1)
-performance(pred_1, 'auc')
+pred_1 <- ROCR::prediction(probs_1[, 2], credit_test$default)
+perf_dt_1 <- ROCR::performance(pred_1,  'tpr',  'fpr')
+#plot(perf_dt_1)
+plot(perf_dt_1@x.values[[1]], perf_dt_1@y.values[[1]], type = "l" )
+ROCR::performance(pred_1, 'auc')
 ```
 
 credit_cost_pred <- predict(credit_cost, credit_test)
