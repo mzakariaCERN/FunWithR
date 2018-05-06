@@ -8,6 +8,7 @@ library(ggplot2)
 #install.packages("C50") # for DT algorithm
 library(C50)
 library(caret)
+#install.packages('pROC')
 library(pROC)
 library(dplyr)
 ```
@@ -179,7 +180,7 @@ summary(credit_model)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Sun May 06 11:35:54 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Sun May 06 12:10:51 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -530,7 +531,7 @@ summary(credit_model_rules)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default, rules = TRUE)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Sun May 06 11:35:55 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Sun May 06 12:10:51 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -786,8 +787,8 @@ probs <- predict(credit_boost10, credit_test, type = "prob")
 # plot ROC curve
 pred <- ROCR::prediction(probs[, 2], credit_test$default)
 perf_dt_10 <- ROCR::performance(pred,  'tpr',  'fpr')
-#plot(perf_dt_10) complains about coersing s4 into numeric, so we did it manually
-plot(perf_dt_10@x.values[[1]], perf_dt_10@y.values[[1]], type = "l")
+#plot(perf_dt_10) #complains about coersing s4 into numeric, so we did it manually
+plot(perf_dt_10@x.values[[1]], perf_dt_10@y.values[[1]], xlab = perf_dt_10@x.name[[1]], ylab = perf_dt_10@y.name[[1]], type = "l")
 ```
 
 ![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-5-1.png)
@@ -833,7 +834,7 @@ probs_1 <- predict(credit_model, credit_test, type = "prob")
 pred_1 <- ROCR::prediction(probs_1[, 2], credit_test$default)
 perf_dt_1 <- ROCR::performance(pred_1,  'tpr',  'fpr')
 #plot(perf_dt_1)
-plot(perf_dt_1@x.values[[1]], perf_dt_1@y.values[[1]], type = "l" )
+plot(perf_dt_1@x.values[[1]], perf_dt_1@y.values[[1]],  xlab = perf_dt_10@x.name[[1]], ylab = perf_dt_10@y.name[[1]], type = "l" )
 ```
 
 ![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-7-1.png)
