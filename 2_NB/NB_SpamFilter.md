@@ -11,47 +11,12 @@ Required packages
 library(gmodels)
 #install.packages("caret") # for model tuning
 library(caret)
-```
-
-    ## Loading required package: lattice
-
-    ## Loading required package: ggplot2
-
-``` r
 #install.packages("e1071") # to give us Naive Bayes 
 library(e1071)
 #install.packages("pROC") # to make ROC plots
 library(pROC)   
-```
-
-    ## Type 'citation("pROC")' for a citation.
-
-    ## 
-    ## Attaching package: 'pROC'
-
-    ## The following object is masked from 'package:gmodels':
-    ## 
-    ##     ci
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     cov, smooth, var
-
-``` r
 #install.packages("tm") # to handle text data
 library(tm)
-```
-
-    ## Loading required package: NLP
-
-    ## 
-    ## Attaching package: 'NLP'
-
-    ## The following object is masked from 'package:ggplot2':
-    ## 
-    ##     annotate
-
-``` r
 #install.packages("SnowballC") # for steaming
 library(SnowballC)
 #install.packages("wordcloud2") # to create word cloud
@@ -65,54 +30,15 @@ library(wordcloud2)
 #library(widgetframe)
 #devtools::install_github('ramnathv/htmlwidgets')
 library(wordcloud)
-```
-
-    ## Loading required package: RColorBrewer
-
-``` r
 library(klaR) # nb library used by caret
-```
-
-    ## Loading required package: MASS
-
-``` r
 library(ROCR) # another way to do ROC
-```
-
-    ## Loading required package: gplots
-
-    ## 
-    ## Attaching package: 'gplots'
-
-    ## The following object is masked from 'package:wordcloud':
-    ## 
-    ##     textplot
-
-    ## The following object is masked from 'package:stats':
-    ## 
-    ##     lowess
-
-``` r
 #install.packages("ggplot2")
 library(ggplot2)
 #install.packages("dplyr")
 library(dplyr)
+#install.packages("styler")
+#library(styler) # introduces better code style
 ```
-
-    ## 
-    ## Attaching package: 'dplyr'
-
-    ## The following object is masked from 'package:MASS':
-    ## 
-    ##     select
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     filter, lag
-
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     intersect, setdiff, setequal, union
 
 Pulling the data: The cancer data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: <https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv> and original data can be found under <https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/>
 
@@ -318,11 +244,11 @@ and replace stopwrods = TRUE with that function
 Next step is splitting the data into training and testing. Since the data is randomized as is, no need to randomize it
 
 ``` r
-sms_dtm_train <- sms_dtm[1:4169, ]
-sms_dtm_test <- sms_dtm[4170: 5574, ]
+sms_dtm_train <- sms_dtm[1:4169,]
+sms_dtm_test <- sms_dtm[4170:5574,]
 
-sms_train_labels <- sms_raw[1:4169, ]$type
-sms_test_labels <- sms_raw[4170: 5574, ]$type
+sms_train_labels <- sms_raw[1:4169,]$type
+sms_test_labels <- sms_raw[4170:5574,]$type
 ```
 
 Checking that ratio of spam to ham is close in both samples
@@ -349,7 +275,7 @@ create a word cloud. Lantz uses package wordcount. I will replicate that here an
 wordcloud(sms_corpus_clean, min.freq = 50, random.order = FALSE)
 ```
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-21-1.png)
+![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-20-1.png)
 
 Let us do a cloud for only spam and ham
 
@@ -359,24 +285,33 @@ ham <- subset(sms_raw, type = "ham")
 wordcloud(spam$text, max.words = 40, scale = c(3, .5))
 ```
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-22-1.png)
+![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-21-1.png)
 
 ``` r
-wordcloud(ham$text, max.words= 40, scale= c(3, .5))
+wordcloud(ham$text, max.words = 40, scale = c(3, .5))
 ```
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-22-2.png)
+![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-21-2.png)
 
 Next I will use wordcount2. Which needs a data frame with word and frequency. which can be prepared from a TermDocumentMatrix (TDM, and not DTM)
 
 ``` r
-myTdm <- as.matrix(TermDocumentMatrix(sms_corpus, control = list(tolower = TRUE, removeNumbers = TRUE, stopwords = TRUE, removePunctuation = TRUE, steaming = TRUE)))
-FreqMat <- data.frame(ST = rownames(myTdm),
-Freq = rowSums(myTdm),
-row.names = NULL)
-
-
-wc2 <- wordcloud2(FreqMat, minSize = 50)
+myTdm <-
+  as.matrix(TermDocumentMatrix(
+  sms_corpus,
+  control = list(
+  tolower = TRUE,
+  removeNumbers = TRUE,
+  stopwords = TRUE,
+  removePunctuation = TRUE,
+  steaming = TRUE
+  )
+  ))
+  FreqMat <- data.frame(ST = rownames(myTdm),
+  Freq = rowSums(myTdm),
+  row.names = NULL)
+  
+  wc2 <- wordcloud2(FreqMat, minSize = 50)
 ```
 
 We can also do similar plots with ham and spam messages to compare between them. Notice that you need to set always\_allow\_html: yes in yaml and you can only see the interactive image in html. so it was difficult to deploy on github.
@@ -394,13 +329,13 @@ remove every column that matches this vector
 
 ``` r
 sms_dtm_freq_train <- sms_dtm_train[, sms_freq_words]
-sms_dtm_freq_test  <- sms_dtm_test[,  sms_freq_words]
+sms_dtm_freq_test  <- sms_dtm_test[, sms_freq_words]
 ```
 
 NB classifiers typically use categorical features. This poses an issue for sparce matrices (DTM) since the cell are numeric and measure the number of times a word appears in the same massage. To change it to categorical we convert it to yes/no
 
 ``` r
-convert_counts <- function(x){
+convert_counts <- function(x) {
   x <- ifelse(x > 0, "yes", "no")
 }
 ```
@@ -461,14 +396,14 @@ CrossTable(sms_test_pred, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, d
     ## 
 
 ``` r
-probs <- predict(sms_classifier, sms_test, type="raw")
+probs <- predict(sms_classifier, sms_test, type = "raw")
 # plot ROC curve
 pred <- prediction(probs[, "spam"], sms_test_labels)
-perf_nb <- performance(pred, measure='tpr', x.measure='fpr')
+perf_nb <- performance(pred, measure = 'tpr', x.measure = 'fpr')
 plot(perf_nb)
 ```
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-31-1.png)
+![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-30-1.png)
 
 ``` r
 performance(pred, 'auc')
@@ -497,32 +432,32 @@ performance(pred, 'auc')
 
 ``` r
 # plot calibration
-data.frame(predicted=probs[, "spam"], actual=sms_test_labels) %>%
-  group_by(predicted=round(predicted*10)/10) %>%
-  summarize(num=n(), actual=mean(actual == "spam")) %>%
-  ggplot(data=., aes(x=predicted, y=actual, size=num)) +
+data.frame(predicted = probs[, "spam"], actual = sms_test_labels) %>%
+  group_by(predicted = round(predicted * 10) / 10) %>%
+  summarize(num = n(), actual = mean(actual == "spam")) %>%
+  ggplot(data = ., aes(x = predicted, y = actual, size = num)) +
   geom_point() +
-  geom_abline(a=1, b=0, linetype=2) +
-  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
-  scale_y_continuous(labels=scales::percent, lim=c(0,1))
+  geom_abline(a = 1, b = 0, linetype = 2) +
+  scale_x_continuous(labels = scales::percent, lim = c(0, 1)) +
+  scale_y_continuous(labels = scales::percent, lim = c(0, 1))
 ```
 
     ## Warning: Ignoring unknown parameters: a, b
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-32-1.png)
+![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-31-1.png)
 
 They points are distributed evenly. So no sign of over confidence.
 
 ``` r
-data.frame(predicted=probs, actual=sms_test_labels) %>%
-  ggplot(data=., aes(x=predicted.spam)) +
-  geom_density(aes(fill=sms_test_labels), alpha=0.5) +
+data.frame(predicted = probs, actual = sms_test_labels) %>%
+  ggplot(data = ., aes(x = predicted.spam)) +
+  geom_density(aes(fill = sms_test_labels), alpha = 0.5) +
   xlab('Predicted probability of spam') +
-  scale_fill_discrete(name="Actual label") +
-  theme(legend.position=c(0.8,0.8))
+  scale_fill_discrete(name = "Actual label") +
+  theme(legend.position = c(0.8, 0.8))
 ```
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-33-1.png)
+![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-32-1.png)
 
 One way to improve on the model, is to set laplace more than zero. this way words with zero occurance in either class will not have an indisputable say of the classification
 
@@ -608,22 +543,32 @@ Lets compary the two ROC curves
 
 ``` r
 # plot ROC for each method
-roc_nb   <- data.frame(fpr=unlist(perf_nb@x.values), tpr=unlist(perf_nb@y.values))
-roc_nb$method <- "naive bayes"
-roc_nb_2 <- data.frame(fpr=unlist(perf_nb_2@x.values), tpr=unlist(perf_nb_2@y.values))
-roc_nb_2$method <- "nive bayes 2"
-rbind(roc_nb, roc_nb_2) %>%
-  ggplot(data=., aes(x=fpr, y=tpr, linetype=method, color=method)) + 
+roc_nb   <-
+  data.frame(fpr = unlist(perf_nb@x.values),
+  tpr = unlist(perf_nb@y.values))
+  roc_nb$method <- "naive bayes"
+  roc_nb_2 <-
+  data.frame(fpr = unlist(perf_nb_2@x.values),
+  tpr = unlist(perf_nb_2@y.values))
+  roc_nb_2$method <- "nive bayes 2"
+  rbind(roc_nb, roc_nb_2) %>%
+  ggplot(data = ., aes(
+  x = fpr,
+  y = tpr,
+  linetype = method,
+  color = method
+  )) +
   geom_line() +
-  geom_abline(a=1, b=0, linetype=2) +
-  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
-  scale_y_continuous(labels=scales::percent, lim=c(0,1)) +
-  theme(legend.position=c(0.8,0.2), legend.title=element_blank())
+  geom_abline(a = 1, b = 0, linetype = 2) +
+  scale_x_continuous(labels = scales::percent, lim = c(0, 1)) +
+  scale_y_continuous(labels = scales::percent, lim = c(0, 1)) +
+  theme(legend.position = c(0.8, 0.2),
+  legend.title = element_blank())
 ```
 
     ## Warning: Ignoring unknown parameters: a, b
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-38-1.png)
+![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-37-1.png)
 
 Next we need to investigate if hypertuning can get us a better result. First, let us see what caret has to say about Naive Bayes
 
@@ -655,8 +600,8 @@ sms_classifier3
     ## Resampling results across tuning parameters:
     ## 
     ##   usekernel  Accuracy   Kappa    
-    ##   FALSE      0.9785267  0.9078845
-    ##    TRUE      0.9785267  0.9078845
+    ##   FALSE      0.9837345  0.9237371
+    ##    TRUE      0.9837345  0.9237371
     ## 
     ## Tuning parameter 'fL' was held constant at a value of 0
     ## Tuning
@@ -723,12 +668,12 @@ sms_classifier4
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (10 fold) 
-    ## Summary of sample sizes: 3752, 3753, 3752, 3753, 3751, 3751, ... 
+    ## Summary of sample sizes: 3752, 3753, 3753, 3752, 3751, 3752, ... 
     ## Resampling results across tuning parameters:
     ## 
     ##   usekernel  Accuracy   Kappa    
-    ##   FALSE      0.9812857  0.9161722
-    ##    TRUE      0.9812857  0.9161722
+    ##   FALSE      0.9822415  0.9204073
+    ##    TRUE      0.9822415  0.9204073
     ## 
     ## Tuning parameter 'fL' was held constant at a value of 0
     ## Tuning

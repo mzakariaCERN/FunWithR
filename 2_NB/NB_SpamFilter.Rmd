@@ -411,7 +411,7 @@ roc_nb   <-
 
 Next we need to investigate if hypertuning can get us a better result. First, let us see what caret has to say about Naive Bayes
 
-```{r}
+```{r Tuning Variables for NB}
 modelLookup("nb")
 ```
 
