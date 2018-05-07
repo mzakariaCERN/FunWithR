@@ -1,5 +1,5 @@
 ---
-title: "Bank Loan classifier with Naive Bays"
+title: "Bank Loan classifier with Decision Trees"
 author: "Mohammed Zakaria"
 #output:
 #  html_document:
@@ -306,8 +306,7 @@ rbind(roc_dt_1, roc_dt_10, roc_dt_cv_ROC) %>%
   theme(legend.position=c(0.8,0.2), legend.title=element_blank())
 ```
 
-References
-https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html
-
-https://cran.r-project.org/web/packages/C50/C50.pdf
+>References  
+>https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html  
+>https://cran.r-project.org/web/packages/C50/C50.pdf  
 

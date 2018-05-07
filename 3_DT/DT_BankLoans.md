@@ -1,4 +1,4 @@
-Bank Loan classifier with Naive Bays
+Bank Loan classifier with Decision Trees
 ================
 Mohammed Zakaria
 
@@ -180,7 +180,7 @@ summary(credit_model)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:17:14 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:35:06 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -531,7 +531,7 @@ summary(credit_model_rules)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default, rules = TRUE)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:17:15 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:35:06 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -1043,6 +1043,6 @@ rbind(roc_dt_1, roc_dt_10, roc_dt_cv_ROC) %>%
 
 ![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
-References <https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html>
-
-<https://cran.r-project.org/web/packages/C50/C50.pdf>
+> References
+> <https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html>
+> <https://cran.r-project.org/web/packages/C50/C50.pdf>
