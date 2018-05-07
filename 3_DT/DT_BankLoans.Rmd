@@ -239,7 +239,72 @@ rbind(roc_dt_1, roc_dt_10) %>%
   theme(legend.position=c(0.8,0.2), legend.title=element_blank())
 ```
 
+Next we consider tuning the DT model. Based on the caret package
+See link https://topepo.github.io/caret/available-models.html
 
+```{r What parameters we can tune in DT}
+modelLookup("C5.0")
+```
+
+WE have 3 parameters to tune:
+1- trials: an integer specifying the number of boosting iterations. A value of one indicates that a single model is used.
+2- model from caret git hub page https://github.com/topepo/caret/blob/master/models/files/C5.0.R seems there are two value: rules, tree
+3- winnow: A logical: should predictor winnowing (i.e feature selection) be used?
+
+```{r Tuning 3 parameters with caret default, message=FALSE, warning=FALSE, paged.print=FALSE}
+credit_classifier3<- train(credit_train[-21], credit_train$default , method = "C5.0", verbose = FALSE)
+# we can do our own grid 
+#grid <- expand.grid( .winnow = c(TRUE,FALSE), .trials=c(1,5,10,15,20), .model="tree" )
+#credit_classifier3<- train(credit_train[-21], credit_train$default , method = "C5.0", verbose = FALSE, tuneGrid = grid)
+
+credit_classifier3
+credit_test_pred3 <- predict(credit_classifier3, credit_test)
+CrossTable(credit_test$default, credit_test_pred3, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, prop.t = TRUE, dnn = c('actual defualt','predicted default')) # prop.c is for proportionaliy calculation per column
+
+
+```
+
+```{r tuning using ROC}
+ctrl <- trainControl(method = "cv",   
+                     summaryFunction=twoClassSummary,
+                     classProbs=TRUE,
+                     allowParallel = FALSE)
+m_cv_ROC <- train(credit_train[-21], credit_train$default,
+      method = "C5.0",
+      metric = "ROC",
+      trControl = ctrl)
+```
+
+
+```{r}
+
+probs_cv_ROC <- predict(m_cv_ROC, credit_test, type = "prob")
+# plot ROC curve
+pred_cv_ROC <- ROCR::prediction(probs_cv_ROC[, 2], credit_test$default)
+perf_dt_cv_ROC <- ROCR::performance(pred_cv_ROC,  'tpr',  'fpr')
+#plot(perf_dt_1)
+plot(perf_dt_cv_ROC@x.values[[1]], perf_dt_cv_ROC@y.values[[1]],  xlab = perf_dt_cv_ROC@x.name[[1]], ylab = perf_dt_cv_ROC@y.name[[1]], type = "l" )
+ROCR::performance(pred_cv_ROC, 'auc')
+```
+
+
+```{r}
+# plot ROC for each method
+roc_dt_1   <- data.frame(fpr=unlist(perf_dt_1@x.values), tpr=unlist(perf_dt_1@y.values))
+roc_dt_1$method <- "DT 1"
+roc_dt_10 <- data.frame(fpr=unlist(perf_dt_10@x.values), tpr=unlist(perf_dt_10@y.values))
+roc_dt_10$method <- "DT 10"
+roc_dt_cv_ROC <- data.frame(fpr=unlist(perf_dt_cv_ROC@x.values), tpr=unlist(perf_dt_cv_ROC@y.values))
+roc_dt_cv_ROC$method <- "DT CV ROC"
+
+rbind(roc_dt_1, roc_dt_10, roc_dt_cv_ROC) %>%
+  ggplot(data=., aes(x=fpr, y=tpr, linetype=method, color=method)) + 
+  geom_line() +
+  geom_abline(a=1, b=0, linetype=2) +
+  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
+  scale_y_continuous(labels=scales::percent, lim=c(0,1)) +
+  theme(legend.position=c(0.8,0.2), legend.title=element_blank())
+```
 
 References
 https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html

@@ -180,7 +180,7 @@ summary(credit_model)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Sun May 06 12:10:51 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:17:14 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -531,7 +531,7 @@ summary(credit_model_rules)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default, rules = TRUE)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Sun May 06 12:10:51 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:17:15 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -891,6 +891,157 @@ rbind(roc_dt_1, roc_dt_10) %>%
     ## Warning: Ignoring unknown parameters: a, b
 
 ![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-8-1.png)
+
+Next we consider tuning the DT model. Based on the caret package See link <https://topepo.github.io/caret/available-models.html>
+
+``` r
+modelLookup("C5.0")
+```
+
+    ##   model parameter                 label forReg forClass probModel
+    ## 1  C5.0    trials # Boosting Iterations  FALSE     TRUE      TRUE
+    ## 2  C5.0     model            Model Type  FALSE     TRUE      TRUE
+    ## 3  C5.0    winnow                Winnow  FALSE     TRUE      TRUE
+
+WE have 3 parameters to tune: 1- trials: an integer specifying the number of boosting iterations. A value of one indicates that a single model is used. 2- model from caret git hub page <https://github.com/topepo/caret/blob/master/models/files/C5.0.R> seems there are two value: rules, tree 3- winnow: A logical: should predictor winnowing (i.e feature selection) be used?
+
+``` r
+credit_classifier3<- train(credit_train[-21], credit_train$default , method = "C5.0", verbose = FALSE)
+# we can do our own grid 
+#grid <- expand.grid( .winnow = c(TRUE,FALSE), .trials=c(1,5,10,15,20), .model="tree" )
+#credit_classifier3<- train(credit_train[-21], credit_train$default , method = "C5.0", verbose = FALSE, tuneGrid = grid)
+
+credit_classifier3
+```
+
+    ## C5.0 
+    ## 
+    ## 900 samples
+    ##  20 predictor
+    ##   2 classes: 'No', 'YES' 
+    ## 
+    ## No pre-processing
+    ## Resampling: Bootstrapped (25 reps) 
+    ## Summary of sample sizes: 900, 900, 900, 900, 900, 900, ... 
+    ## Resampling results across tuning parameters:
+    ## 
+    ##   model  winnow  trials  Accuracy   Kappa    
+    ##   rules  FALSE    1      0.7019477  0.2642642
+    ##   rules  FALSE   10      0.7329041  0.3362735
+    ##   rules  FALSE   20      0.7400615  0.3492976
+    ##   rules   TRUE    1      0.7027798  0.2649061
+    ##   rules   TRUE   10      0.7250516  0.3200374
+    ##   rules   TRUE   20      0.7328711  0.3312186
+    ##   tree   FALSE    1      0.6963069  0.2540905
+    ##   tree   FALSE   10      0.7353152  0.3231561
+    ##   tree   FALSE   20      0.7416533  0.3360272
+    ##   tree    TRUE    1      0.6955951  0.2509301
+    ##   tree    TRUE   10      0.7274477  0.3008467
+    ##   tree    TRUE   20      0.7312990  0.3116126
+    ## 
+    ## Accuracy was used to select the optimal model using  the largest value.
+    ## The final values used for the model were trials = 20, model = tree
+    ##  and winnow = FALSE.
+
+``` r
+credit_test_pred3 <- predict(credit_classifier3, credit_test)
+CrossTable(credit_test$default, credit_test_pred3, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, prop.t = TRUE, dnn = c('actual defualt','predicted default')) # prop.c is for proportionaliy calculation per column
+```
+
+    ## 
+    ##  
+    ##    Cell Contents
+    ## |-------------------------|
+    ## |                       N |
+    ## |         N / Table Total |
+    ## |-------------------------|
+    ## 
+    ##  
+    ## Total Observations in Table:  100 
+    ## 
+    ##  
+    ##                | predicted default 
+    ## actual defualt |        No |       YES | Row Total | 
+    ## ---------------|-----------|-----------|-----------|
+    ##             No |        59 |         8 |        67 | 
+    ##                |     0.590 |     0.080 |           | 
+    ## ---------------|-----------|-----------|-----------|
+    ##            YES |        20 |        13 |        33 | 
+    ##                |     0.200 |     0.130 |           | 
+    ## ---------------|-----------|-----------|-----------|
+    ##   Column Total |        79 |        21 |       100 | 
+    ## ---------------|-----------|-----------|-----------|
+    ## 
+    ## 
+
+``` r
+ctrl <- trainControl(method = "cv",   
+                     summaryFunction=twoClassSummary,
+                     classProbs=TRUE,
+                     allowParallel = FALSE)
+m_cv_ROC <- train(credit_train[-21], credit_train$default,
+      method = "C5.0",
+      metric = "ROC",
+      trControl = ctrl)
+```
+
+``` r
+probs_cv_ROC <- predict(m_cv_ROC, credit_test, type = "prob")
+# plot ROC curve
+pred_cv_ROC <- ROCR::prediction(probs_cv_ROC[, 2], credit_test$default)
+perf_dt_cv_ROC <- ROCR::performance(pred_cv_ROC,  'tpr',  'fpr')
+#plot(perf_dt_1)
+plot(perf_dt_cv_ROC@x.values[[1]], perf_dt_cv_ROC@y.values[[1]],  xlab = perf_dt_cv_ROC@x.name[[1]], ylab = perf_dt_cv_ROC@y.name[[1]], type = "l" )
+```
+
+![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-9-1.png)
+
+``` r
+ROCR::performance(pred_cv_ROC, 'auc')
+```
+
+    ## An object of class "performance"
+    ## Slot "x.name":
+    ## [1] "None"
+    ## 
+    ## Slot "y.name":
+    ## [1] "Area under the ROC curve"
+    ## 
+    ## Slot "alpha.name":
+    ## [1] "none"
+    ## 
+    ## Slot "x.values":
+    ## list()
+    ## 
+    ## Slot "y.values":
+    ## [[1]]
+    ## [1] 0.7236545
+    ## 
+    ## 
+    ## Slot "alpha.values":
+    ## list()
+
+``` r
+# plot ROC for each method
+roc_dt_1   <- data.frame(fpr=unlist(perf_dt_1@x.values), tpr=unlist(perf_dt_1@y.values))
+roc_dt_1$method <- "DT 1"
+roc_dt_10 <- data.frame(fpr=unlist(perf_dt_10@x.values), tpr=unlist(perf_dt_10@y.values))
+roc_dt_10$method <- "DT 10"
+roc_dt_cv_ROC <- data.frame(fpr=unlist(perf_dt_cv_ROC@x.values), tpr=unlist(perf_dt_cv_ROC@y.values))
+roc_dt_cv_ROC$method <- "DT CV ROC"
+
+rbind(roc_dt_1, roc_dt_10, roc_dt_cv_ROC) %>%
+  ggplot(data=., aes(x=fpr, y=tpr, linetype=method, color=method)) + 
+  geom_line() +
+  geom_abline(a=1, b=0, linetype=2) +
+  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
+  scale_y_continuous(labels=scales::percent, lim=c(0,1)) +
+  theme(legend.position=c(0.8,0.2), legend.title=element_blank())
+```
+
+    ## Warning: Ignoring unknown parameters: a, b
+
+![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
 References <https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html>
 
