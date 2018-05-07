@@ -190,7 +190,10 @@ data.frame(predicted=probs, actual=credit_test$default) %>% ggplot(data=., aes(x
   scale_fill_discrete(name="Actual label") +
   theme(legend.position=c(0.8,0.8))
 ```
+```{r}
 credit_predict <- predict(credit_model, credit_test)
+
+```
 
 
 ```{r}
@@ -203,15 +206,21 @@ plot(perf_dt_1@x.values[[1]], perf_dt_1@y.values[[1]],  xlab = perf_dt_10@x.name
 ROCR::performance(pred_1, 'auc')
 ```
 
+
+
+```{r}
 credit_cost_pred <- predict(credit_cost, credit_test)
 
-#```{r trying to use ROC with cost}
-#probs_cost <- predict(credit_cost, credit_test, type = "prob")
-#pred_cost <- prediction(probs_cost[,2], credit_test$default)
-#perf_dt_cost <- performance(pred_cost, measure = 'tpr', x.measure = 'fpr')
-#plot(perf_dt_cost)
-#performance(pred_cost, 'auc')
-#```
+```
+
+Next we try tuning the the model with the cost, but the following code fails!
+```
+probs_cost <- predict(credit_cost, credit_test, type = "prob")  
+pred_cost <- prediction(probs_cost[,2], credit_test$default)  
+perf_dt_cost <- performance(pred_cost, measure = 'tpr', x.measure = 'fpr')  
+plot(perf_dt_cost)  
+performance(pred_cost, 'auc')  
+```
 
 From the manual we see that:
 When the

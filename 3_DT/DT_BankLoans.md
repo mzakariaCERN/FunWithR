@@ -180,7 +180,7 @@ summary(credit_model)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:35:06 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:48:41 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -531,7 +531,7 @@ summary(credit_model_rules)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default, rules = TRUE)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:35:06 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:48:42 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -826,7 +826,11 @@ data.frame(predicted=probs, actual=credit_test$default) %>% ggplot(data=., aes(x
   theme(legend.position=c(0.8,0.8))
 ```
 
-![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-6-1.png) credit\_predict &lt;- predict(credit\_model, credit\_test)
+![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-6-1.png)
+
+``` r
+credit_predict <- predict(credit_model, credit_test)
+```
 
 ``` r
 probs_1 <- predict(credit_model, credit_test, type = "prob")
@@ -837,7 +841,7 @@ perf_dt_1 <- ROCR::performance(pred_1,  'tpr',  'fpr')
 plot(perf_dt_1@x.values[[1]], perf_dt_1@y.values[[1]],  xlab = perf_dt_10@x.name[[1]], ylab = perf_dt_10@y.name[[1]], type = "l" )
 ```
 
-![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 ``` r
 ROCR::performance(pred_1, 'auc')
@@ -864,10 +868,15 @@ ROCR::performance(pred_1, 'auc')
     ## Slot "alpha.values":
     ## list()
 
-credit\_cost\_pred &lt;- predict(credit\_cost, credit\_test)
+``` r
+credit_cost_pred <- predict(credit_cost, credit_test)
+```
 
-`{r trying to use ROC with cost} #probs_cost <- predict(credit_cost, credit_test, type = "prob") #pred_cost <- prediction(probs_cost[,2], credit_test$default) #perf_dt_cost <- performance(pred_cost, measure = 'tpr', x.measure = 'fpr') #plot(perf_dt_cost) #performance(pred_cost, 'auc') #`
-================================================================================================================================================================================================================================================================================================
+    probs_cost <- predict(credit_cost, credit_test, type = "prob")  
+    pred_cost <- prediction(probs_cost[,2], credit_test$default)  
+    perf_dt_cost <- performance(pred_cost, measure = 'tpr', x.measure = 'fpr')  
+    plot(perf_dt_cost)  
+    performance(pred_cost, 'auc')  
 
 From the manual we see that: When the cost argument is used in the main function, class probabilities derived from the class distribution in the terminal nodes may not be consistent with the final predicted class. For this reason, requesting class probabilities from a model using unequal costs will throw an error
 
@@ -890,7 +899,7 @@ rbind(roc_dt_1, roc_dt_10) %>%
 
     ## Warning: Ignoring unknown parameters: a, b
 
-![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
 Next we consider tuning the DT model. Based on the caret package See link <https://topepo.github.io/caret/available-models.html>
 
@@ -994,7 +1003,7 @@ perf_dt_cv_ROC <- ROCR::performance(pred_cv_ROC,  'tpr',  'fpr')
 plot(perf_dt_cv_ROC@x.values[[1]], perf_dt_cv_ROC@y.values[[1]],  xlab = perf_dt_cv_ROC@x.name[[1]], ylab = perf_dt_cv_ROC@y.name[[1]], type = "l" )
 ```
 
-![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-11-1.png)
 
 ``` r
 ROCR::performance(pred_cv_ROC, 'auc')
@@ -1041,7 +1050,7 @@ rbind(roc_dt_1, roc_dt_10, roc_dt_cv_ROC) %>%
 
     ## Warning: Ignoring unknown parameters: a, b
 
-![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-10-1.png)
+![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
 > References
 > <https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html>
