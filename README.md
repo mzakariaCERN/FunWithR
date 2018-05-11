@@ -2,13 +2,15 @@
 Some code scripts I have been working on using R: 
 
 1. 1_kNN  
-Folder contains some exploritary work using kNN classification for Cancer data  
+Folder contains some exploritary work using kNN classification for Cancer data
+[link](https://github.com/mzakariaCERN/FunWithR/blob/master/1_kNN/kNN_Cancer.md)
 
 2. 2_NP  
-Folder contains a study on using Naive Bayed for SMS classification  
+Folder contains a study on using Naive Bayed for SMS classification
+[link](https://github.com/mzakariaCERN/FunWithR/blob/master/2_NB/NB_SpamFilter.md)
 
 3. 3_DT  
-Folder contans a study on using Decision Trees for default prediction on data from a bank  
+Folder contans a study on using Decision Trees for default prediction on data from a bank [link](https://github.com/mzakariaCERN/FunWithR/blob/master/3_DT/DT_BankLoans.md)
 
 All studies use caret library for tuning using ROC
 
