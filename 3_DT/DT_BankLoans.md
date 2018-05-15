@@ -180,7 +180,7 @@ summary(credit_model)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:48:41 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:55:04 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -531,7 +531,7 @@ summary(credit_model_rules)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default, rules = TRUE)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:48:42 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:55:04 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -872,6 +872,8 @@ ROCR::performance(pred_1, 'auc')
 credit_cost_pred <- predict(credit_cost, credit_test)
 ```
 
+Next we try tuning the the model with the cost, but the following code fails!
+
     probs_cost <- predict(credit_cost, credit_test, type = "prob")  
     pred_cost <- prediction(probs_cost[,2], credit_test$default)  
     perf_dt_cost <- performance(pred_cost, measure = 'tpr', x.measure = 'fpr')  
@@ -912,7 +914,10 @@ modelLookup("C5.0")
     ## 2  C5.0     model            Model Type  FALSE     TRUE      TRUE
     ## 3  C5.0    winnow                Winnow  FALSE     TRUE      TRUE
 
-WE have 3 parameters to tune: 1- trials: an integer specifying the number of boosting iterations. A value of one indicates that a single model is used. 2- model from caret git hub page <https://github.com/topepo/caret/blob/master/models/files/C5.0.R> seems there are two value: rules, tree 3- winnow: A logical: should predictor winnowing (i.e feature selection) be used?
+We have 3 parameters to tune in C5.0 decision trees implementation:
+1- trials: an integer specifying the number of boosting iterations. A value of one indicates that a single model is used
+2- model from caret git hub page <https://github.com/topepo/caret/blob/master/models/files/C5.0.R> seems there are two value: rules, tree
+3- winnow: A logical: should predictor winnowing (i.e feature selection) be used?
 
 ``` r
 credit_classifier3<- train(credit_train[-21], credit_train$default , method = "C5.0", verbose = FALSE)

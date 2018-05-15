@@ -255,10 +255,10 @@ See link https://topepo.github.io/caret/available-models.html
 modelLookup("C5.0")
 ```
 
-WE have 3 parameters to tune:
-1- trials: an integer specifying the number of boosting iterations. A value of one indicates that a single model is used.
-2- model from caret git hub page https://github.com/topepo/caret/blob/master/models/files/C5.0.R seems there are two value: rules, tree
-3- winnow: A logical: should predictor winnowing (i.e feature selection) be used?
+We have 3 parameters to tune in C5.0 decision trees implementation:  
+1- trials: an integer specifying the number of boosting iterations. A value of one indicates that a single model is used  
+2- model from caret git hub page https://github.com/topepo/caret/blob/master/models/files/C5.0.R seems there are two value: rules, tree  
+3- winnow: A logical: should predictor winnowing (i.e feature selection) be used?  
 
 ```{r Tuning 3 parameters with caret default, message=FALSE, warning=FALSE, paged.print=FALSE}
 credit_classifier3<- train(credit_train[-21], credit_train$default , method = "C5.0", verbose = FALSE)
