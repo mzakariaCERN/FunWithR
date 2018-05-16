@@ -28,11 +28,14 @@ library(caret)
 #install.packages('pROC')
 library(pROC)
 library(dplyr)
-library(RWeka) # for 1R learnerrs
+library(RWeka) # for 1R and JRip learners
 ## neeed to install java
+## see this video https://www.youtube.com/watch?v=Wp6uS7CmivE
 ## then 
 #Sys.setenv(JAVA_HOME='C:\\Program Files/Java/jdk-10.0.1/')
-#library(rJava) # for 1R learnerrs
+#.rs.restartR()
+
+library(rJava) # for 1R learnerrs
 ```
 
 
@@ -46,7 +49,14 @@ str(mushrooms)
 summary(mushrooms)
 ```
 
+We notice two things to be fixed:
+1. All data seems to be in string form, so we need to convert that to factors
+2. veil_type has only one level, so we better remove it
+
 ```{r Feature Engineering}
+# just re read the data with setting the strings as factors
+mushrooms <- read.csv(file = "C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/4_RL/Data/mushrooms.csv")
+
 # mushrooms$veil_type has one one level, we might as well drop it
 mushrooms$veil_type <- NULL
 
@@ -62,4 +72,26 @@ table(mushrooms$type)
 Since we want to develop only rules for this sample (not some unforeseen mushroom type) we will not divide the data into testing and training. 
 
 If we use ZeroR classifier, it will classify all mushrooms as edible (because of the slight majority we saw in mushrooms$type). This is not very useful and we can do better using 1R learnerns. 
+
+
+```{r Rule Learning}
+mushroom_1R <- OneR(type ~ . , data = mushrooms)
+mushroom_1R
+```
+
+```{r}
+summary(mushroom_1R)
+```
+ Notice that the classifier accepted 120 poisonous mushrooms as edible! 
+
+```{r Using JRip}
+mushroom_JRip <- JRip(type ~ ., data = mushrooms)
+mushroom_JRip
+```
+
+Notice that the model had no errors using these 9 rules. Also ntice that the rules go as if, else statements
+
+```{r}
+summary(mushroom_JRip)
+```
 
