@@ -10,7 +10,11 @@ Folder contains a study on using Naive Bayed for SMS classification
 [link](https://github.com/mzakariaCERN/FunWithR/blob/master/2_NB/NB_SpamFilter.md)
 
 3. 3_DT  
-Folder contans a study on using Decision Trees for default prediction on data from a bank [link](https://github.com/mzakariaCERN/FunWithR/blob/master/3_DT/DT_BankLoans.md)
+Folder contains a study on using Decision Trees for default prediction on data from a bank [link](https://github.com/mzakariaCERN/FunWithR/blob/master/3_DT/DT_BankLoans.md)
+
+4. 4_RL
+Folder contains a study using Rule LEarners (R1 and JRip) to classify mushrooms
+[link](https://github.com/mzakariaCERN/FunWithR/blob/master/4_RL/RL_Mashroom.md)
 
 All studies use caret library for tuning using ROC
 
