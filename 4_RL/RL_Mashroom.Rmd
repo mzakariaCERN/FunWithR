@@ -28,7 +28,38 @@ library(caret)
 #install.packages('pROC')
 library(pROC)
 library(dplyr)
+library(RWeka) # for 1R learnerrs
+## neeed to install java
+## then 
+#Sys.setenv(JAVA_HOME='C:\\Program Files/Java/jdk-10.0.1/')
+#library(rJava) # for 1R learnerrs
 ```
 
 
 Pulling the data: The mushroom data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this [link](https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/mushrooms.csv) and original data can be found in the [UCI Repository](https://archive.ics.uci.edu/ml)
+
+
+```{r getting data}
+mushrooms <- read.csv(file = "C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/4_RL/Data/mushrooms.csv", stringsAsFactors = FALSE)
+str(mushrooms)
+
+summary(mushrooms)
+```
+
+```{r Feature Engineering}
+# mushrooms$veil_type has one one level, we might as well drop it
+mushrooms$veil_type <- NULL
+
+```
+
+
+
+
+```{r}
+table(mushrooms$type)
+```
+
+Since we want to develop only rules for this sample (not some unforeseen mushroom type) we will not divide the data into testing and training. 
+
+If we use ZeroR classifier, it will classify all mushrooms as edible (because of the slight majority we saw in mushrooms$type). This is not very useful and we can do better using 1R learnerns. 
+
