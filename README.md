@@ -1,5 +1,5 @@
-# FunWithR
-Some code scripts I have been working on using R: 
+## FunWithR
+# Some code scripts I have been working on using R: 
 
 1. 1_kNN  
 Folder contains some exploritary work using kNN classification for Cancer data
@@ -17,6 +17,10 @@ Folder contains a study using Rule LEarners (R1 and JRip) to classify mushrooms
 [link](https://github.com/mzakariaCERN/FunWithR/blob/master/4_RL/RL_Mashroom.md)
 
 All studies use caret library for tuning using ROC
+
+
+# Additional Resource:  
+1. UsefullLibraries: lists the libraries that I have encountered and deemed useful. Sort of a bookmark [link](https://github.com/mzakariaCERN/FunWithR/tree/master/Resources)
 
 1. Scrapping_NHL.R: Designed to scrap data from NHL website for minutes played by each player of the team for that game. Please see comments in the source file. 
 2. CalculateNHLBands.Rmd: A short example on how to calculate the acceleration bands from a  5-column csv file. After finding the average acceleration, we calcualte the Standard deviation, and then make thresholds (band) using 0.5, 1.0, and 1.5 times the standard deviation. 
