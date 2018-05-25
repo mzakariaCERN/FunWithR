@@ -95,3 +95,6 @@ Notice that the model had no errors using these 9 rules. Also ntice that the rul
 summary(mushroom_JRip)
 ```
 
+>References
+>https://www.cs.cmu.edu/afs/cs/project/jair/pub/volume8/fuernkranz98a-html/node6.html
+>https://people.dsv.su.se/~henke/papers/bostrom99a.pdf
