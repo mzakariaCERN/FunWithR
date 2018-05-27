@@ -173,21 +173,27 @@ $(document).ready(function () {
 
 
 <!-- rnb-text-begin -->
-<p>This is an <a href="http://rmarkdown.rstudio.com">R Markdown</a> Notebook. When you execute code within the notebook, the results appear beneath the code.</p>
-<p>Try executing this chunk by clicking the <em>Run</em> button within the chunk or by placing your cursor inside it and pressing <em>Ctrl+Shift+Enter</em>.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGxvdChjYXJzKVxuYGBgIn0= -->
-<pre class="r"><code>plot(cars)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5zcnVhbmNlIDwtIHJlYWQuY3N2KGZpbGUgPSBcIkRhdGEvaW5zdXJhbmNlLmNzdlwiLCBzdHJpbmdzQXNGYWN0b3JzID0gVFJVRSAgKVxuc3RyKGluc3J1YW5jZSlcbmBgYCJ9 -->
+<pre class="r"><code>insruance &lt;- read.csv(file = &quot;Data/insurance.csv&quot;, stringsAsFactors = TRUE  )
+str(insruance)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiJ2RhdGEuZnJhbWUnOlx0MTMzOCBvYnMuIG9mICA3IHZhcmlhYmxlczpcbiAkIGFnZSAgICAgOiBpbnQgIDE5IDE4IDI4IDMzIDMyIDMxIDQ2IDM3IDM3IDYwIC4uLlxuICQgc2V4ICAgICA6IEZhY3RvciB3LyAyIGxldmVscyBcImZlbWFsZVwiLFwibWFsZVwiOiAxIDIgMiAyIDIgMSAxIDEgMiAxIC4uLlxuICQgYm1pICAgICA6IG51bSAgMjcuOSAzMy44IDMzIDIyLjcgMjguOSAyNS43IDMzLjQgMjcuNyAyOS44IDI1LjggLi4uXG4gJCBjaGlsZHJlbjogaW50ICAwIDEgMyAwIDAgMCAxIDMgMiAwIC4uLlxuICQgc21va2VyICA6IEZhY3RvciB3LyAyIGxldmVscyBcIm5vXCIsXCJ5ZXNcIjogMiAxIDEgMSAxIDEgMSAxIDEgMSAuLi5cbiAkIHJlZ2lvbiAgOiBGYWN0b3Igdy8gNCBsZXZlbHMgXCJub3J0aGVhc3RcIixcIm5vcnRod2VzdFwiLC4uOiA0IDMgMyAyIDIgMyAzIDIgMSAyIC4uLlxuICQgZXhwZW5zZXM6IG51bSAgMTY4ODUgMTcyNiA0NDQ5IDIxOTg0IDM4NjcgLi4uXG4ifQ== -->
+<pre><code>'data.frame':   1338 obs. of  7 variables:
+ $ age     : int  19 18 28 33 32 31 46 37 37 60 ...
+ $ sex     : Factor w/ 2 levels &quot;female&quot;,&quot;male&quot;: 1 2 2 2 2 1 1 1 2 1 ...
+ $ bmi     : num  27.9 33.8 33 22.7 28.9 25.7 33.4 27.7 29.8 25.8 ...
+ $ children: int  0 1 3 0 0 0 1 3 2 0 ...
+ $ smoker  : Factor w/ 2 levels &quot;no&quot;,&quot;yes&quot;: 2 1 1 1 1 1 1 1 1 1 ...
+ $ region  : Factor w/ 4 levels &quot;northeast&quot;,&quot;northwest&quot;,..: 4 3 3 2 2 3 3 2 1 2 ...
+ $ expenses: num  16885 1726 4449 21984 3867 ...</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Add a new chunk by clicking the <em>Insert Chunk</em> button on the toolbar or by pressing <em>Ctrl+Alt+I</em>.</p>
-<p>When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the <em>Preview</em> button or press <em>Ctrl+Shift+K</em> to preview the HTML file).</p>
-<p>The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike <em>Knit</em>, <em>Preview</em> does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.</p>
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkxpbmVhciBSZWdyZXNzaW9uIHRvIFBSZWRpY3QgTWVkaWNhbCBFeHBlbnNlcyINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNClRoaXMgaXMgYW4gW1IgTWFya2Rvd25dKGh0dHA6Ly9ybWFya2Rvd24ucnN0dWRpby5jb20pIE5vdGVib29rLiBXaGVuIHlvdSBleGVjdXRlIGNvZGUgd2l0aGluIHRoZSBub3RlYm9vaywgdGhlIHJlc3VsdHMgYXBwZWFyIGJlbmVhdGggdGhlIGNvZGUuIA0KDQpUcnkgZXhlY3V0aW5nIHRoaXMgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpSdW4qIGJ1dHRvbiB3aXRoaW4gdGhlIGNodW5rIG9yIGJ5IHBsYWNpbmcgeW91ciBjdXJzb3IgaW5zaWRlIGl0IGFuZCBwcmVzc2luZyAqQ3RybCtTaGlmdCtFbnRlciouIA0KDQpgYGB7cn0NCnBsb3QoY2FycykNCmBgYA0KDQpBZGQgYSBuZXcgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpJbnNlcnQgQ2h1bmsqIGJ1dHRvbiBvbiB0aGUgdG9vbGJhciBvciBieSBwcmVzc2luZyAqQ3RybCtBbHQrSSouDQoNCldoZW4geW91IHNhdmUgdGhlIG5vdGVib29rLCBhbiBIVE1MIGZpbGUgY29udGFpbmluZyB0aGUgY29kZSBhbmQgb3V0cHV0IHdpbGwgYmUgc2F2ZWQgYWxvbmdzaWRlIGl0IChjbGljayB0aGUgKlByZXZpZXcqIGJ1dHRvbiBvciBwcmVzcyAqQ3RybCtTaGlmdCtLKiB0byBwcmV2aWV3IHRoZSBIVE1MIGZpbGUpLg0KDQpUaGUgcHJldmlldyBzaG93cyB5b3UgYSByZW5kZXJlZCBIVE1MIGNvcHkgb2YgdGhlIGNvbnRlbnRzIG9mIHRoZSBlZGl0b3IuIENvbnNlcXVlbnRseSwgdW5saWtlICpLbml0KiwgKlByZXZpZXcqIGRvZXMgbm90IHJ1biBhbnkgUiBjb2RlIGNodW5rcy4gSW5zdGVhZCwgdGhlIG91dHB1dCBvZiB0aGUgY2h1bmsgd2hlbiBpdCB3YXMgbGFzdCBydW4gaW4gdGhlIGVkaXRvciBpcyBkaXNwbGF5ZWQuDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkxpbmVhciBSZWdyZXNzaW9uIHRvIFBSZWRpY3QgTWVkaWNhbCBFeHBlbnNlcyINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCmBgYHtyIGxvYWQgZmlsZX0NCmluc3J1YW5jZSA8LSByZWFkLmNzdihmaWxlID0gIkRhdGEvaW5zdXJhbmNlLmNzdiIsIHN0cmluZ3NBc0ZhY3RvcnMgPSBUUlVFICApDQpzdHIoaW5zcnVhbmNlKQ0KDQpgYGANCg0K</div>
 
 
 
