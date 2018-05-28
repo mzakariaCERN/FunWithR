@@ -1,0 +1,112 @@
+---
+title: "using CART and model trees to estimate quality of wine"
+output: html_notebook
+---
+
+
+```{r}
+# check.packages function: install and load multiple R packages.
+# Check to see if packages are installed. Install them if they are not, then load them into the R session.
+check.packages <- function(pkg){
+    new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+    if (length(new.pkg)) 
+        install.packages(new.pkg, dependencies = TRUE)
+    sapply(pkg, require, character.only = TRUE)
+}
+
+# Usage example
+#packages<-c("ggplot2", "afex", "ez", "Hmisc", "pander", "plyr")
+#check.packages(packages)
+```
+
+```{r}
+check.packages("rpart")
+
+```
+
+
+data source is from [link](http://archive.ics.uci.edu/ml), P. Cortez et al.
+```{r reading data}
+wine <- read.csv(file = "Data/whitewines.csv")
+str(wine)
+
+```
+
+```{r}
+hist(wine$quality)
+```
+
+```{r}
+summary(wine)
+```
+
+```{r split data to training and testing}
+wine_train <- wine[1:3750, ]
+wine_test <- wine[3751:4898, ]
+```
+
+
+```{r check parameters for CART}
+#checking setting of rpart
+?rpart.control
+```
+
+
+
+```{r train model}
+m.rpart <- rpart(quality ~ ., data  = wine_train)
+m.rpart
+```
+
+Try to create a visualizaton using rpart.plot
+
+```{r}
+check.packages("rpart.plot")
+```
+
+
+```{r}
+rpart.plot(m.rpart, digits = 3, fallen.leaves = TRUE, type = 3, extra = 101)
+```
+
+
+EValuate model performance
+
+```{r}
+p.rpart <- predict(m.rpart, wine_test)
+summary(p.rpart)
+```
+
+```{r}
+summary(wine_test$quality)
+```
+
+The findings suggest we are doing relatively well between 1st and 3rd Quartiles. Not so good at the extreme cases. Another way to measure the accuracy of the outcome is the correlations
+
+```{r correlation between true and predicted}
+cor(p.rpart, wine_test$quality)
+```
+
+Another way to judge the accurace of a model is throuhg Mean Absolute Error (MAE)
+
+```{r MAE function}
+MAE <- function(actual, predicted){
+  mean(abs(actual - predicted))
+}
+```
+
+
+```{r}
+MAE(p.rpart, wine_test$quality)
+```
+
+So a difference of 0.57 on a quantity that ranges from 0 to 10 doesn't seem that bad. We will build  model tree to see if we can get a better result
+
+```{r}
+#install.packages("rJava")
+#load(rJava)
+#check.packages("RWeka")
+
+```
+
+
