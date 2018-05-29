@@ -383,74 +383,152 @@ summary(p.rpart)</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>So a difference of 0.57 on a quantity that ranges from 0 to 10 doesn’t seem that bad. We will build model tree to see if we can get a better result</p>
+<p>So a difference of 0.57 on a quantity that ranges from 0 to 10 doesn’t seem that bad. We will do tuning to see if we get a better result</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2luc3RhbGwucGFja2FnZXMoXCJySmF2YVwiKVxuI2xvYWQockphdmEpXG5jaGVjay5wYWNrYWdlcyhcIlJXZWthXCIpXG5gYGAifQ== -->
-<pre class="r"><code>#install.packages(&quot;rJava&quot;)
-#load(rJava)
-check.packages(&quot;RWeka&quot;)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2hlY2sucGFja2FnZXMoXCJjYXJldFwiKVxuYGBgIn0= -->
+<pre class="r"><code>check.packages(&quot;caret&quot;)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiSW5zdGFsbGluZyBwYWNrYWdlIGludG8gkUM6L1VzZXJzL21remFrL0RvY3VtZW50cy9SL3dpbi1saWJyYXJ5LzMuNZJcbihhcyCRbGlikiBpcyB1bnNwZWNpZmllZClcbiJ9 -->
-<pre><code>Installing package into 㤼㸱C:/Users/mkzak/Documents/R/win-library/3.5㤼㸲
-(as 㤼㸱lib㤼㸲 is unspecified)</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG4gIFRoZXJlIGlzIGEgYmluYXJ5IHZlcnNpb24gYXZhaWxhYmxlIGJ1dCB0aGUgc291cmNlIHZlcnNpb24gaXMgbGF0ZXI6XG4ifQ== -->
-<pre><code>
-  There is a binary version available but the source version is later:</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibmNvbCI6MywibnJvdyI6MX0sInJkZiI6Ikg0c0lBQUFBQUFBQUJuVlI2MDdESUJobHBXaEdNalBqYzVSNFdhSVA0QlBzai90bkdHVkt4cUFCNnVYbHB4OXRNUjJkUDZEbnU1M3ZuTEorM3R6VERVVUlGUWdUdURIQXNvQnJoa28wajk4dmhQQU5BS2pnUlZmb3prblRoWllmVW50QXkzSDJscTJxaDhlc2x3ak4vYVIxeDBXd0R0Qnh1cWI0T1V2ODFGZnhwRHJtUW5UZ3luMFJ3dzh5eWNCcGRLc01kOThwOHJaMVFnN1J0Wkd5OXEvQ0hocWxlVkRXWkl4elp6L1ptUFZ2MWZwRjd2ay9hbW5OQTJjN0IzTzk0aFBPUzl2RVRjQll4RGNnMmZETVpZbGxhNktDdWhMdnJkbFhkNnZSSDRobmNRYmpmbWVabEpGa1g1bzNaWko5b3ZsVzZpRzRBcXVkVTlZNFpVS3lBbG5QZ2cwODlWRmhkY3IwejNIOEJlekJpYXh5QWdBQSJ9 -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["binary"],"name":[1],"type":["fctr"],"align":["left"]},{"label":["source"],"name":[2],"type":["fctr"],"align":["left"]},{"label":["needs_compilation"],"name":[3],"type":["lgl"],"align":["right"]}],"data":[{"1":"0.4-37","2":"0.4-38","3":"FALSE","_rn_":"RWeka"}],"options":{"columns":{"min":{},"max":[10],"total":[3]},"rows":{"min":[10],"max":[10],"total":[1]},"pages":{}}}
-  </script>
-</div>
-<!-- rnb-frame-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiaW5zdGFsbGluZyB0aGUgc291cmNlIHBhY2thZ2Ug46S847ixUldla2HjpLzjuLJcblxudHJ5aW5nIFVSTCAnaHR0cHM6Ly9jcmFuLnJzdHVkaW8uY29tL3NyYy9jb250cmliL1JXZWthXzAuNC0zOC50YXIuZ3onXG5Db250ZW50IHR5cGUgJ2FwcGxpY2F0aW9uL3gtZ3ppcCcgbGVuZ3RoIDQxMzU3NyBieXRlcyAoNDAzIEtCKVxuZG93bmxvYWRlZCA0MDMgS0JcbiJ9 -->
-<pre><code>installing the source package 㤼㸱RWeka㤼㸲
+<!-- rnb-output-begin eyJkYXRhIjoiTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBjYXJldFxuTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBsYXR0aWNlXG5Mb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IGdncGxvdDJcblxuQXR0YWNoaW5nIHBhY2thZ2U6IOOkvOO4sWNhcmV046S847iyXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0IGlzIG1hc2tlZCBfYnlfIOOkvOO4sS5HbG9iYWxFbnbjpLzjuLI6XG5cbiAgICBNQUVcbiJ9 -->
+<pre><code>Loading required package: caret
+Loading required package: lattice
+Loading required package: ggplot2
 
-trying URL 'https://cran.rstudio.com/src/contrib/RWeka_0.4-38.tar.gz'
-Content type 'application/x-gzip' length 413577 bytes (403 KB)
-downloaded 403 KB</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiKiBpbnN0YWxsaW5nICpzb3VyY2UqIHBhY2thZ2UgJ1JXZWthJyAuLi5cbioqIHBhY2thZ2UgJ1JXZWthJyBzdWNjZXNzZnVsbHkgdW5wYWNrZWQgYW5kIE1ENSBzdW1zIGNoZWNrZWRcblxuICAgKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKlxuICAgV0FSTklORzogdGhpcyBwYWNrYWdlIGhhcyBhIGNvbmZpZ3VyZSBzY3JpcHRcbiAgICAgICAgIEl0IHByb2JhYmx5IG5lZWRzIG1hbnVhbCBjb25maWd1cmF0aW9uXG4gICAqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqXG5cblxuKiogUlxuKiogaW5zdFxuKiogYnl0ZS1jb21waWxlIGFuZCBwcmVwYXJlIHBhY2thZ2UgZm9yIGxhenkgbG9hZGluZ1xuRXJyb3IgOiAub25Mb2FkIGZhaWxlZCBpbiBsb2FkTmFtZXNwYWNlKCkgZm9yICdySmF2YScsIGRldGFpbHM6XG4gIGNhbGw6IGZ1bihsaWJuYW1lLCBwa2duYW1lKVxuICBlcnJvcjogSkFWQV9IT01FIGNhbm5vdCBiZSBkZXRlcm1pbmVkIGZyb20gdGhlIFJlZ2lzdHJ5XG5FUlJPUjogbGF6eSBsb2FkaW5nIGZhaWxlZCBmb3IgcGFja2FnZSAnUldla2EnXG4qIHJlbW92aW5nICdDOi9Vc2Vycy9ta3phay9Eb2N1bWVudHMvUi93aW4tbGlicmFyeS8zLjUvUldla2EnXG5JbiBSIENNRCBJTlNUQUxMXG5XYXJuaW5nIGluIGluc3RhbGwucGFja2FnZXMgOlxuICBpbnN0YWxsYXRpb24gb2YgcGFja2FnZSDigJhSV2VrYeKAmSBoYWQgbm9uLXplcm8gZXhpdCBzdGF0dXNcbiJ9 -->
-<pre><code>* installing *source* package 'RWeka' ...
-** package 'RWeka' successfully unpacked and MD5 sums checked
+Attaching package: 㤼㸱caret㤼㸲
 
-   **********************************************
-   WARNING: this package has a configure script
-         It probably needs manual configuration
-   **********************************************
+The following object is masked _by_ 㤼㸱.GlobalEnv㤼㸲:
 
-
-** R
-** inst
-** byte-compile and prepare package for lazy loading
-Error : .onLoad failed in loadNamespace() for 'rJava', details:
-  call: fun(libname, pkgname)
-  error: JAVA_HOME cannot be determined from the Registry
-ERROR: lazy loading failed for package 'RWeka'
-* removing 'C:/Users/mkzak/Documents/R/win-library/3.5/RWeka'
-In R CMD INSTALL
-Warning in install.packages :
-  installation of package ‘RWeka’ had non-zero exit status</code></pre>
+    MAE</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG5UaGUgZG93bmxvYWRlZCBzb3VyY2UgcGFja2FnZXMgYXJlIGluXG5cdOKAmEM6XFxVc2Vyc1xcbWt6YWtcXEFwcERhdGFcXExvY2FsXFxUZW1wXFxSdG1wR3kwRVlqXFxkb3dubG9hZGVkX3BhY2thZ2Vz4oCZXG5Mb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IFJXZWthXG50aGVyZSBpcyBubyBwYWNrYWdlIGNhbGxlZCDjpLzjuLFSV2VrYeOkvOO4slxuIn0= -->
-<pre><code>
-The downloaded source packages are in
-    ‘C:\Users\mkzak\AppData\Local\Temp\RtmpGy0EYj\downloaded_packages’
-Loading required package: RWeka
-there is no package called 㤼㸱RWeka㤼㸲</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiUldla2EgXG5GQUxTRSBcbiJ9 -->
-<pre><code>RWeka 
-FALSE </code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiY2FyZXQgXG4gVFJVRSBcbiJ9 -->
+<pre><code>caret 
+ TRUE </code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZml0Q29udHJvbCA8LSB0cmFpbkNvbnRyb2woIyMgMTAtZm9sZCBDVlxuICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgIG1ldGhvZCA9IFwiYm9vdFwiLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgbnVtYmVyID0gMTBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICMjIHJlcGVhdGVkIHRlbiB0aW1lc1xuICAgICAgICAgICAgICAgICAgICAgICAgICAgI2NsYXNzUHJvYnMgPSBULFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgI3JlcGVhdHMgPSAxMFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgKVxuQ0FSVF9GaXQxIDwtIHRyYWluKHF1YWxpdHkgfiAuLCBkYXRhID0gd2luZV90cmFpbiwgbWV0aG9kID0gXCJycGFydFwiLCBcbiAgICAgICAgICAgICAgICAgdHJDb250cm9sID0gZml0Q29udHJvbCwgdHVuZUxlbmd0aCA9IDIwLFxuICAgICAgICAgICAgICAgICBtZXRyaWMgPSBcIk1BRVwiLFxuICAgICAgICAgICAgICAgICAjLFxuICAgICAgICAgICAgICAgICAjIyBUaGlzIGxhc3Qgb3B0aW9uIGlzIGFjdHVhbGx5IG9uZVxuICAgICAgICAgICAgICAgICAjIyBmb3IgZ2JtKCkgdGhhdCBwYXNzZXMgdGhyb3VnaFxuICAgICAgICAgICAgICAgICB2ZXJib3NlID0gVFJVRVxuICAgICAgICAgICAgICAgICApXG5gYGAifQ== -->
+<pre class="r"><code>fitControl &lt;- trainControl(## 10-fold CV
+                          
+                           method = &quot;boot&quot;,
+                           number = 10
+                           ## repeated ten times
+                           #classProbs = T,
+                           #repeats = 10
+                           )
+CART_Fit1 &lt;- train(quality ~ ., data = wine_train, method = &quot;rpart&quot;, 
+                 trControl = fitControl, tuneLength = 20,
+                 metric = &quot;MAE&quot;,
+                 #,
+                 ## This last option is actually one
+                 ## for gbm() that passes through
+                 verbose = TRUE
+                 )</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoibW9kZWwgZml0IGZhaWxlZCBmb3IgUmVzYW1wbGUwMTogY3A9MC4wMDM0NDUgRXJyb3IgaW4gKGZ1bmN0aW9uIChmb3JtdWxhLCBkYXRhLCB3ZWlnaHRzLCBzdWJzZXQsIG5hLmFjdGlvbiA9IG5hLnJwYXJ0LCAgOiBcbiAgQXJndW1lbnQgdmVyYm9zZSBub3QgbWF0Y2hlZFxubW9kZWwgZml0IGZhaWxlZCBmb3IgUmVzYW1wbGUwMjogY3A9MC4wMDM0NDUgRXJyb3IgaW4gKGZ1bmN0aW9uIChmb3JtdWxhLCBkYXRhLCB3ZWlnaHRzLCBzdWJzZXQsIG5hLmFjdGlvbiA9IG5hLnJwYXJ0LCAgOiBcbiAgQXJndW1lbnQgdmVyYm9zZSBub3QgbWF0Y2hlZFxubW9kZWwgZml0IGZhaWxlZCBmb3IgUmVzYW1wbGUwMzogY3A9MC4wMDM0NDUgRXJyb3IgaW4gKGZ1bmN0aW9uIChmb3JtdWxhLCBkYXRhLCB3ZWlnaHRzLCBzdWJzZXQsIG5hLmFjdGlvbiA9IG5hLnJwYXJ0LCAgOiBcbiAgQXJndW1lbnQgdmVyYm9zZSBub3QgbWF0Y2hlZFxubW9kZWwgZml0IGZhaWxlZCBmb3IgUmVzYW1wbGUwNDogY3A9MC4wMDM0NDUgRXJyb3IgaW4gKGZ1bmN0aW9uIChmb3JtdWxhLCBkYXRhLCB3ZWlnaHRzLCBzdWJzZXQsIG5hLmFjdGlvbiA9IG5hLnJwYXJ0LCAgOiBcbiAgQXJndW1lbnQgdmVyYm9zZSBub3QgbWF0Y2hlZFxubW9kZWwgZml0IGZhaWxlZCBmb3IgUmVzYW1wbGUwNTogY3A9MC4wMDM0NDUgRXJyb3IgaW4gKGZ1bmN0aW9uIChmb3JtdWxhLCBkYXRhLCB3ZWlnaHRzLCBzdWJzZXQsIG5hLmFjdGlvbiA9IG5hLnJwYXJ0LCAgOiBcbiAgQXJndW1lbnQgdmVyYm9zZSBub3QgbWF0Y2hlZFxubW9kZWwgZml0IGZhaWxlZCBmb3IgUmVzYW1wbGUwNjogY3A9MC4wMDM0NDUgRXJyb3IgaW4gKGZ1bmN0aW9uIChmb3JtdWxhLCBkYXRhLCB3ZWlnaHRzLCBzdWJzZXQsIG5hLmFjdGlvbiA9IG5hLnJwYXJ0LCAgOiBcbiAgQXJndW1lbnQgdmVyYm9zZSBub3QgbWF0Y2hlZFxubW9kZWwgZml0IGZhaWxlZCBmb3IgUmVzYW1wbGUwNzogY3A9MC4wMDM0NDUgRXJyb3IgaW4gKGZ1bmN0aW9uIChmb3JtdWxhLCBkYXRhLCB3ZWlnaHRzLCBzdWJzZXQsIG5hLmFjdGlvbiA9IG5hLnJwYXJ0LCAgOiBcbiAgQXJndW1lbnQgdmVyYm9zZSBub3QgbWF0Y2hlZFxubW9kZWwgZml0IGZhaWxlZCBmb3IgUmVzYW1wbGUwODogY3A9MC4wMDM0NDUgRXJyb3IgaW4gKGZ1bmN0aW9uIChmb3JtdWxhLCBkYXRhLCB3ZWlnaHRzLCBzdWJzZXQsIG5hLmFjdGlvbiA9IG5hLnJwYXJ0LCAgOiBcbiAgQXJndW1lbnQgdmVyYm9zZSBub3QgbWF0Y2hlZFxubW9kZWwgZml0IGZhaWxlZCBmb3IgUmVzYW1wbGUwOTogY3A9MC4wMDM0NDUgRXJyb3IgaW4gKGZ1bmN0aW9uIChmb3JtdWxhLCBkYXRhLCB3ZWlnaHRzLCBzdWJzZXQsIG5hLmFjdGlvbiA9IG5hLnJwYXJ0LCAgOiBcbiAgQXJndW1lbnQgdmVyYm9zZSBub3QgbWF0Y2hlZFxubW9kZWwgZml0IGZhaWxlZCBmb3IgUmVzYW1wbGUxMDogY3A9MC4wMDM0NDUgRXJyb3IgaW4gKGZ1bmN0aW9uIChmb3JtdWxhLCBkYXRhLCB3ZWlnaHRzLCBzdWJzZXQsIG5hLmFjdGlvbiA9IG5hLnJwYXJ0LCAgOiBcbiAgQXJndW1lbnQgdmVyYm9zZSBub3QgbWF0Y2hlZFxuVGhlcmUgd2VyZSBtaXNzaW5nIHZhbHVlcyBpbiByZXNhbXBsZWQgcGVyZm9ybWFuY2UgbWVhc3VyZXMuXG4ifQ== -->
+<pre><code>model fit failed for Resample01: cp=0.003445 Error in (function (formula, data, weights, subset, na.action = na.rpart,  : 
+  Argument verbose not matched
+model fit failed for Resample02: cp=0.003445 Error in (function (formula, data, weights, subset, na.action = na.rpart,  : 
+  Argument verbose not matched
+model fit failed for Resample03: cp=0.003445 Error in (function (formula, data, weights, subset, na.action = na.rpart,  : 
+  Argument verbose not matched
+model fit failed for Resample04: cp=0.003445 Error in (function (formula, data, weights, subset, na.action = na.rpart,  : 
+  Argument verbose not matched
+model fit failed for Resample05: cp=0.003445 Error in (function (formula, data, weights, subset, na.action = na.rpart,  : 
+  Argument verbose not matched
+model fit failed for Resample06: cp=0.003445 Error in (function (formula, data, weights, subset, na.action = na.rpart,  : 
+  Argument verbose not matched
+model fit failed for Resample07: cp=0.003445 Error in (function (formula, data, weights, subset, na.action = na.rpart,  : 
+  Argument verbose not matched
+model fit failed for Resample08: cp=0.003445 Error in (function (formula, data, weights, subset, na.action = na.rpart,  : 
+  Argument verbose not matched
+model fit failed for Resample09: cp=0.003445 Error in (function (formula, data, weights, subset, na.action = na.rpart,  : 
+  Argument verbose not matched
+model fit failed for Resample10: cp=0.003445 Error in (function (formula, data, weights, subset, na.action = na.rpart,  : 
+  Argument verbose not matched
+There were missing values in resampled performance measures.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiU29tZXRoaW5nIGlzIHdyb25nOyBhbGwgdGhlIE1BRSBtZXRyaWMgdmFsdWVzIGFyZSBtaXNzaW5nOlxuICAgICAgUk1TRSAgICAgICAgUnNxdWFyZWQgICAgICAgIE1BRSAgICAgXG4gTWluLiAgIDogTkEgICBNaW4uICAgOiBOQSAgIE1pbi4gICA6IE5BICBcbiAxc3QgUXUuOiBOQSAgIDFzdCBRdS46IE5BICAgMXN0IFF1LjogTkEgIFxuIE1lZGlhbiA6IE5BICAgTWVkaWFuIDogTkEgICBNZWRpYW4gOiBOQSAgXG4gTWVhbiAgIDpOYU4gICBNZWFuICAgOk5hTiAgIE1lYW4gICA6TmFOICBcbiAzcmQgUXUuOiBOQSAgIDNyZCBRdS46IE5BICAgM3JkIFF1LjogTkEgIFxuIE1heC4gICA6IE5BICAgTWF4LiAgIDogTkEgICBNYXguICAgOiBOQSAgXG4gTkEncyAgIDoyMCAgICBOQSdzICAgOjIwICAgIE5BJ3MgICA6MjAgICBcbiJ9 -->
+<pre><code>Something is wrong; all the MAE metric values are missing:
+      RMSE        Rsquared        MAE     
+ Min.   : NA   Min.   : NA   Min.   : NA  
+ 1st Qu.: NA   1st Qu.: NA   1st Qu.: NA  
+ Median : NA   Median : NA   Median : NA  
+ Mean   :NaN   Mean   :NaN   Mean   :NaN  
+ 3rd Qu.: NA   3rd Qu.: NA   3rd Qu.: NA  
+ Max.   : NA   Max.   : NA   Max.   : NA  
+ NA's   :20    NA's   :20    NA's   :20   </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IFN0b3BwaW5nXG4ifQ== -->
+<pre><code>Error: Stopping</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuQ0FSVF9GaXQxXG5gYGAifQ== -->
+<pre class="r"><code>CART_Fit1</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiQ0FSVCBcblxuMzc1MCBzYW1wbGVzXG4gIDExIHByZWRpY3RvclxuXG5ObyBwcmUtcHJvY2Vzc2luZ1xuUmVzYW1wbGluZzogQm9vdHN0cmFwcGVkICgxMCByZXBzKSBcblN1bW1hcnkgb2Ygc2FtcGxlIHNpemVzOiAzNzUwLCAzNzUwLCAzNzUwLCAzNzUwLCAzNzUwLCAzNzUwLCAuLi4gXG5SZXNhbXBsaW5nIHJlc3VsdHMgYWNyb3NzIHR1bmluZyBwYXJhbWV0ZXJzOlxuXG4gIGNwICAgICAgICAgICBSTVNFICAgICAgIFJzcXVhcmVkICAgTUFFICAgICAgXG4gIDAuMDAzOTUyODMwICAwLjc4Njg4OTIgIDAuMjc3NzE5MiAgMC42MTU2NTYxXG4gIDAuMDA0MjA0NTkyICAwLjc4NjY0MzcgIDAuMjc0ODU3MyAgMC42MTQ4Nzg4XG4gIDAuMDA0MzAwNTQ4ICAwLjc4NjE4MzcgIDAuMjc0NTQ0OSAgMC42MTUwMjc4XG4gIDAuMDA0NTU4OTQ2ICAwLjc4NTcxNTYgIDAuMjc0MjA3NSAgMC42MTUyNTQ0XG4gIDAuMDA0NTcyOTEwICAwLjc4NTg3NjUgIDAuMjczOTEyMyAgMC42MTU0OTk3XG4gIDAuMDA1NjEyMjEzICAwLjc4NjA1NjggIDAuMjY5OTAwNyAgMC42MTQ5NDcyXG4gIDAuMDA1Njk2MTM1ICAwLjc4Njk5OTAgIDAuMjY3ODU2MiAgMC42MTU1NDI0XG4gIDAuMDA2NTczMDg4ICAwLjc4NjI2OTcgIDAuMjY2OTE3MSAgMC42MTUzMzg2XG4gIDAuMDA2ODY0MTc0ICAwLjc4NTI5OTEgIDAuMjY3NjEwNCAgMC42MTU1MzE0XG4gIDAuMDA4NTY1Nzc1ICAwLjc4NDk5OTMgIDAuMjY1Nzk4NSAgMC42MTc3MDUyXG4gIDAuMDExMDg1OTk2ICAwLjc4NjM2OTMgIDAuMjYxNjczMCAgMC42MjE4OTE0XG4gIDAuMDE2NTU1NzUyICAwLjc5NjAwOTEgIDAuMjQzMDg1MyAgMC42MzQzNjA5XG4gIDAuMDI4OTA4OTI4ICAwLjgwNDcxMzUgIDAuMjI2MzQxMCAgMC42NDQ3MTAxXG4gIDAuMDQ0MzkxMDg5ICAwLjgyOTQ4NTAgIDAuMTc4Mjk5NiAgMC42ODE0MTM0XG4gIDAuMTc4MTYyMTEwICAwLjg2ODI0OTUgIDAuMTYxOTQ1MyAgMC42OTczMjI2XG5cblJNU0Ugd2FzIHVzZWQgdG8gc2VsZWN0IHRoZSBvcHRpbWFsIG1vZGVsIHVzaW5nIHRoZSBzbWFsbGVzdCB2YWx1ZS5cblRoZSBmaW5hbCB2YWx1ZSB1c2VkIGZvciB0aGUgbW9kZWwgd2FzIGNwID0gMC4wMDg1NjU3NzUuXG4ifQ== -->
+<pre><code>CART 
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogInVzaW5nIENBUlQgYW5kIG1vZGVsIHRyZWVzIHRvIGVzdGltYXRlIHF1YWxpdHkgb2Ygd2luZSINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCg0KYGBge3J9DQojIGNoZWNrLnBhY2thZ2VzIGZ1bmN0aW9uOiBpbnN0YWxsIGFuZCBsb2FkIG11bHRpcGxlIFIgcGFja2FnZXMuDQojIENoZWNrIHRvIHNlZSBpZiBwYWNrYWdlcyBhcmUgaW5zdGFsbGVkLiBJbnN0YWxsIHRoZW0gaWYgdGhleSBhcmUgbm90LCB0aGVuIGxvYWQgdGhlbSBpbnRvIHRoZSBSIHNlc3Npb24uDQpjaGVjay5wYWNrYWdlcyA8LSBmdW5jdGlvbihwa2cpew0KICAgIG5ldy5wa2cgPC0gcGtnWyEocGtnICVpbiUgaW5zdGFsbGVkLnBhY2thZ2VzKClbLCAiUGFja2FnZSJdKV0NCiAgICBpZiAobGVuZ3RoKG5ldy5wa2cpKSANCiAgICAgICAgaW5zdGFsbC5wYWNrYWdlcyhuZXcucGtnLCBkZXBlbmRlbmNpZXMgPSBUUlVFKQ0KICAgIHNhcHBseShwa2csIHJlcXVpcmUsIGNoYXJhY3Rlci5vbmx5ID0gVFJVRSkNCn0NCg0KIyBVc2FnZSBleGFtcGxlDQojcGFja2FnZXM8LWMoImdncGxvdDIiLCAiYWZleCIsICJleiIsICJIbWlzYyIsICJwYW5kZXIiLCAicGx5ciIpDQojY2hlY2sucGFja2FnZXMocGFja2FnZXMpDQpgYGANCg0KYGBge3J9DQpjaGVjay5wYWNrYWdlcygicnBhcnQiKQ0KDQpgYGANCg0KDQpkYXRhIHNvdXJjZSBpcyBmcm9tIFtsaW5rXShodHRwOi8vYXJjaGl2ZS5pY3MudWNpLmVkdS9tbCksIFAuIENvcnRleiBldCBhbC4NCmBgYHtyIHJlYWRpbmcgZGF0YX0NCndpbmUgPC0gcmVhZC5jc3YoZmlsZSA9ICJEYXRhL3doaXRld2luZXMuY3N2IikNCnN0cih3aW5lKQ0KDQpgYGANCg0KYGBge3J9DQpoaXN0KHdpbmUkcXVhbGl0eSkNCmBgYA0KDQpgYGB7cn0NCnN1bW1hcnkod2luZSkNCmBgYA0KDQpgYGB7ciBzcGxpdCBkYXRhIHRvIHRyYWluaW5nIGFuZCB0ZXN0aW5nfQ0Kd2luZV90cmFpbiA8LSB3aW5lWzE6Mzc1MCwgXQ0Kd2luZV90ZXN0IDwtIHdpbmVbMzc1MTo0ODk4LCBdDQpgYGANCg0KDQpgYGB7ciBjaGVjayBwYXJhbWV0ZXJzIGZvciBDQVJUfQ0KI2NoZWNraW5nIHNldHRpbmcgb2YgcnBhcnQNCj9ycGFydC5jb250cm9sDQpgYGANCg0KDQoNCmBgYHtyIHRyYWluIG1vZGVsfQ0KbS5ycGFydCA8LSBycGFydChxdWFsaXR5IH4gLiwgZGF0YSAgPSB3aW5lX3RyYWluKQ0KbS5ycGFydA0KYGBgDQoNClRyeSB0byBjcmVhdGUgYSB2aXN1YWxpemF0b24gdXNpbmcgcnBhcnQucGxvdA0KDQpgYGB7cn0NCmNoZWNrLnBhY2thZ2VzKCJycGFydC5wbG90IikNCmBgYA0KDQoNCmBgYHtyfQ0KcnBhcnQucGxvdChtLnJwYXJ0LCBkaWdpdHMgPSAzLCBmYWxsZW4ubGVhdmVzID0gVFJVRSwgdHlwZSA9IDMsIGV4dHJhID0gMTAxKQ0KYGBgDQoNCg0KRVZhbHVhdGUgbW9kZWwgcGVyZm9ybWFuY2UNCg0KYGBge3J9DQpwLnJwYXJ0IDwtIHByZWRpY3QobS5ycGFydCwgd2luZV90ZXN0KQ0Kc3VtbWFyeShwLnJwYXJ0KQ0KYGBgDQoNCmBgYHtyfQ0Kc3VtbWFyeSh3aW5lX3Rlc3QkcXVhbGl0eSkNCmBgYA0KDQpUaGUgZmluZGluZ3Mgc3VnZ2VzdCB3ZSBhcmUgZG9pbmcgcmVsYXRpdmVseSB3ZWxsIGJldHdlZW4gMXN0IGFuZCAzcmQgUXVhcnRpbGVzLiBOb3Qgc28gZ29vZCBhdCB0aGUgZXh0cmVtZSBjYXNlcy4gQW5vdGhlciB3YXkgdG8gbWVhc3VyZSB0aGUgYWNjdXJhY3kgb2YgdGhlIG91dGNvbWUgaXMgdGhlIGNvcnJlbGF0aW9ucw0KDQpgYGB7ciBjb3JyZWxhdGlvbiBiZXR3ZWVuIHRydWUgYW5kIHByZWRpY3RlZH0NCmNvcihwLnJwYXJ0LCB3aW5lX3Rlc3QkcXVhbGl0eSkNCmBgYA0KDQpBbm90aGVyIHdheSB0byBqdWRnZSB0aGUgYWNjdXJhY2Ugb2YgYSBtb2RlbCBpcyB0aHJvdWhnIE1lYW4gQWJzb2x1dGUgRXJyb3IgKE1BRSkNCg0KYGBge3IgTUFFIGZ1bmN0aW9ufQ0KTUFFIDwtIGZ1bmN0aW9uKGFjdHVhbCwgcHJlZGljdGVkKXsNCiAgbWVhbihhYnMoYWN0dWFsIC0gcHJlZGljdGVkKSkNCn0NCmBgYA0KDQoNCmBgYHtyfQ0KTUFFKHAucnBhcnQsIHdpbmVfdGVzdCRxdWFsaXR5KQ0KYGBgDQoNClNvIGEgZGlmZmVyZW5jZSBvZiAwLjU3IG9uIGEgcXVhbnRpdHkgdGhhdCByYW5nZXMgZnJvbSAwIHRvIDEwIGRvZXNuJ3Qgc2VlbSB0aGF0IGJhZC4gV2Ugd2lsbCBidWlsZCAgbW9kZWwgdHJlZSB0byBzZWUgaWYgd2UgY2FuIGdldCBhIGJldHRlciByZXN1bHQNCg0KYGBge3J9DQojaW5zdGFsbC5wYWNrYWdlcygickphdmEiKQ0KI2xvYWQockphdmEpDQojY2hlY2sucGFja2FnZXMoIlJXZWthIikNCg0KYGBgDQoNCg0K</div>
+3750 samples
+  11 predictor
+
+No pre-processing
+Resampling: Bootstrapped (10 reps) 
+Summary of sample sizes: 3750, 3750, 3750, 3750, 3750, 3750, ... 
+Resampling results across tuning parameters:
+
+  cp           RMSE       Rsquared   MAE      
+  0.003952830  0.7868892  0.2777192  0.6156561
+  0.004204592  0.7866437  0.2748573  0.6148788
+  0.004300548  0.7861837  0.2745449  0.6150278
+  0.004558946  0.7857156  0.2742075  0.6152544
+  0.004572910  0.7858765  0.2739123  0.6154997
+  0.005612213  0.7860568  0.2699007  0.6149472
+  0.005696135  0.7869990  0.2678562  0.6155424
+  0.006573088  0.7862697  0.2669171  0.6153386
+  0.006864174  0.7852991  0.2676104  0.6155314
+  0.008565775  0.7849993  0.2657985  0.6177052
+  0.011085996  0.7863693  0.2616730  0.6218914
+  0.016555752  0.7960091  0.2430853  0.6343609
+  0.028908928  0.8047135  0.2263410  0.6447101
+  0.044391089  0.8294850  0.1782996  0.6814134
+  0.178162110  0.8682495  0.1619453  0.6973226
+
+RMSE was used to select the optimal model using the smallest value.
+The final value used for the model was cp = 0.008565775.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucC5ycGFydF9GaXQxIDwtIHByZWRpY3QoQ0FSVF9GaXQxLCB3aW5lX3Rlc3QpXG5zdW1tYXJ5KHAucnBhcnRfRml0MSlcbmBgYCJ9 -->
+<pre class="r"><code>p.rpart_Fit1 &lt;- predict(CART_Fit1, wine_test)
+summary(p.rpart_Fit1)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgTWluLiAxc3QgUXUuICBNZWRpYW4gICAgTWVhbiAzcmQgUXUuICAgIE1heC4gXG4gIDQuOTk1ICAgNS40NjMgICA1Ljg4MiAgIDUuOTk5ICAgNi4yOTYgICA2LjcxNiBcbiJ9 -->
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  4.995   5.463   5.882   5.999   6.296   6.716 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuTUFFKHAucnBhcnRfRml0MSwgd2luZV90ZXN0JHF1YWxpdHkpXG5gYGAifQ== -->
+<pre class="r"><code>MAE(p.rpart_Fit1, wine_test$quality)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuNTczMjEwNFxuIn0= -->
+<pre><code>[1] 0.5732104</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>not much improvement (for the warning message see <a href="https://stackoverflow.com/questions/26828901/warning-message-missing-values-in-resampled-performance-measures-in-caret-tra" class="uri">https://stackoverflow.com/questions/26828901/warning-message-missing-values-in-resampled-performance-measures-in-caret-tra</a></p>
+<!-- rnb-text-end -->
+
+<div id="rmd-source-code">LS0tDQp0aXRsZTogInVzaW5nIENBUlQgYW5kIG1vZGVsIHRyZWVzIHRvIGVzdGltYXRlIHF1YWxpdHkgb2Ygd2luZSINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCg0KYGBge3J9DQojIGNoZWNrLnBhY2thZ2VzIGZ1bmN0aW9uOiBpbnN0YWxsIGFuZCBsb2FkIG11bHRpcGxlIFIgcGFja2FnZXMuDQojIENoZWNrIHRvIHNlZSBpZiBwYWNrYWdlcyBhcmUgaW5zdGFsbGVkLiBJbnN0YWxsIHRoZW0gaWYgdGhleSBhcmUgbm90LCB0aGVuIGxvYWQgdGhlbSBpbnRvIHRoZSBSIHNlc3Npb24uDQpjaGVjay5wYWNrYWdlcyA8LSBmdW5jdGlvbihwa2cpew0KICAgIG5ldy5wa2cgPC0gcGtnWyEocGtnICVpbiUgaW5zdGFsbGVkLnBhY2thZ2VzKClbLCAiUGFja2FnZSJdKV0NCiAgICBpZiAobGVuZ3RoKG5ldy5wa2cpKSANCiAgICAgICAgaW5zdGFsbC5wYWNrYWdlcyhuZXcucGtnLCBkZXBlbmRlbmNpZXMgPSBUUlVFKQ0KICAgIHNhcHBseShwa2csIHJlcXVpcmUsIGNoYXJhY3Rlci5vbmx5ID0gVFJVRSkNCn0NCg0KIyBVc2FnZSBleGFtcGxlDQojcGFja2FnZXM8LWMoImdncGxvdDIiLCAiYWZleCIsICJleiIsICJIbWlzYyIsICJwYW5kZXIiLCAicGx5ciIpDQojY2hlY2sucGFja2FnZXMocGFja2FnZXMpDQpgYGANCg0KYGBge3J9DQpjaGVjay5wYWNrYWdlcygicnBhcnQiKQ0KDQpgYGANCg0KDQpkYXRhIHNvdXJjZSBpcyBmcm9tIFtsaW5rXShodHRwOi8vYXJjaGl2ZS5pY3MudWNpLmVkdS9tbCksIFAuIENvcnRleiBldCBhbC4NCmBgYHtyIHJlYWRpbmcgZGF0YX0NCndpbmUgPC0gcmVhZC5jc3YoZmlsZSA9ICJEYXRhL3doaXRld2luZXMuY3N2IikNCnN0cih3aW5lKQ0KDQpgYGANCg0KYGBge3J9DQpoaXN0KHdpbmUkcXVhbGl0eSkNCmBgYA0KDQpgYGB7cn0NCnN1bW1hcnkod2luZSkNCmBgYA0KDQpgYGB7ciBzcGxpdCBkYXRhIHRvIHRyYWluaW5nIGFuZCB0ZXN0aW5nfQ0Kd2luZV90cmFpbiA8LSB3aW5lWzE6Mzc1MCwgXQ0Kd2luZV90ZXN0IDwtIHdpbmVbMzc1MTo0ODk4LCBdDQpgYGANCg0KDQpgYGB7ciBjaGVjayBwYXJhbWV0ZXJzIGZvciBDQVJUfQ0KI2NoZWNraW5nIHNldHRpbmcgb2YgcnBhcnQNCj9ycGFydC5jb250cm9sDQpgYGANCg0KDQoNCmBgYHtyIHRyYWluIG1vZGVsfQ0KbS5ycGFydCA8LSBycGFydChxdWFsaXR5IH4gLiwgZGF0YSAgPSB3aW5lX3RyYWluKQ0KbS5ycGFydA0KYGBgDQoNClRyeSB0byBjcmVhdGUgYSB2aXN1YWxpemF0b24gdXNpbmcgcnBhcnQucGxvdA0KDQpgYGB7cn0NCmNoZWNrLnBhY2thZ2VzKCJycGFydC5wbG90IikNCmBgYA0KDQoNCmBgYHtyfQ0KcnBhcnQucGxvdChtLnJwYXJ0LCBkaWdpdHMgPSAzLCBmYWxsZW4ubGVhdmVzID0gVFJVRSwgdHlwZSA9IDMsIGV4dHJhID0gMTAxKQ0KYGBgDQoNCg0KRVZhbHVhdGUgbW9kZWwgcGVyZm9ybWFuY2UNCg0KYGBge3J9DQpwLnJwYXJ0IDwtIHByZWRpY3QobS5ycGFydCwgd2luZV90ZXN0KQ0Kc3VtbWFyeShwLnJwYXJ0KQ0KYGBgDQoNCmBgYHtyfQ0Kc3VtbWFyeSh3aW5lX3Rlc3QkcXVhbGl0eSkNCmBgYA0KDQpUaGUgZmluZGluZ3Mgc3VnZ2VzdCB3ZSBhcmUgZG9pbmcgcmVsYXRpdmVseSB3ZWxsIGJldHdlZW4gMXN0IGFuZCAzcmQgUXVhcnRpbGVzLiBOb3Qgc28gZ29vZCBhdCB0aGUgZXh0cmVtZSBjYXNlcy4gQW5vdGhlciB3YXkgdG8gbWVhc3VyZSB0aGUgYWNjdXJhY3kgb2YgdGhlIG91dGNvbWUgaXMgdGhlIGNvcnJlbGF0aW9ucw0KDQpgYGB7ciBjb3JyZWxhdGlvbiBiZXR3ZWVuIHRydWUgYW5kIHByZWRpY3RlZH0NCmNvcihwLnJwYXJ0LCB3aW5lX3Rlc3QkcXVhbGl0eSkNCmBgYA0KDQpBbm90aGVyIHdheSB0byBqdWRnZSB0aGUgYWNjdXJhY2Ugb2YgYSBtb2RlbCBpcyB0aHJvdWhnIE1lYW4gQWJzb2x1dGUgRXJyb3IgKE1BRSkNCg0KYGBge3IgTUFFIGZ1bmN0aW9ufQ0KTUFFIDwtIGZ1bmN0aW9uKGFjdHVhbCwgcHJlZGljdGVkKXsNCiAgbWVhbihhYnMoYWN0dWFsIC0gcHJlZGljdGVkKSkNCn0NCmBgYA0KDQoNCmBgYHtyfQ0KTUFFKHAucnBhcnQsIHdpbmVfdGVzdCRxdWFsaXR5KQ0KYGBgDQoNClNvIGEgZGlmZmVyZW5jZSBvZiAwLjU3IG9uIGEgcXVhbnRpdHkgdGhhdCByYW5nZXMgZnJvbSAwIHRvIDEwIGRvZXNuJ3Qgc2VlbSB0aGF0IGJhZC4gV2Ugd2lsbCBkbyB0dW5pbmcgdG8gc2VlIGlmIHdlIGdldCBhIGJldHRlciByZXN1bHQNCg0KYGBge3J9DQpjaGVjay5wYWNrYWdlcygiY2FyZXQiKQ0KYGBgDQoNCmBgYHtyfQ0KZml0Q29udHJvbCA8LSB0cmFpbkNvbnRyb2woIyMgMTAtZm9sZCBDVg0KICAgICAgICAgICAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICAgICAgICAgICAgIG1ldGhvZCA9ICJib290IiwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIG51bWJlciA9IDEwDQogICAgICAgICAgICAgICAgICAgICAgICAgICAjIyByZXBlYXRlZCB0ZW4gdGltZXMNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICNjbGFzc1Byb2JzID0gVCwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICNyZXBlYXRzID0gMTANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICkNCg0KQ0FSVF9GaXQxIDwtIHRyYWluKHF1YWxpdHkgfiAuLCBkYXRhID0gd2luZV90cmFpbiwgbWV0aG9kID0gInJwYXJ0IiwgDQogICAgICAgICAgICAgICAgIHRyQ29udHJvbCA9IGZpdENvbnRyb2wsIHR1bmVMZW5ndGggPSAyMCwNCiAgICAgICAgICAgICAgICAgbWV0cmljID0gIk1BRSIsDQogICAgICAgICAgICAgICAgICMsDQogICAgICAgICAgICAgICAgICMjIFRoaXMgbGFzdCBvcHRpb24gaXMgYWN0dWFsbHkgb25lDQogICAgICAgICAgICAgICAgICMjIGZvciBnYm0oKSB0aGF0IHBhc3NlcyB0aHJvdWdoDQogICAgICAgICAgICAgICAgIHZlcmJvc2UgPSBUUlVFDQogICAgICAgICAgICAgICAgICkNCg0KYGBgDQoNCmBgYHtyfQ0KQ0FSVF9GaXQxDQpgYGANCg0KDQpgYGB7cn0NCg0KcC5ycGFydF9GaXQxIDwtIHByZWRpY3QoQ0FSVF9GaXQxLCB3aW5lX3Rlc3QpDQpzdW1tYXJ5KHAucnBhcnRfRml0MSkNCmBgYA0KDQpgYGB7cn0NCk1BRShwLnJwYXJ0X0ZpdDEsIHdpbmVfdGVzdCRxdWFsaXR5KQ0KYGBgDQoNCm5vdCBtdWNoIGltcHJvdmVtZW50IChmb3IgdGhlIHdhcm5pbmcgbWVzc2FnZSBzZWUgaHR0cHM6Ly9zdGFja292ZXJmbG93LmNvbS9xdWVzdGlvbnMvMjY4Mjg5MDEvd2FybmluZy1tZXNzYWdlLW1pc3NpbmctdmFsdWVzLWluLXJlc2FtcGxlZC1wZXJmb3JtYW5jZS1tZWFzdXJlcy1pbi1jYXJldC10cmENCg==</div>
 
 
 

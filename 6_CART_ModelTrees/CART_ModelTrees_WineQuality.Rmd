@@ -100,13 +100,46 @@ MAE <- function(actual, predicted){
 MAE(p.rpart, wine_test$quality)
 ```
 
-So a difference of 0.57 on a quantity that ranges from 0 to 10 doesn't seem that bad. We will build  model tree to see if we can get a better result
+So a difference of 0.57 on a quantity that ranges from 0 to 10 doesn't seem that bad. We will do tuning to see if we get a better result
 
 ```{r}
-#install.packages("rJava")
-#load(rJava)
-#check.packages("RWeka")
+check.packages("caret")
+```
+
+```{r}
+fitControl <- trainControl(## 10-fold CV
+                          
+                           method = "boot",
+                           number = 10
+                           ## repeated ten times
+                           #classProbs = T,
+                           #repeats = 10
+                           )
+
+CART_Fit1 <- train(quality ~ ., data = wine_train, method = "rpart", 
+                 trControl = fitControl, tuneLength = 20,
+                 metric = "MAE",
+                 #,
+                 ## This last option is actually one
+                 ## for gbm() that passes through
+                 verbose = TRUE
+                 )
 
 ```
 
+```{r}
+CART_Fit1
+```
 
+
+```{r}
+
+p.rpart_Fit1 <- predict(CART_Fit1, wine_test)
+summary(p.rpart_Fit1)
+```
+
+```{r}
+MAE(p.rpart_Fit1, wine_test$quality)
+```
+
+not much improvement (for the warning message see https://stackoverflow.com/questions/26828901/warning-message-missing-values-in-resampled-performance-measures-in-caret-tra
