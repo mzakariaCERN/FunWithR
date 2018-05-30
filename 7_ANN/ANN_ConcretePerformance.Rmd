@@ -1,0 +1,94 @@
+---
+title: "Artificial  Neural Networks to estimate concrete performance"
+output: html_notebook
+---
+
+
+```{r}
+check.packages("neuralnet")
+```
+
+
+we utilize data from [link](http://archive.ics.uci.edu/ml)
+
+```{r getting the data}
+concrete <- read.csv("Data/concrete.csv")
+str(concrete)
+```
+
+```{r scaling}
+normalize <- function(x){
+  return((x - min(x))/(max(x) - min(x)))
+}
+```
+
+```{r}
+concrete_norm <- as.data.frame(lapply(concrete, normalize))
+```
+
+```{r}
+summary(concrete_norm$strength)
+```
+
+```{r}
+concrete_train <- concrete_norm[1:773,]
+concrete_test  <- concrete_norm[774:1030,]
+```
+
+
+start with only one hidden node
+```{r}
+set.seed(12345)
+concreate_model <- neuralnet(strength ~ cement + slag + ash + water + superplastic + coarseagg + fineagg + age , data = concrete_train, hidden = 1)
+```
+
+
+```{r}
+plot(concreate_model)
+```
+
+```{r}
+model_results <- compute(concreate_model, concrete_test[1:8])
+# saves twi ibjects: neurons, and net.result
+str(model_results)
+```
+ 
+```{r}
+predicted_strength <- model_results$net.result
+```
+ 
+```{r}
+cor(predicted_strength, concrete_test$strength)
+```
+
+
+```{r}
+concreate_model2 <- neuralnet(strength ~ cement + slag + ash + water + superplastic + coarseagg + fineagg + age , data = concrete_train, hidden = 5)
+
+```
+
+```{r}
+plot(concreate_model2)
+```
+
+```{r}
+model_results2 <- compute(concreate_model2, concrete_test[1:8])
+predicted_strength2 <- model_results2$net.result
+cor(predicted_strength2, concrete_test$strength)
+```
+
+
+tuning ANN
+
+```{r}
+my.grid <- expand.grid(.decay = c(0.5, 0.1), .size = c(5, 6, 7))
+fit2 <- train(strength ~ cement + slag + ash + water + superplastic + coarseagg + fineagg + age ,  data = concrete_train, method = 'nnet', maxit = 1000, tuneGrid = my.grid, trace = F, linout = 1)
+```
+
+
+since we use CARET, we only need to use predict to get access to prediction
+```{r}
+model_result3 <- predict(fit2, concrete_test[1:8])
+cor(model_result3, concrete_test$strength)
+```
+

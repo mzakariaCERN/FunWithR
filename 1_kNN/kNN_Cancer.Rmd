@@ -132,14 +132,15 @@ m_cv <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainC
 # here tuneLength is how many values of k we are going to use
 m_boot <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "boot"), tuneLength = 15)
 
-ctrl <- trainControl(classProbs = TRUE, method = "boot")
+ctrl <- trainControl(classProbs = TRUE, method = "boot", verboseIter = TRUE)
 m_boot_ROC <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = ctrl, tuneLength = 15, metric = "ROC")
 
 ctrl <- trainControl(method = "repeatedcv",   # 10fold cross validation
                      number = 5,							# do 5 repititions of cv
                      summaryFunction=twoClassSummary,	# Use AUC to pick the best model
                      classProbs=TRUE,
-                     allowParallel = TRUE)
+                     allowParallel = TRUE,
+                     verboseIter = TRUE)
 m_cv_ROC <- train(wbcd_train, wbcd_train_labels,
       method = "knn",
       metric = "ROC",
