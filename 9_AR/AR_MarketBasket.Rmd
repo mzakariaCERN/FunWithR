@@ -1,0 +1,25 @@
+---
+title: "AR_MarketBastet"
+output: html_notebook
+---
+
+Our market basket analysis will utilize the purchase data from one month of operation for a grocery store. We will see that we have about 9835 transaction during that period. or about 30-50 per hour (depending on how many hours it operates). This indicates a medium size store. 
+
+
+Getting the data
+
+```{r}
+#install.packages("arules")
+library(arules)
+# To see vignettes
+#arules::arules
+data("Groceries")
+summary(Groceries)
+inspect(Groceries[1:10])
+as(Groceries[1:10], "list")
+```
+
+Number of rows means how many transactions we have. Number of columns means how many different items we might have in each transaction. The density of 0.02609146 indicates the ratio of nonzero matrix cells to total number of elements in the matrix ( which is equal to columns* rows = 1662115).
+Total number of items purchased = 1662115* density = 43367
+Average transaction contains 43367 / 9835 = 4.41
+
