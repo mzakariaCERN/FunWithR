@@ -257,10 +257,52 @@ includes extended item information - examples:</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Number of rows means how many transactions we have. Number of columns means how many different items we might have in each transaction. The density of 0.02609146 indicates the ratio of nonzero matrix cells to total number of elements in the matrix ( which is equal to columns* rows = 1662115). Total number of items purchased = 1662115* density = 43367 Average transaction contains 43367 / 9835 = 4.41</p>
+<p>Number of rows means how many transactions we have. Number of columns means how many different items we might have in each transaction. The density of 0.02609146 indicates the ratio of nonzero matrix cells to total number of elements in the matrix ( which is equal to columns* rows = 1662115). Total number of items purchased = 1662115* density = 43367 Average transaction contains 43367 / 9835 = 4.41 (which is the same value that summary gives us)</p>
+<p>using inspect to see fea transaction records</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5zcGVjdChHcm9jZXJpZXNbMTo1XSlcbmBgYCJ9 -->
+<pre class="r"><code>inspect(Groceries[1:5])</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibmNvbCI6MSwibnJvdyI6NX0sInJkZiI6Ikg0c0lBQUFBQUFBQUJtMVN5MDdETUJCMG02YW9GUVdrM3BFL0lLbEVDeElmQUQvQUNRbjE0RGlieEtwalI3YlRVa1g5OVlMemNGTWlEckZuTjdPNzQ5Rit2SDJ1NTU5emhOQVllYjQ5UFFzblkzdU0wQVRONnZzYklXL1pKSkMzc0xmZll2dTd4VjVUL0xkb3ltRVBYRnYwMExEYTdHdEZtVkdseG9rcW1RazA1Q3hNbUdBNmd4aEhDa2djNUVTbFJERUJRUjBlc1pabG9VOWQvWHNsVFFZSzd5RUZReUlPT2poa2tnUE9HZDhGVklvWWhMYXRtcEJMa1dMT0VzQVIyWUU2NGtMSnVLVEdOUXVyZ2hXZGtxTk1TMlVDYW1mbW1HWUFHbkNRQXpGWUY3V09pNExIeWloWk1FcjRvRkltQ1lCajNWYTlyTlBBR1o5eW9wMHhGN3NTUW8xVUZwMkhkRUZ5R05KOVppRFhBK1pNeWNQcW11MWM5NzZldGhlNDd1R21oODg5Zk5tMmZiMmZ3ZEI1VEF4WkpjcE8rRWZualN3TWs4TE9IaSs3dmJndUhxbEI0cjRVdGRZNHBGa3BkdUdtSHREdFZmMHR1dHUvd3FOMjVNUUpjKytiZ2tqdHdqaHZPSW1BZDhHZDlhU3haRlhZblRMdUpUYXJWMFlhNG5oektybkxORzlENTEvSXJraUpHUU1BQUE9PSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["items"],"name":[1],"type":["fctr"],"align":["left"]}],"data":[{"1":"{citrus fruit,semi-finished bread,margarine,ready soups}","_rn_":"[1]"},{"1":"{tropical fruit,yogurt,coffee}","_rn_":"[2]"},{"1":"{whole milk}","_rn_":"[3]"},{"1":"{pip fruit,yogurt,cream cheese ,meat spreads}","_rn_":"[4]"},{"1":"{other vegetables,whole milk,condensed milk,long life bakery product}","_rn_":"[5]"}],"options":{"columns":{"min":{},"max":[10],"total":[1]},"rows":{"min":[10],"max":[10],"total":[5]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>if we want to see the specific columns of the data, you can use [raw, column] notation. We can combine this with itemFrequency() to see the proportions of the transactions that contain the item</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5zcGVjdChHcm9jZXJpZXNbMTo1LCAxOjNdKVxuYGBgIn0= -->
+<pre class="r"><code>inspect(Groceries[1:5, 1:3])</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibmNvbCI6MSwibnJvdyI6NX0sInJkZiI6Ikg0c0lBQUFBQUFBQUJtMlEzWTZDTUJDRlIwb3hrdWh1NG5OSUl1b2IrQVJlbVd5ODZHSlZZbWxOcVQvSlpsOWRkOEIycVkwWGRENE9wOHpNV1MzWGVicE9BU0FDUXZFa2lIR0VSdzlpR0RUMUJrREdyUUJraUpVK09YeGVMaVdDWDdpb2tUNDlOZnI1RFh5MEVLd09iY21PRlVacHBIdG9sNnppb1oyV2hsZDE0QnhvZGMxOE43VWZ5TmQwODQ5NWg3TU81eDB1TnMvL2trZlFOTjB5dzdLZHhnNXY1dXlya3ltVnhON1IyQ2JtWCs3cFFQZzR5MmJXN2FRNG5PVnhNbThhZU9rT2JhVWUyOFJqTjVqYkwrRnlYMHJ1c2hIc213djdNc0pNMmtpeWt5NmxjWnVnV21kR0dlWjhhYUdFVTlyZDRQNEgwZ01FeGljQ0FBQT0ifQ== -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["items"],"name":[1],"type":["fctr"],"align":["left"]}],"data":[{"1":"{}","_rn_":"[1]"},{"1":"{}","_rn_":"[2]"},{"1":"{}","_rn_":"[3]"},{"1":"{}","_rn_":"[4]"},{"1":"{}","_rn_":"[5]"}],"options":{"columns":{"min":{},"max":[10],"total":[1]},"rows":{"min":[10],"max":[10],"total":[5]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaXRlbUZyZXF1ZW5jeShHcm9jZXJpZXNbLCAxOjRdKVxuYGBgIn0= -->
+<pre class="r"><code>itemFrequency(Groceries[, 1:4])</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiZnJhbmtmdXJ0ZXIgICAgIHNhdXNhZ2UgIGxpdmVyIGxvYWYgICAgICAgICBoYW0gXG4wLjA1ODk3MzA1NSAwLjA5Mzk1MDE3OCAwLjAwNTA4Mzg4NCAwLjAyNjAyOTQ4NyBcbiJ9 -->
+<pre><code>frankfurter     sausage  liver loaf         ham 
+0.058973055 0.093950178 0.005083884 0.026029487 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Notice that the sparce matrix columns are sorted in alphabetical order.</p>
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkFSX01hcmtldEJhc3RldCINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCk91ciBtYXJrZXQgYmFza2V0IGFuYWx5c2lzIHdpbGwgdXRpbGl6ZSB0aGUgcHVyY2hhc2UgZGF0YSBmcm9tIG9uZSBtb250aCBvZiBvcGVyYXRpb24gZm9yIGEgZ3JvY2VyeSBzdG9yZS4gV2Ugd2lsbCBzZWUgdGhhdCB3ZSBoYXZlIGFib3V0IDk4MzUgdHJhbnNhY3Rpb24gZHVyaW5nIHRoYXQgcGVyaW9kLiBvciBhYm91dCAzMC01MCBwZXIgaG91ciAoZGVwZW5kaW5nIG9uIGhvdyBtYW55IGhvdXJzIGl0IG9wZXJhdGVzKS4gVGhpcyBpbmRpY2F0ZXMgYSBtZWRpdW0gc2l6ZSBzdG9yZS4gDQoNCg0KR2V0dGluZyB0aGUgZGF0YQ0KDQpgYGB7cn0NCiNpbnN0YWxsLnBhY2thZ2VzKCJhcnVsZXMiKQ0KbGlicmFyeShhcnVsZXMpDQojIFRvIHNlZSB2aWduZXR0ZXMNCiNhcnVsZXM6OmFydWxlcw0KZGF0YSgiR3JvY2VyaWVzIikNCnN1bW1hcnkoR3JvY2VyaWVzKQ0KaW5zcGVjdChHcm9jZXJpZXNbMToxMF0pDQphcyhHcm9jZXJpZXNbMToxMF0sICJsaXN0IikNCmBgYA0KDQpOdW1iZXIgb2Ygcm93cyBtZWFucyBob3cgbWFueSB0cmFuc2FjdGlvbnMgd2UgaGF2ZS4gTnVtYmVyIG9mIGNvbHVtbnMgbWVhbnMgaG93IG1hbnkgZGlmZmVyZW50IGl0ZW1zIHdlIG1pZ2h0IGhhdmUgaW4gZWFjaCB0cmFuc2FjdGlvbi4gVGhlIGRlbnNpdHkgb2YgMC4wMjYwOTE0NiBpbmRpY2F0ZXMgdGhlIHJhdGlvIG9mIG5vbnplcm8gbWF0cml4IGNlbGxzIHRvIHRvdGFsIG51bWJlciBvZiBlbGVtZW50cyBpbiB0aGUgbWF0cml4ICggd2hpY2ggaXMgZXF1YWwgdG8gY29sdW1ucyogcm93cyA9IDE2NjIxMTUpLg0KVG90YWwgbnVtYmVyIG9mIGl0ZW1zIHB1cmNoYXNlZCA9IDE2NjIxMTUqIGRlbnNpdHkgPSA0MzM2Nw0KQXZlcmFnZSB0cmFuc2FjdGlvbiBjb250YWlucyA0MzM2NyAvIDk4MzUgPSA0LjQxDQoNCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkFSX01hcmtldEJhc3RldCINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCk91ciBtYXJrZXQgYmFza2V0IGFuYWx5c2lzIHdpbGwgdXRpbGl6ZSB0aGUgcHVyY2hhc2UgZGF0YSBmcm9tIG9uZSBtb250aCBvZiBvcGVyYXRpb24gZm9yIGEgZ3JvY2VyeSBzdG9yZS4gV2Ugd2lsbCBzZWUgdGhhdCB3ZSBoYXZlIGFib3V0IDk4MzUgdHJhbnNhY3Rpb24gZHVyaW5nIHRoYXQgcGVyaW9kLiBvciBhYm91dCAzMC01MCBwZXIgaG91ciAoZGVwZW5kaW5nIG9uIGhvdyBtYW55IGhvdXJzIGl0IG9wZXJhdGVzKS4gVGhpcyBpbmRpY2F0ZXMgYSBtZWRpdW0gc2l6ZSBzdG9yZS4gDQoNCg0KR2V0dGluZyB0aGUgZGF0YQ0KDQpgYGB7cn0NCiNpbnN0YWxsLnBhY2thZ2VzKCJhcnVsZXMiKQ0KbGlicmFyeShhcnVsZXMpDQojIFRvIHNlZSB2aWduZXR0ZXMNCiNhcnVsZXM6OmFydWxlcw0KZGF0YSgiR3JvY2VyaWVzIikNCnN1bW1hcnkoR3JvY2VyaWVzKQ0KaW5zcGVjdChHcm9jZXJpZXNbMToxMF0pDQphcyhHcm9jZXJpZXNbMToxMF0sICJsaXN0IikNCmBgYA0KDQpOdW1iZXIgb2Ygcm93cyBtZWFucyBob3cgbWFueSB0cmFuc2FjdGlvbnMgd2UgaGF2ZS4gTnVtYmVyIG9mIGNvbHVtbnMgbWVhbnMgaG93IG1hbnkgZGlmZmVyZW50IGl0ZW1zIHdlIG1pZ2h0IGhhdmUgaW4gZWFjaCB0cmFuc2FjdGlvbi4gVGhlIGRlbnNpdHkgb2YgMC4wMjYwOTE0NiBpbmRpY2F0ZXMgdGhlIHJhdGlvIG9mIG5vbnplcm8gbWF0cml4IGNlbGxzIHRvIHRvdGFsIG51bWJlciBvZiBlbGVtZW50cyBpbiB0aGUgbWF0cml4ICggd2hpY2ggaXMgZXF1YWwgdG8gY29sdW1ucyogcm93cyA9IDE2NjIxMTUpLg0KVG90YWwgbnVtYmVyIG9mIGl0ZW1zIHB1cmNoYXNlZCA9IDE2NjIxMTUqIGRlbnNpdHkgPSA0MzM2Nw0KQXZlcmFnZSB0cmFuc2FjdGlvbiBjb250YWlucyA0MzM2NyAvIDk4MzUgPSA0LjQxICh3aGljaCBpcyB0aGUgc2FtZSB2YWx1ZSB0aGF0IHN1bW1hcnkgZ2l2ZXMgdXMpDQoNCnVzaW5nIGluc3BlY3QgdG8gc2VlIGZlYSB0cmFuc2FjdGlvbiByZWNvcmRzDQoNCmBgYHtyfQ0KaW5zcGVjdChHcm9jZXJpZXNbMTo1XSkNCmBgYA0KDQppZiB3ZSB3YW50IHRvIHNlZSB0aGUgc3BlY2lmaWMgY29sdW1ucyBvZiB0aGUgZGF0YSwgeW91IGNhbiB1c2UgW3JhdywgY29sdW1uXSBub3RhdGlvbi4gV2UgY2FuIGNvbWJpbmUgdGhpcyB3aXRoIGl0ZW1GcmVxdWVuY3koKSB0byBzZWUgdGhlIHByb3BvcnRpb25zIG9mIHRoZSB0cmFuc2FjdGlvbnMgdGhhdCBjb250YWluIHRoZSBpdGVtDQoNCmBgYHtyfQ0KaW5zcGVjdChHcm9jZXJpZXNbMTo1LCAxOjNdKQ0KYGBgDQoNCmBgYHtyfQ0KaXRlbUZyZXF1ZW5jeShHcm9jZXJpZXNbLCAxOjRdKQ0KYGBgDQoNCk5vdGljZSB0aGF0IHRoZSBzcGFyY2UgbWF0cml4IGNvbHVtbnMgYXJlIHNvcnRlZCBpbiBhbHBoYWJldGljYWwgb3JkZXIuDQoNCg==</div>
 
 
 
