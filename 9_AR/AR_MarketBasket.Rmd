@@ -20,6 +20,7 @@ inspect(Groceries[1:10])
 as(Groceries[1:10], "list")
 ```
 
+
 Number of rows means how many transactions we have. Number of columns means how many different items we might have in each transaction. The density of 0.02609146 indicates the ratio of nonzero matrix cells to total number of elements in the matrix ( which is equal to columns* rows = 1662115).
 Total number of items purchased = 1662115* density = 43367
 Average transaction contains 43367 / 9835 = 4.41 (which is the same value that summary gives us)
@@ -42,3 +43,27 @@ itemFrequency(Groceries[, 1:4])
 
 Notice that the sparce matrix columns are sorted in alphabetical order.
 
+
+To present these statistics visually, we use itemFrequencyPlot() function. Since the transaction data requires a large number of items, we will need to limit the ones appearing in the plot in order to produce a readable chart.
+
+```{r}
+itemFrequencyPlot(Groceries, support = 0.1) # showing data with 10% support at least
+
+
+```
+
+Alternatively, we can set the limit on the number of items we wish to see, ranked by frequency
+
+```{r}
+itemFrequencyPlot(Groceries, topN = 20)
+```
+
+WE can alse view the entire sparce matrix using functiion image
+
+```{r}
+image(Groceries[1:5])
+```
+
+Notice that we have 5 rosw (number of transactions we want to look at, and 169 columns, indicating each item in the shopping transactions) This plot can help us with some quality control
+1- (Ex. if we found one item that repeats all the way, it can be a sign that the store might include it's name on the records by mistake)
+2- Viewing data historically can show seasonal effects
