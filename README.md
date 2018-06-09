@@ -16,6 +16,10 @@ Folder contains a study on using Decision Trees for default prediction on data f
 Folder contains a study using Rule LEarners (R1 and JRip) to classify mushrooms
 [link](https://github.com/mzakariaCERN/FunWithR/blob/master/4_RL/RL_Mashroom.md)
 
+5. 5_Regression
+Folder contains a study using Linear Regression to predict medical expenses  
+[link](https://github.com/mzakariaCERN/FunWithR/blob/master/5_Regression/LinReg_MedicalExpenses.md)
+
 All studies use caret library for tuning using ROC
 
 
