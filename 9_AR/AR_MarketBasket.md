@@ -200,3 +200,41 @@ image(Groceries[1:5])
 ![](AR_MarketBasket_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 Notice that we have 5 rosw (number of transactions we want to look at, and 169 columns, indicating each item in the shopping transactions) This plot can help us with some quality control 1- (Ex. if we found one item that repeats all the way, it can be a sign that the store might include it's name on the records by mistake) 2- Viewing data historically can show seasonal effects
+
+Rather than showing a large data set, we can simply sample few events
+
+``` r
+image(sample(Groceries, 100))
+```
+
+![](AR_MarketBasket_files/figure-markdown_github/unnamed-chunk-8-1.png)
+
+We will use the apriori algorithm in the arules package. WE might need to experiment few time with support and confidence levels to produce a reasonable number of association rules. Setting the level too high we will find no rules, or they would be too generic to be useful. If set too low, we will get a large nunmber of rulse, or worse, taking too much time to finish the learning task. Starting with the defauls settings (support = 0.1, confidence = 0.8). Since support level of 10% require the item to be visible at least 9385 \* 0.1 = 939 times, and that we have only 8 items such, we shouldn't expect many rules (if any)
+
+``` r
+apriori(Groceries)
+```
+
+    ## Apriori
+    ## 
+    ## Parameter specification:
+    ##  confidence minval smax arem  aval originalSupport maxtime support minlen
+    ##         0.8    0.1    1 none FALSE            TRUE       5     0.1      1
+    ##  maxlen target   ext
+    ##      10  rules FALSE
+    ## 
+    ## Algorithmic control:
+    ##  filter tree heap memopt load sort verbose
+    ##     0.1 TRUE TRUE  FALSE TRUE    2    TRUE
+    ## 
+    ## Absolute minimum support count: 983 
+    ## 
+    ## set item appearances ...[0 item(s)] done [0.00s].
+    ## set transactions ...[169 item(s), 9835 transaction(s)] done [0.00s].
+    ## sorting and recoding items ... [8 item(s)] done [0.00s].
+    ## creating transaction tree ... done [0.00s].
+    ## checking subsets of size 1 2 done [0.00s].
+    ## writing ... [0 rule(s)] done [0.00s].
+    ## creating S4 object  ... done [0.00s].
+
+    ## set of 0 rules
