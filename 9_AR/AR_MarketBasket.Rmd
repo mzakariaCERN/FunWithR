@@ -80,3 +80,33 @@ We will use the apriori algorithm in the arules package. WE might need to experi
 apriori(Groceries)
 ```
 
+One way to approach the problem of setting a threshold for support is to think about that smallest number of transactions you need before you would consider a pattern interesting. Perhaps an item that was purchased, say, 10 times a day would make it of interest. so we have 30*10 = 300. and out of 9000 transaction we have level of 3%. 
+
+similar challenges go with setting confidence thresholds. We can try level 0.25, which means that the rule needs to be correct 25% of the time at least. Another variable to set is minlen. Setting it to 2 means we will eliminate rules that contain fewer than 2 items (rule count includes left hand and right hand items). 
+
+```{r}
+groceryrules <- apriori(Groceries, parameter = list(support = .006, confidence = 0.25, minlen = 2))
+groceryrules
+```
+We see we have 463 rulse. 
+
+```{r}
+summary(groceryrules)
+```
+The min for support and confidence as the values we set. notice that there are varuations of support and confidence and that they are not all set around the threshold (in that case, it might indicate that it is too high). The third item is lift, which indicates how probable we have a causality due to the rule rather than random chance. A lrage lift value (more than 1, 2 etc) indicates that a rule is important, and reflects a strong connection between items. 
+
+To inspect the rules, we use the inspect function
+
+```{r}
+inspect(groceryrules[1:4])
+```
+
+
+Let us take an example to understand these rules. the second rule means that if you buy pasta, you will buy whole milk. pasta and milk were bought 0.6 of the time in our data. and out of the occurances, 40% pasta was associated with whole milk. So the lift is 0.4 / 0.006 = 1.59
+
+In general rules can be classified into 3 categories:  
+Actionable  
+Trivial (something we could have guessed without an algorithm Ex: formula and diapers)  
+Inexplicable (we can't find an explanation or connection between the items that taking action might be impossible, it can be a random connection)  
+
+We need to look for Actionable rules. 
