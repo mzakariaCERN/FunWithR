@@ -20,7 +20,9 @@ Folder contains a study using Rule LEarners (R1 and JRip) to classify mushrooms
 Folder contains a study using Linear Regression to predict medical expenses 
 [link](https://github.com/mzakariaCERN/FunWithR/blob/master/5_Regression/LinReg_MedicalExpenses.md)
 
-
+6. 6_CART_ModelTrees
+using CART and model trees to estimate quality of wine
+[link](https://github.com/mzakariaCERN/FunWithR/blob/master/6_CART_ModelTrees/CART_ModelTrees_WineQuality.Rmd)
 
 All studies use caret library for tuning using ROC
 
