@@ -110,3 +110,17 @@ Trivial (something we could have guessed without an algorithm Ex: formula and di
 Inexplicable (we can't find an explanation or connection between the items that taking action might be impossible, it can be a random connection)  
 
 We need to look for Actionable rules. 
+
+Next we sort the rules by the lift
+
+```{r}
+inspect(sort(groceryrules, by = "lift")[1:5])
+```
+
+Taking subsets of the association rules
+
+```{r}
+berryrules <- subset(groceryrules, items %in% "berries")
+inspect(berryrules)
+```
+

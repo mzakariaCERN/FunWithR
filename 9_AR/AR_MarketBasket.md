@@ -381,3 +381,39 @@ items that taking action might be impossible, it can be a random
 connection)
 
 We need to look for Actionable rules.
+
+Next we sort the rules by the
+    lift
+
+``` r
+inspect(sort(groceryrules, by = "lift")[1:5])
+```
+
+    ##     lhs                   rhs                      support confidence     lift count
+    ## [1] {herbs}            => {root vegetables}    0.007015760  0.4312500 3.956477    69
+    ## [2] {berries}          => {whipped/sour cream} 0.009049314  0.2721713 3.796886    89
+    ## [3] {tropical fruit,                                                                
+    ##      other vegetables,                                                              
+    ##      whole milk}       => {root vegetables}    0.007015760  0.4107143 3.768074    69
+    ## [4] {beef,                                                                          
+    ##      other vegetables} => {root vegetables}    0.007930859  0.4020619 3.688692    78
+    ## [5] {tropical fruit,                                                                
+    ##      other vegetables} => {pip fruit}          0.009456024  0.2634561 3.482649    93
+
+Taking subsets of the association rules
+
+``` r
+berryrules <- subset(groceryrules, items %in% "berries")
+inspect(berryrules)
+```
+
+    ##     lhs          rhs                  support     confidence lift    
+    ## [1] {berries} => {whipped/sour cream} 0.009049314 0.2721713  3.796886
+    ## [2] {berries} => {yogurt}             0.010574479 0.3180428  2.279848
+    ## [3] {berries} => {other vegetables}   0.010269446 0.3088685  1.596280
+    ## [4] {berries} => {whole milk}         0.011794611 0.3547401  1.388328
+    ##     count
+    ## [1]  89  
+    ## [2] 104  
+    ## [3] 101  
+    ## [4] 116
