@@ -124,3 +124,15 @@ berryrules <- subset(groceryrules, items %in% "berries")
 inspect(berryrules)
 ```
 
+We can save the results in csv
+```{r}
+#write(groceryrules, file = "groceryrules.csv", sep  = ",", quote = TRUE, row.names = FALSE)
+```
+
+We can also convert the rules to a data frame
+
+```{r}
+groceryrules_df <- as(groceryrules, "data.frame")
+str(groceryrules_df)
+```
+

@@ -302,7 +302,7 @@ groceryrules <- apriori(Groceries, parameter = list(support = .006, confidence =
     ## set item appearances ...[0 item(s)] done [0.00s].
     ## set transactions ...[169 item(s), 9835 transaction(s)] done [0.00s].
     ## sorting and recoding items ... [109 item(s)] done [0.00s].
-    ## creating transaction tree ... done [0.00s].
+    ## creating transaction tree ... done [0.02s].
     ## checking subsets of size 1 2 3 4 done [0.00s].
     ## writing ... [463 rule(s)] done [0.00s].
     ## creating S4 object  ... done [0.00s].
@@ -417,3 +417,24 @@ inspect(berryrules)
     ## [2] 104  
     ## [3] 101  
     ## [4] 116
+
+We can save the results in
+csv
+
+``` r
+#write(groceryrules, file = "groceryrules.csv", sep  = ",", quote = TRUE, row.names = FALSE)
+```
+
+We can also convert the rules to a data frame
+
+``` r
+groceryrules_df <- as(groceryrules, "data.frame")
+str(groceryrules_df)
+```
+
+    ## 'data.frame':    463 obs. of  5 variables:
+    ##  $ rules     : Factor w/ 463 levels "{baking powder} => {other vegetables}",..: 237 204 128 127 129 238 317 21 89 90 ...
+    ##  $ support   : num  0.00691 0.0061 0.00702 0.00773 0.00773 ...
+    ##  $ confidence: num  0.4 0.405 0.431 0.475 0.475 ...
+    ##  $ lift      : num  1.57 1.59 3.96 2.45 1.86 ...
+    ##  $ count     : num  68 60 69 76 76 69 70 67 63 88 ...
