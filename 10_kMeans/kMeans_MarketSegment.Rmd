@@ -1,0 +1,39 @@
+---
+title: "Teen Market Segments using k Means"
+author: "Mohammed Zakaria"
+
+output: github_document
+---
+
+
+
+This dataset was compiled by Brett Lantzz (Ch9, Machine Learning with R)
+
+```{r Reading Data}
+teens <- read.csv(file = "C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/10_kMeans/Data/snsdata.csv")
+str(teens)
+```
+
+There is a problem with the gender features: we  have NA
+
+```{r The gender feature}
+table(teens$gender) # doesn't show it!
+table(teens$gender, useNA = "ifany")
+summary(teens$gender)
+```
+
+```{r the age feature}
+summary(teens$age)
+```
+
+Also of a concern, anre the min and maximum values. This also needs some cleaning up. A more reasonable range for the age for high school students would be between 13 and 20 years old. Any age value outside of this range should be treated as missing data as cannot trust it. 
+
+
+```{r standardise age}
+teens$age <- ifelse(teens$age >= 13 & teens$age < 20, teens$age, NA)
+summary(teens$age)
+```
+
+One approach to handle themissing values with a categorical variable - like age - is by assigning it to it's own category. So we can have Male, Female, and dummy code (unknown) as a third gender. 
+
+
