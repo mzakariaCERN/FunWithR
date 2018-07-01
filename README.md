@@ -24,6 +24,8 @@ Folder contains a study using Linear Regression to predict medical expenses
 using CART and model trees to estimate quality of wine
 [link](https://github.com/mzakariaCERN/FunWithR/blob/master/6_CART_ModelTrees/CART_ModelTrees_WineQuality.Rmd)
 
+7. 7_
+
 All studies use caret library for tuning using ROC
 
 
