@@ -100,3 +100,89 @@ summary(teens$age)
 One approach to handle themissing values with a categorical variable -
 like age - is by assigning it to it’s own category. So we can have Male,
 Female, and dummy code (unknown) as a third gender.
+
+``` r
+teens$female <- ifelse(teens$gender == "F" & !is.na(teens$gender), 1, 0)
+teens$no_gender <- ifelse(is.na(teens$gender), 1, 0)
+```
+
+Check out the work
+
+``` r
+table(teens$gender, useNA = "ifany")
+```
+
+    ## 
+    ##     F     M  <NA> 
+    ## 22054  5222  2724
+
+``` r
+table(teens$female, useNA = "ifany")
+```
+
+    ## 
+    ##     0     1 
+    ##  7946 22054
+
+``` r
+table(teens$no_gender, useNA = "ifany")
+```
+
+    ## 
+    ##     0     1 
+    ## 27276  2724
+
+For the 5k some values that are NA. we need to advise a different
+strategy to infer a better age estimate. We can use graduation year to
+obtain the value for age
+
+``` r
+# to do it for one year
+mean(teens$age, na.rm = TRUE)
+```
+
+    ## [1] 17.25243
+
+``` r
+#to do it for the 4 years
+aggregate(data = teens, age ~ gradyear, mean, na.rm = TRUE)
+```
+
+    ##   gradyear      age
+    ## 1     2006 18.65586
+    ## 2     2007 17.70617
+    ## 3     2008 16.76770
+    ## 4     2009 15.81957
+
+For a nice discussion on using aggregate vs the apply family please
+refer to:
+<https://stackoverflow.com/questions/3505701/grouping-functions-tapply-by-aggregate-and-the-apply-family>
+
+The fact that the outout of aggregate is a data frame can cause trouble,
+so we define our own
+function:
+
+``` r
+ave_age <- ave(teens$age, teens$gradyear, FUN = function(x) mean(x, na.rm = TRUE))
+```
+
+``` r
+teens$age <- ifelse(is.na(teens$age), ave_age, teens$age)
+```
+
+For model building we will use kmeans from the stats package
+
+``` r
+library(stats)
+```
+
+The kmeans function requires all numeric features and they should be
+standardized. Lets start with the 36 features represening interestss
+
+``` r
+interests <- teens[5:40]
+```
+
+``` r
+interests_z <- as.data.frame(lapply(interests, scale))
+```
