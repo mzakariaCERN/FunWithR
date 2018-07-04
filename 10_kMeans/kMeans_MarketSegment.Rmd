@@ -91,7 +91,25 @@ interests_z <- as.data.frame(lapply(interests, scale))
 ```
 
 
+We will try clustering with 5 centers:
+
+```{r}
+set.seed(2345)
+teen_clusters <- kmeans(interests_z, 5)
+```
 
 
+Evaluating how useful the clustering output is somewhat subjectives. It depends on wether these clusters ended up being useful or not. One way to evaluate the utility of a set of clusters is to see how many examples fall in each group. Too large, or too small, groups make them less usefull. 
+
+```{r find size of clusters}
+teen_clusters$size
+```
+
+Here we notice big difference between the largest and smallest cluster. But on it's own, this might not show any issues. Next we look at cluster cenrers
+
+```{r}
+teen_clusters$centers
+```
+Examining the clusters for any tendencies shows that cluster 3 has above average (that is, positive) for sports. We notice also that cluster 5 lacks any determining domain of interest. 
 
 
