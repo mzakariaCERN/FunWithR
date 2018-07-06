@@ -113,3 +113,27 @@ teen_clusters$centers
 Examining the clusters for any tendencies shows that cluster 3 has above average (that is, positive) for sports. We notice also that cluster 5 lacks any determining domain of interest. 
 
 
+We add clusters of the kmeans as a feature
+
+```{r}
+teens$cluster <- teen_clusters$cluster
+```
+
+
+using aggregate, we can look at the demographic charactaristics of the clusters.
+
+```{r}
+aggregate(data = teens, age ~ cluster, mean)
+```
+
+We see a more interesting patter regardgin gender
+
+```{r}
+aggregate(data = teens, female ~ cluster, mean)
+```
+
+```{r}
+aggregate(data = teens, friends ~ cluster, mean)
+```
+
+The association amoung group membership, gender, and number of friends suggests that the clusters can be useful predictors of behaviour. 
