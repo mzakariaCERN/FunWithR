@@ -8,12 +8,21 @@ library(ggplot2)
 #install.packages("C50") # for DT algorithm
 library(C50)
 library(caret)
+```
+
+    ## Warning: package 'caret' was built under R version 3.5.1
+
+``` r
 #install.packages('pROC')
 library(pROC)
 library(dplyr)
 ```
 
-Pulling the data: The credit data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: <https://github.com/stedy/Machine-Learning-with-R-datasets/blob/master/credit.csv> and original data can be found under <https://archive.ics.uci.edu/ml>
+Pulling the data: The credit data is from Brett Lantz’s “Machine
+Learning with R” a repo for the data is under this link:
+<https://github.com/stedy/Machine-Learning-with-R-datasets/blob/master/credit.csv>
+and original data can be found under
+<https://archive.ics.uci.edu/ml>
 
 ``` r
 credit <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/3_DT/Data/credit.csv", stringsAsFactors = FALSE)
@@ -90,7 +99,10 @@ summary(credit)
     ##                     3rd Qu.:2.0  
     ##                     Max.   :2.0
 
-from str() we see that the target feature is actually numerical representing a categorical variable (default vs. no default) and we see that it has 1 for no default and 2 for default. we will label them to make it more readable
+from str() we see that the target feature is actually numerical
+representing a categorical variable (default vs. no default) and we see
+that it has 1 for no default and 2 for default. we will label them to
+make it more readable
 
 ``` r
 credit$default <- factor(credit$default, labels = c('No', 'YES'))
@@ -112,7 +124,8 @@ table(credit$default)
     ##  No YES 
     ## 700 300
 
-We divide the data 90:10. WE cannot assume that the data is random. So let us do that
+We divide the data 90:10. WE cannot assume that the data is random. So
+let us do that
 
 ``` r
 set.seed(123)
@@ -143,7 +156,7 @@ prop.table(table(credit_test$default))
     ##   No  YES 
     ## 0.67 0.33
 
-Close! So we can proceed.
+Close\! So we can proceed.
 
 ``` r
 # remove the "default" feature since this is the target one
@@ -167,7 +180,9 @@ credit_model
 #summary(credit_model) # uncomment to see summary for all the trees used
 ```
 
-Here, number of samples is the number of examples number of predictors is the number of features used tree size is how many decision the depth of the tree is
+Here, number of samples is the number of examples number of predictors
+is the number of features used tree size is how many decision the depth
+of the tree is
 
 More details can be seen from the summary function
 
@@ -180,7 +195,7 @@ summary(credit_model)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:55:04 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Sat Jul 28 17:39:15 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -336,7 +351,11 @@ summary(credit_model)
 #plot(credit_model)
 ```
 
-we understand a line like checking\_balance in {unknown,&gt; 200 DM}: 1 (412/50) by saying that if we checking balance was unknown, or larger than 200 DM, then we are in class one. (we have 412 examples that we got right, and 50 that we classified wrongly based on this rule)
+we understand a line like checking\_balance in {unknown,\> 200 DM}: 1
+(412/50) by saying that if we checking balance was unknown, or larger
+than 200 DM, then we are in class one. (we have 412 examples that we got
+right, and 50 that we classified wrongly based on this
+rule)
 
 ``` r
 credit_predict <- predict(credit_model, credit_test)
@@ -372,7 +391,10 @@ CrossTable(credit_test$default, credit_predict, prop.chisq = FALSE, prop.c = FAL
     ## 
     ## 
 
-From the table we can calculate the accuracy as .6 + .14 = 0.74. The model was particularly bad in missing 0.19 of the cases where there was a default. We can try improving the model using boosting
+From the table we can calculate the accuracy as .6 + .14 = 0.74. The
+model was particularly bad in missing 0.19 of the cases where there was
+a default. We can try improving the model using
+boosting
 
 ``` r
 credit_boost10 <- C5.0(credit_train[-21], credit_train$default, trials = 10)
@@ -392,7 +414,7 @@ credit_boost10
     ## 
     ## Non-standard options: attempt to group attributes
 
-Notice how the average tree size has schrunk!
+Notice how the average tree size has schrunk\!
 
 ``` r
 credit_boost_pred10 <- predict(credit_boost10, credit_test)
@@ -441,7 +463,9 @@ matrix_dimentions
     ## $actual
     ## [1] "no"  "yes"
 
-Assuming that a loan default cost us 4 times as a missed opportunity. We will set the error matrix as the following
+Assuming that a loan default cost us 4 times as a missed opportunity. We
+will set the error matrix as the
+following
 
 ``` r
 error_cost <- matrix(c(0, 1, 4, 0), nrow = 2, dimnames = matrix_dimentions) ## causes problem (trees won't grow), had to do it without dimnames!
@@ -467,8 +491,8 @@ error_cost2
 credit_cost <- C5.0(credit_train[-21], credit_train$default, costs = error_cost2)
 ```
 
-    ## Warning in C5.0.default(credit_train[-21], credit_train$default, costs = error_cost2): 
-    ## no dimnames were given for the cost matrix; the factor levels will be used
+    ## Warning: no dimnames were given for the cost matrix; the factor levels will
+    ## be used
 
 ``` r
 credit_cost_pred <- predict(credit_cost, credit_test)
@@ -501,9 +525,14 @@ CrossTable(credit_test$default, credit_cost_pred, prop.r = FALSE, prop.c = FALSE
     ## 
     ## 
 
-Notice that the total accuracy is now 59% But the type of errors has varied and the more costly error has been reduced.
+Notice that the total accuracy is now 59% But the type of errors has
+varied and the more costly error has been reduced.
 
-C5.0 can create an initial tree model then decompose the tree structure into a set of mutually exclusive rules. These rules can then be pruned and modified into a smaller set of potentially overlapping rules. The rules can be created using the rules option:
+C5.0 can create an initial tree model then decompose the tree structure
+into a set of mutually exclusive rules. These rules can then be pruned
+and modified into a smaller set of potentially overlapping rules. The
+rules can be created using the rules
+option:
 
 ``` r
 credit_model_rules <- C5.0(credit_train[-21], credit_train$default, rules = TRUE)
@@ -531,7 +560,7 @@ summary(credit_model_rules)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default, rules = TRUE)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Mon May 07 17:55:04 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Sat Jul 28 17:39:15 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -772,7 +801,7 @@ ROC <- roc(predictor=probs[,1],
 plot(ROC)
 ```
 
-![](DT_BankLoans_files/figure-markdown_github/ROC-1.png)
+![](DT_BankLoans_files/figure-gfm/ROC-1.png)<!-- -->
 
 ``` r
 ROC$auc
@@ -780,7 +809,11 @@ ROC$auc
 
     ## Area under the curve: 0.7867
 
-credit\_boost\_pred10 &lt;- predict(credit\_boost10, credit\_test) CrossTable(credit\_test$default, credit\_boost\_pred10, prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE, prop.t = TRUE, dnn = c('actual defualt','predicted default')) \# prop.c is for proportionaliy calculation per column
+credit\_boost\_pred10 \<- predict(credit\_boost10, credit\_test)
+CrossTable(credit\_test$default, credit\_boost\_pred10, prop.chisq =
+FALSE, prop.c = FALSE, prop.r = FALSE, prop.t = TRUE, dnn = c(‘actual
+defualt’,‘predicted default’)) \# prop.c is for proportionaliy
+calculation per column
 
 ``` r
 probs <- predict(credit_boost10, credit_test, type = "prob")
@@ -791,7 +824,7 @@ perf_dt_10 <- ROCR::performance(pred,  'tpr',  'fpr')
 plot(perf_dt_10@x.values[[1]], perf_dt_10@y.values[[1]], xlab = perf_dt_10@x.name[[1]], ylab = perf_dt_10@y.name[[1]], type = "l")
 ```
 
-![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](DT_BankLoans_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 ROCR::performance(pred, 'auc')
@@ -826,7 +859,7 @@ data.frame(predicted=probs, actual=credit_test$default) %>% ggplot(data=., aes(x
   theme(legend.position=c(0.8,0.8))
 ```
 
-![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](DT_BankLoans_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 credit_predict <- predict(credit_model, credit_test)
@@ -841,7 +874,7 @@ perf_dt_1 <- ROCR::performance(pred_1,  'tpr',  'fpr')
 plot(perf_dt_1@x.values[[1]], perf_dt_1@y.values[[1]],  xlab = perf_dt_10@x.name[[1]], ylab = perf_dt_10@y.name[[1]], type = "l" )
 ```
 
-![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](DT_BankLoans_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 ROCR::performance(pred_1, 'auc')
@@ -872,38 +905,47 @@ ROCR::performance(pred_1, 'auc')
 credit_cost_pred <- predict(credit_cost, credit_test)
 ```
 
-Next we try tuning the the model with the cost, but the following code fails!
+Next we try tuning the the model with the cost, but the following code
+fails\!
 
-    probs_cost <- predict(credit_cost, credit_test, type = "prob")  
-    pred_cost <- prediction(probs_cost[,2], credit_test$default)  
-    perf_dt_cost <- performance(pred_cost, measure = 'tpr', x.measure = 'fpr')  
-    plot(perf_dt_cost)  
-    performance(pred_cost, 'auc')  
+``` 
+probs_cost <- predict(credit_cost, credit_test, type = "prob")  
+pred_cost <- prediction(probs_cost[,2], credit_test$default)  
+perf_dt_cost <- performance(pred_cost, measure = 'tpr', x.measure = 'fpr')  
+plot(perf_dt_cost)  
+performance(pred_cost, 'auc')  
+```
 
-From the manual we see that: When the cost argument is used in the main function, class probabilities derived from the class distribution in the terminal nodes may not be consistent with the final predicted class. For this reason, requesting class probabilities from a model using unequal costs will throw an error
+From the manual we see that: When the cost argument is used in the main
+function, class probabilities derived from the class distribution in the
+terminal nodes may not be consistent with the final predicted class. For
+this reason, requesting class probabilities from a model using unequal
+costs will throw an error
 
-This post suggests a fix: <https://stackoverflow.com/questions/32633764/error-in-predict-when-using-c-50-with-costs-and-predict-with-type-prob-to-draw>
+This post suggests a fix:
+<https://stackoverflow.com/questions/32633764/error-in-predict-when-using-c-50-with-costs-and-predict-with-type-prob-to-draw>
 
 ``` r
 # plot ROC for each method
-roc_dt_1   <- data.frame(fpr=unlist(perf_dt_1@x.values), tpr=unlist(perf_dt_1@y.values))
+roc_dt_1   <- data.frame(fpr = unlist(perf_dt_1@x.values), tpr = unlist(perf_dt_1@y.values))
 roc_dt_1$method <- "DT 1"
-roc_dt_10 <- data.frame(fpr=unlist(perf_dt_10@x.values), tpr=unlist(perf_dt_10@y.values))
+roc_dt_10 <- data.frame(fpr = unlist(perf_dt_10@x.values), tpr = unlist(perf_dt_10@y.values))
 roc_dt_10$method <- "DT 10"
 rbind(roc_dt_1, roc_dt_10) %>%
-  ggplot(data=., aes(x=fpr, y=tpr, linetype=method, color=method)) + 
+  ggplot(data = ., aes(x = fpr, y = tpr, linetype = method, color = method)) + 
   geom_line() +
-  geom_abline(a=1, b=0, linetype=2) +
-  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
-  scale_y_continuous(labels=scales::percent, lim=c(0,1)) +
-  theme(legend.position=c(0.8,0.2), legend.title=element_blank())
+  geom_abline(a = 1, b = 0, linetype = 2) +
+  scale_x_continuous(labels = scales::percent, lim = c(0,1)) +
+  scale_y_continuous(labels = scales::percent, lim = c(0,1)) +
+  theme(legend.position = c(0.8,0.2), legend.title = element_blank())
 ```
 
     ## Warning: Ignoring unknown parameters: a, b
 
-![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-10-1.png)
+![](DT_BankLoans_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
-Next we consider tuning the DT model. Based on the caret package See link <https://topepo.github.io/caret/available-models.html>
+Next we consider tuning the DT model. Based on the caret package See
+link <https://topepo.github.io/caret/available-models.html>
 
 ``` r
 modelLookup("C5.0")
@@ -914,13 +956,18 @@ modelLookup("C5.0")
     ## 2  C5.0     model            Model Type  FALSE     TRUE      TRUE
     ## 3  C5.0    winnow                Winnow  FALSE     TRUE      TRUE
 
-We have 3 parameters to tune in C5.0 decision trees implementation:
-1- trials: an integer specifying the number of boosting iterations. A value of one indicates that a single model is used
-2- model from caret git hub page <https://github.com/topepo/caret/blob/master/models/files/C5.0.R> seems there are two value: rules, tree
-3- winnow: A logical: should predictor winnowing (i.e feature selection) be used?
+We have 3 parameters to tune in C5.0 decision trees implementation:  
+1\. trials: an integer specifying the number of boosting iterations. A
+value of one indicates that a single model is used  
+2\. model from caret git hub page
+<https://github.com/topepo/caret/blob/master/models/files/C5.0.R> seems
+there are two value: rules, tree  
+3\. winnow: A logical: should predictor winnowing (i.e feature
+selection) be
+used?
 
 ``` r
-credit_classifier3<- train(credit_train[-21], credit_train$default , method = "C5.0", verbose = FALSE)
+credit_classifier3 <- train(credit_train[-21], credit_train$default , method = "C5.0", verbose = FALSE)
 # we can do our own grid 
 #grid <- expand.grid( .winnow = c(TRUE,FALSE), .trials=c(1,5,10,15,20), .model="tree" )
 #credit_classifier3<- train(credit_train[-21], credit_train$default , method = "C5.0", verbose = FALSE, tuneGrid = grid)
@@ -940,21 +987,21 @@ credit_classifier3
     ## Resampling results across tuning parameters:
     ## 
     ##   model  winnow  trials  Accuracy   Kappa    
-    ##   rules  FALSE    1      0.7019477  0.2642642
-    ##   rules  FALSE   10      0.7329041  0.3362735
-    ##   rules  FALSE   20      0.7400615  0.3492976
-    ##   rules   TRUE    1      0.7027798  0.2649061
-    ##   rules   TRUE   10      0.7250516  0.3200374
-    ##   rules   TRUE   20      0.7328711  0.3312186
-    ##   tree   FALSE    1      0.6963069  0.2540905
-    ##   tree   FALSE   10      0.7353152  0.3231561
-    ##   tree   FALSE   20      0.7416533  0.3360272
-    ##   tree    TRUE    1      0.6955951  0.2509301
-    ##   tree    TRUE   10      0.7274477  0.3008467
-    ##   tree    TRUE   20      0.7312990  0.3116126
+    ##   rules  FALSE    1      0.6954821  0.2479505
+    ##   rules  FALSE   10      0.7309401  0.3355641
+    ##   rules  FALSE   20      0.7383617  0.3449121
+    ##   rules   TRUE    1      0.7028329  0.2601177
+    ##   rules   TRUE   10      0.7298985  0.3243405
+    ##   rules   TRUE   20      0.7374903  0.3401968
+    ##   tree   FALSE    1      0.6888668  0.2364421
+    ##   tree   FALSE   10      0.7293769  0.3104265
+    ##   tree   FALSE   20      0.7347056  0.3209837
+    ##   tree    TRUE    1      0.6942410  0.2478067
+    ##   tree    TRUE   10      0.7277946  0.3054951
+    ##   tree    TRUE   20      0.7349869  0.3209695
     ## 
-    ## Accuracy was used to select the optimal model using  the largest value.
-    ## The final values used for the model were trials = 20, model = tree
+    ## Accuracy was used to select the optimal model using the largest value.
+    ## The final values used for the model were trials = 20, model = rules
     ##  and winnow = FALSE.
 
 ``` r
@@ -977,27 +1024,45 @@ CrossTable(credit_test$default, credit_test_pred3, prop.chisq = FALSE, prop.c = 
     ##                | predicted default 
     ## actual defualt |        No |       YES | Row Total | 
     ## ---------------|-----------|-----------|-----------|
-    ##             No |        59 |         8 |        67 | 
-    ##                |     0.590 |     0.080 |           | 
+    ##             No |        60 |         7 |        67 | 
+    ##                |     0.600 |     0.070 |           | 
     ## ---------------|-----------|-----------|-----------|
-    ##            YES |        20 |        13 |        33 | 
-    ##                |     0.200 |     0.130 |           | 
+    ##            YES |        16 |        17 |        33 | 
+    ##                |     0.160 |     0.170 |           | 
     ## ---------------|-----------|-----------|-----------|
-    ##   Column Total |        79 |        21 |       100 | 
+    ##   Column Total |        76 |        24 |       100 | 
     ## ---------------|-----------|-----------|-----------|
     ## 
     ## 
 
 ``` r
 ctrl <- trainControl(method = "cv",   
-                     summaryFunction=twoClassSummary,
-                     classProbs=TRUE,
+                     summaryFunction = twoClassSummary,
+                     classProbs = TRUE,
                      allowParallel = FALSE)
 m_cv_ROC <- train(credit_train[-21], credit_train$default,
       method = "C5.0",
       metric = "ROC",
       trControl = ctrl)
 ```
+
+    ## Warning: 'trials' should be <= 9 for this object. Predictions generated
+    ## using 9 trials
+    
+    ## Warning: 'trials' should be <= 9 for this object. Predictions generated
+    ## using 9 trials
+
+    ## Warning: 'trials' should be <= 1 for this object. Predictions generated
+    ## using 1 trials
+    
+    ## Warning: 'trials' should be <= 1 for this object. Predictions generated
+    ## using 1 trials
+
+    ## Warning: 'trials' should be <= 3 for this object. Predictions generated
+    ## using 3 trials
+    
+    ## Warning: 'trials' should be <= 3 for this object. Predictions generated
+    ## using 3 trials
 
 ``` r
 probs_cv_ROC <- predict(m_cv_ROC, credit_test, type = "prob")
@@ -1008,7 +1073,7 @@ perf_dt_cv_ROC <- ROCR::performance(pred_cv_ROC,  'tpr',  'fpr')
 plot(perf_dt_cv_ROC@x.values[[1]], perf_dt_cv_ROC@y.values[[1]],  xlab = perf_dt_cv_ROC@x.name[[1]], ylab = perf_dt_cv_ROC@y.name[[1]], type = "l" )
 ```
 
-![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-11-1.png)
+![](DT_BankLoans_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 ROCR::performance(pred_cv_ROC, 'auc')
@@ -1029,7 +1094,7 @@ ROCR::performance(pred_cv_ROC, 'auc')
     ## 
     ## Slot "y.values":
     ## [[1]]
-    ## [1] 0.7236545
+    ## [1] 0.7559928
     ## 
     ## 
     ## Slot "alpha.values":
@@ -1055,8 +1120,8 @@ rbind(roc_dt_1, roc_dt_10, roc_dt_cv_ROC) %>%
 
     ## Warning: Ignoring unknown parameters: a, b
 
-![](DT_BankLoans_files/figure-markdown_github/unnamed-chunk-12-1.png)
+![](DT_BankLoans_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
-> References
-> <https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html>
+> References  
+> <https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html>  
 > <https://cran.r-project.org/web/packages/C50/C50.pdf>

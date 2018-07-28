@@ -137,3 +137,8 @@ aggregate(data = teens, friends ~ cluster, mean)
 ```
 
 The association amoung group membership, gender, and number of friends suggests that the clusters can be useful predictors of behaviour. 
+
+Extra references:   
+1. https://www.datasciencecentral.com/profiles/blogs/13-great-articles-about-k-nearest-neighbors-and-related-algorithm  
+2. https://www.analyticsvidhya.com/blog/2016/11/an-introduction-to-clustering-and-different-methods-of-clustering  
+3. https://towardsdatascience.com/the-5-clustering-algorithms-data-scientists-need-to-know-a36d136ef68  
