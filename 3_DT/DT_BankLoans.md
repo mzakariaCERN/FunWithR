@@ -195,7 +195,7 @@ summary(credit_model)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Sat Jul 28 17:39:15 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Thu Aug 02 18:54:31 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -560,7 +560,7 @@ summary(credit_model_rules)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default, rules = TRUE)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Sat Jul 28 17:39:15 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Thu Aug 02 18:54:32 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
