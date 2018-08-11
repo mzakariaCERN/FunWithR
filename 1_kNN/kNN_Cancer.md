@@ -11,16 +11,38 @@ library(class)
 library(gmodels)
 #install.packages("caret") # for model tuning
 library(caret)
+```
+
+    ## Warning: package 'caret' was built under R version 3.5.1
+
+``` r
 #install.packages("e1071") # to help with model tuning
 library(e1071)
 #install.packages("pROC") # to make ROC plots
 library(pROC)   
+library(visdat) # better data exploration with vis_dat
 ```
 
-Pulling the data: The cancer data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: <https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv> and original data can be found under <https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/>
+    ## Warning: package 'visdat' was built under R version 3.5.1
 
 ``` r
-wbcd <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/1_kNN/wisc_bc_data.csv", stringsAsFactors = FALSE)
+library(assertr) # mkae assert statements for better data quality
+```
+
+    ## Warning: package 'assertr' was built under R version 3.5.1
+
+``` r
+library(dplyr)
+```
+
+Pulling the data: The cancer data is from Brett Lantz’s “Machine
+Learning with R” a repo for the data is under this link:
+<https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv>
+and original data can be found under
+<https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/>
+
+``` r
+wbcd <- read.csv(file = "C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/1_kNN/wisc_bc_data.csv", stringsAsFactors = FALSE)
 
 
 dim(wbcd)
@@ -140,7 +162,32 @@ summary(wbcd)
 wbcd <- wbcd[-1]
 ```
 
-Convert diagnosis into factors
+Lets try a better visualization with visdat
+
+``` r
+vis_dat(wbcd)
+```
+
+![](kNN_Cancer_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+vis_miss(wbcd)
+```
+
+![](kNN_Cancer_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+I’d like to make one asser statement regarding the radius of the tumers
+
+``` r
+invisible(
+  wbcd %>% 
+    verify(c( "B", "M") %in% .$diagnosis) %>% 
+          assert(within_bounds(0,Inf), radius_mean) 
+)
+```
+
+Convert diagnosis into
+factors
 
 ``` r
 wbcd$diagnosis <- factor(wbcd$diagnosis, levels = c("M", "B"), labels = c("Malignant", "Benign"))
@@ -151,7 +198,8 @@ round(prop.table(table(wbcd$diagnosis))*100, digits = 1)
     ## Malignant    Benign 
     ##      37.3      62.7
 
-Since different features have different scales, we introduce a function "normalize" to set the values withing a range of \[0,1\]
+Since different features have different scales, we introduce a function
+“normalize” to set the values withing a range of \[0,1\]
 
 ``` r
 normalize <- function(x){
@@ -161,7 +209,8 @@ normalize <- function(x){
 }
 ```
 
-use lapply to get a list (the l in lappy) and then convert the list inso data frame
+use lapply to get a list (the l in lappy) and then convert the list inso
+data frame
 
 ``` r
 wbcd_n <- apply(wbcd[2:31],2,normalize)
@@ -169,7 +218,8 @@ wbcd_n <- apply(wbcd[2:31],2,normalize)
 #wbcd_n <- as.data.frame(lapply(wbcd[2:31], normalize))
 ```
 
-We split the data into training and testing (the records wehre already in random order, so no need to randomize further)
+We split the data into training and testing (the records wehre already
+in random order, so no need to randomize further)
 
 ``` r
 wbcd_train <- wbcd_n[1:469,]
@@ -183,7 +233,8 @@ wbcd_train_labels <- wbcd[1:469, 1]
 wbcd_test_labels <- wbcd[470:569,1]
 ```
 
-Building the classifier
+Building the
+classifier
 
 ``` r
 wbcd_test_pred <- knn(train = wbcd_train, test = wbcd_test, cl = wbcd_train_labels, k = 21)
@@ -240,7 +291,7 @@ modelLookup("knn")
 Let us do the tuning with some values for k
 
 ``` r
-m<- train(wbcd_train,  wbcd_train_labels, method = "knn")
+m <- train(wbcd_train,  wbcd_train_labels, method = "knn")
 m
 ```
 
@@ -256,38 +307,830 @@ m
     ## Resampling results across tuning parameters:
     ## 
     ##   k  Accuracy   Kappa    
-    ##   5  0.9583253  0.9126987
-    ##   7  0.9575739  0.9110036
-    ##   9  0.9583090  0.9124165
+    ##   5  0.9567915  0.9094579
+    ##   7  0.9586801  0.9132557
+    ##   9  0.9603188  0.9167248
     ## 
-    ## Accuracy was used to select the optimal model using  the largest value.
-    ## The final value used for the model was k = 5.
+    ## Accuracy was used to select the optimal model using the largest value.
+    ## The final value used for the model was k = 9.
 
-Something fancier
+Something
+fancier
 
 ``` r
 m_cv <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "cv"), tuneLength = 15) 
 # here tuneLength is how many values of k we are going to use
 m_boot <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = trainControl(method = "boot"), tuneLength = 15)
 
-ctrl <- trainControl(classProbs = TRUE, method = "boot")
+ctrl <- trainControl(classProbs = TRUE, method = "boot", verboseIter = TRUE)
 m_boot_ROC <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = ctrl, tuneLength = 15, metric = "ROC")
 ```
 
     ## Warning in train.default(wbcd_train, wbcd_train_labels, method = "knn", :
     ## The metric "ROC" was not in the result set. Accuracy will be used instead.
 
+    ## + Resample01: k= 5 
+    ## - Resample01: k= 5 
+    ## + Resample01: k= 7 
+    ## - Resample01: k= 7 
+    ## + Resample01: k= 9 
+    ## - Resample01: k= 9 
+    ## + Resample01: k=11 
+    ## - Resample01: k=11 
+    ## + Resample01: k=13 
+    ## - Resample01: k=13 
+    ## + Resample01: k=15 
+    ## - Resample01: k=15 
+    ## + Resample01: k=17 
+    ## - Resample01: k=17 
+    ## + Resample01: k=19 
+    ## - Resample01: k=19 
+    ## + Resample01: k=21 
+    ## - Resample01: k=21 
+    ## + Resample01: k=23 
+    ## - Resample01: k=23 
+    ## + Resample01: k=25 
+    ## - Resample01: k=25 
+    ## + Resample01: k=27 
+    ## - Resample01: k=27 
+    ## + Resample01: k=29 
+    ## - Resample01: k=29 
+    ## + Resample01: k=31 
+    ## - Resample01: k=31 
+    ## + Resample01: k=33 
+    ## - Resample01: k=33 
+    ## + Resample02: k= 5 
+    ## - Resample02: k= 5 
+    ## + Resample02: k= 7 
+    ## - Resample02: k= 7 
+    ## + Resample02: k= 9 
+    ## - Resample02: k= 9 
+    ## + Resample02: k=11 
+    ## - Resample02: k=11 
+    ## + Resample02: k=13 
+    ## - Resample02: k=13 
+    ## + Resample02: k=15 
+    ## - Resample02: k=15 
+    ## + Resample02: k=17 
+    ## - Resample02: k=17 
+    ## + Resample02: k=19 
+    ## - Resample02: k=19 
+    ## + Resample02: k=21 
+    ## - Resample02: k=21 
+    ## + Resample02: k=23 
+    ## - Resample02: k=23 
+    ## + Resample02: k=25 
+    ## - Resample02: k=25 
+    ## + Resample02: k=27 
+    ## - Resample02: k=27 
+    ## + Resample02: k=29 
+    ## - Resample02: k=29 
+    ## + Resample02: k=31 
+    ## - Resample02: k=31 
+    ## + Resample02: k=33 
+    ## - Resample02: k=33 
+    ## + Resample03: k= 5 
+    ## - Resample03: k= 5 
+    ## + Resample03: k= 7 
+    ## - Resample03: k= 7 
+    ## + Resample03: k= 9 
+    ## - Resample03: k= 9 
+    ## + Resample03: k=11 
+    ## - Resample03: k=11 
+    ## + Resample03: k=13 
+    ## - Resample03: k=13 
+    ## + Resample03: k=15 
+    ## - Resample03: k=15 
+    ## + Resample03: k=17 
+    ## - Resample03: k=17 
+    ## + Resample03: k=19 
+    ## - Resample03: k=19 
+    ## + Resample03: k=21 
+    ## - Resample03: k=21 
+    ## + Resample03: k=23 
+    ## - Resample03: k=23 
+    ## + Resample03: k=25 
+    ## - Resample03: k=25 
+    ## + Resample03: k=27 
+    ## - Resample03: k=27 
+    ## + Resample03: k=29 
+    ## - Resample03: k=29 
+    ## + Resample03: k=31 
+    ## - Resample03: k=31 
+    ## + Resample03: k=33 
+    ## - Resample03: k=33 
+    ## + Resample04: k= 5 
+    ## - Resample04: k= 5 
+    ## + Resample04: k= 7 
+    ## - Resample04: k= 7 
+    ## + Resample04: k= 9 
+    ## - Resample04: k= 9 
+    ## + Resample04: k=11 
+    ## - Resample04: k=11 
+    ## + Resample04: k=13 
+    ## - Resample04: k=13 
+    ## + Resample04: k=15 
+    ## - Resample04: k=15 
+    ## + Resample04: k=17 
+    ## - Resample04: k=17 
+    ## + Resample04: k=19 
+    ## - Resample04: k=19 
+    ## + Resample04: k=21 
+    ## - Resample04: k=21 
+    ## + Resample04: k=23 
+    ## - Resample04: k=23 
+    ## + Resample04: k=25 
+    ## - Resample04: k=25 
+    ## + Resample04: k=27 
+    ## - Resample04: k=27 
+    ## + Resample04: k=29 
+    ## - Resample04: k=29 
+    ## + Resample04: k=31 
+    ## - Resample04: k=31 
+    ## + Resample04: k=33 
+    ## - Resample04: k=33 
+    ## + Resample05: k= 5 
+    ## - Resample05: k= 5 
+    ## + Resample05: k= 7 
+    ## - Resample05: k= 7 
+    ## + Resample05: k= 9 
+    ## - Resample05: k= 9 
+    ## + Resample05: k=11 
+    ## - Resample05: k=11 
+    ## + Resample05: k=13 
+    ## - Resample05: k=13 
+    ## + Resample05: k=15 
+    ## - Resample05: k=15 
+    ## + Resample05: k=17 
+    ## - Resample05: k=17 
+    ## + Resample05: k=19 
+    ## - Resample05: k=19 
+    ## + Resample05: k=21 
+    ## - Resample05: k=21 
+    ## + Resample05: k=23 
+    ## - Resample05: k=23 
+    ## + Resample05: k=25 
+    ## - Resample05: k=25 
+    ## + Resample05: k=27 
+    ## - Resample05: k=27 
+    ## + Resample05: k=29 
+    ## - Resample05: k=29 
+    ## + Resample05: k=31 
+    ## - Resample05: k=31 
+    ## + Resample05: k=33 
+    ## - Resample05: k=33 
+    ## + Resample06: k= 5 
+    ## - Resample06: k= 5 
+    ## + Resample06: k= 7 
+    ## - Resample06: k= 7 
+    ## + Resample06: k= 9 
+    ## - Resample06: k= 9 
+    ## + Resample06: k=11 
+    ## - Resample06: k=11 
+    ## + Resample06: k=13 
+    ## - Resample06: k=13 
+    ## + Resample06: k=15 
+    ## - Resample06: k=15 
+    ## + Resample06: k=17 
+    ## - Resample06: k=17 
+    ## + Resample06: k=19 
+    ## - Resample06: k=19 
+    ## + Resample06: k=21 
+    ## - Resample06: k=21 
+    ## + Resample06: k=23 
+    ## - Resample06: k=23 
+    ## + Resample06: k=25 
+    ## - Resample06: k=25 
+    ## + Resample06: k=27 
+    ## - Resample06: k=27 
+    ## + Resample06: k=29 
+    ## - Resample06: k=29 
+    ## + Resample06: k=31 
+    ## - Resample06: k=31 
+    ## + Resample06: k=33 
+    ## - Resample06: k=33 
+    ## + Resample07: k= 5 
+    ## - Resample07: k= 5 
+    ## + Resample07: k= 7 
+    ## - Resample07: k= 7 
+    ## + Resample07: k= 9 
+    ## - Resample07: k= 9 
+    ## + Resample07: k=11 
+    ## - Resample07: k=11 
+    ## + Resample07: k=13 
+    ## - Resample07: k=13 
+    ## + Resample07: k=15 
+    ## - Resample07: k=15 
+    ## + Resample07: k=17 
+    ## - Resample07: k=17 
+    ## + Resample07: k=19 
+    ## - Resample07: k=19 
+    ## + Resample07: k=21 
+    ## - Resample07: k=21 
+    ## + Resample07: k=23 
+    ## - Resample07: k=23 
+    ## + Resample07: k=25 
+    ## - Resample07: k=25 
+    ## + Resample07: k=27 
+    ## - Resample07: k=27 
+    ## + Resample07: k=29 
+    ## - Resample07: k=29 
+    ## + Resample07: k=31 
+    ## - Resample07: k=31 
+    ## + Resample07: k=33 
+    ## - Resample07: k=33 
+    ## + Resample08: k= 5 
+    ## - Resample08: k= 5 
+    ## + Resample08: k= 7 
+    ## - Resample08: k= 7 
+    ## + Resample08: k= 9 
+    ## - Resample08: k= 9 
+    ## + Resample08: k=11 
+    ## - Resample08: k=11 
+    ## + Resample08: k=13 
+    ## - Resample08: k=13 
+    ## + Resample08: k=15 
+    ## - Resample08: k=15 
+    ## + Resample08: k=17 
+    ## - Resample08: k=17 
+    ## + Resample08: k=19 
+    ## - Resample08: k=19 
+    ## + Resample08: k=21 
+    ## - Resample08: k=21 
+    ## + Resample08: k=23 
+    ## - Resample08: k=23 
+    ## + Resample08: k=25 
+    ## - Resample08: k=25 
+    ## + Resample08: k=27 
+    ## - Resample08: k=27 
+    ## + Resample08: k=29 
+    ## - Resample08: k=29 
+    ## + Resample08: k=31 
+    ## - Resample08: k=31 
+    ## + Resample08: k=33 
+    ## - Resample08: k=33 
+    ## + Resample09: k= 5 
+    ## - Resample09: k= 5 
+    ## + Resample09: k= 7 
+    ## - Resample09: k= 7 
+    ## + Resample09: k= 9 
+    ## - Resample09: k= 9 
+    ## + Resample09: k=11 
+    ## - Resample09: k=11 
+    ## + Resample09: k=13 
+    ## - Resample09: k=13 
+    ## + Resample09: k=15 
+    ## - Resample09: k=15 
+    ## + Resample09: k=17 
+    ## - Resample09: k=17 
+    ## + Resample09: k=19 
+    ## - Resample09: k=19 
+    ## + Resample09: k=21 
+    ## - Resample09: k=21 
+    ## + Resample09: k=23 
+    ## - Resample09: k=23 
+    ## + Resample09: k=25 
+    ## - Resample09: k=25 
+    ## + Resample09: k=27 
+    ## - Resample09: k=27 
+    ## + Resample09: k=29 
+    ## - Resample09: k=29 
+    ## + Resample09: k=31 
+    ## - Resample09: k=31 
+    ## + Resample09: k=33 
+    ## - Resample09: k=33 
+    ## + Resample10: k= 5 
+    ## - Resample10: k= 5 
+    ## + Resample10: k= 7 
+    ## - Resample10: k= 7 
+    ## + Resample10: k= 9 
+    ## - Resample10: k= 9 
+    ## + Resample10: k=11 
+    ## - Resample10: k=11 
+    ## + Resample10: k=13 
+    ## - Resample10: k=13 
+    ## + Resample10: k=15 
+    ## - Resample10: k=15 
+    ## + Resample10: k=17 
+    ## - Resample10: k=17 
+    ## + Resample10: k=19 
+    ## - Resample10: k=19 
+    ## + Resample10: k=21 
+    ## - Resample10: k=21 
+    ## + Resample10: k=23 
+    ## - Resample10: k=23 
+    ## + Resample10: k=25 
+    ## - Resample10: k=25 
+    ## + Resample10: k=27 
+    ## - Resample10: k=27 
+    ## + Resample10: k=29 
+    ## - Resample10: k=29 
+    ## + Resample10: k=31 
+    ## - Resample10: k=31 
+    ## + Resample10: k=33 
+    ## - Resample10: k=33 
+    ## + Resample11: k= 5 
+    ## - Resample11: k= 5 
+    ## + Resample11: k= 7 
+    ## - Resample11: k= 7 
+    ## + Resample11: k= 9 
+    ## - Resample11: k= 9 
+    ## + Resample11: k=11 
+    ## - Resample11: k=11 
+    ## + Resample11: k=13 
+    ## - Resample11: k=13 
+    ## + Resample11: k=15 
+    ## - Resample11: k=15 
+    ## + Resample11: k=17 
+    ## - Resample11: k=17 
+    ## + Resample11: k=19 
+    ## - Resample11: k=19 
+    ## + Resample11: k=21 
+    ## - Resample11: k=21 
+    ## + Resample11: k=23 
+    ## - Resample11: k=23 
+    ## + Resample11: k=25 
+    ## - Resample11: k=25 
+    ## + Resample11: k=27 
+    ## - Resample11: k=27 
+    ## + Resample11: k=29 
+    ## - Resample11: k=29 
+    ## + Resample11: k=31 
+    ## - Resample11: k=31 
+    ## + Resample11: k=33 
+    ## - Resample11: k=33 
+    ## + Resample12: k= 5 
+    ## - Resample12: k= 5 
+    ## + Resample12: k= 7 
+    ## - Resample12: k= 7 
+    ## + Resample12: k= 9 
+    ## - Resample12: k= 9 
+    ## + Resample12: k=11 
+    ## - Resample12: k=11 
+    ## + Resample12: k=13 
+    ## - Resample12: k=13 
+    ## + Resample12: k=15 
+    ## - Resample12: k=15 
+    ## + Resample12: k=17 
+    ## - Resample12: k=17 
+    ## + Resample12: k=19 
+    ## - Resample12: k=19 
+    ## + Resample12: k=21 
+    ## - Resample12: k=21 
+    ## + Resample12: k=23 
+    ## - Resample12: k=23 
+    ## + Resample12: k=25 
+    ## - Resample12: k=25 
+    ## + Resample12: k=27 
+    ## - Resample12: k=27 
+    ## + Resample12: k=29 
+    ## - Resample12: k=29 
+    ## + Resample12: k=31 
+    ## - Resample12: k=31 
+    ## + Resample12: k=33 
+    ## - Resample12: k=33 
+    ## + Resample13: k= 5 
+    ## - Resample13: k= 5 
+    ## + Resample13: k= 7 
+    ## - Resample13: k= 7 
+    ## + Resample13: k= 9 
+    ## - Resample13: k= 9 
+    ## + Resample13: k=11 
+    ## - Resample13: k=11 
+    ## + Resample13: k=13 
+    ## - Resample13: k=13 
+    ## + Resample13: k=15 
+    ## - Resample13: k=15 
+    ## + Resample13: k=17 
+    ## - Resample13: k=17 
+    ## + Resample13: k=19 
+    ## - Resample13: k=19 
+    ## + Resample13: k=21 
+    ## - Resample13: k=21 
+    ## + Resample13: k=23 
+    ## - Resample13: k=23 
+    ## + Resample13: k=25 
+    ## - Resample13: k=25 
+    ## + Resample13: k=27 
+    ## - Resample13: k=27 
+    ## + Resample13: k=29 
+    ## - Resample13: k=29 
+    ## + Resample13: k=31 
+    ## - Resample13: k=31 
+    ## + Resample13: k=33 
+    ## - Resample13: k=33 
+    ## + Resample14: k= 5 
+    ## - Resample14: k= 5 
+    ## + Resample14: k= 7 
+    ## - Resample14: k= 7 
+    ## + Resample14: k= 9 
+    ## - Resample14: k= 9 
+    ## + Resample14: k=11 
+    ## - Resample14: k=11 
+    ## + Resample14: k=13 
+    ## - Resample14: k=13 
+    ## + Resample14: k=15 
+    ## - Resample14: k=15 
+    ## + Resample14: k=17 
+    ## - Resample14: k=17 
+    ## + Resample14: k=19 
+    ## - Resample14: k=19 
+    ## + Resample14: k=21 
+    ## - Resample14: k=21 
+    ## + Resample14: k=23 
+    ## - Resample14: k=23 
+    ## + Resample14: k=25 
+    ## - Resample14: k=25 
+    ## + Resample14: k=27 
+    ## - Resample14: k=27 
+    ## + Resample14: k=29 
+    ## - Resample14: k=29 
+    ## + Resample14: k=31 
+    ## - Resample14: k=31 
+    ## + Resample14: k=33 
+    ## - Resample14: k=33 
+    ## + Resample15: k= 5 
+    ## - Resample15: k= 5 
+    ## + Resample15: k= 7 
+    ## - Resample15: k= 7 
+    ## + Resample15: k= 9 
+    ## - Resample15: k= 9 
+    ## + Resample15: k=11 
+    ## - Resample15: k=11 
+    ## + Resample15: k=13 
+    ## - Resample15: k=13 
+    ## + Resample15: k=15 
+    ## - Resample15: k=15 
+    ## + Resample15: k=17 
+    ## - Resample15: k=17 
+    ## + Resample15: k=19 
+    ## - Resample15: k=19 
+    ## + Resample15: k=21 
+    ## - Resample15: k=21 
+    ## + Resample15: k=23 
+    ## - Resample15: k=23 
+    ## + Resample15: k=25 
+    ## - Resample15: k=25 
+    ## + Resample15: k=27 
+    ## - Resample15: k=27 
+    ## + Resample15: k=29 
+    ## - Resample15: k=29 
+    ## + Resample15: k=31 
+    ## - Resample15: k=31 
+    ## + Resample15: k=33 
+    ## - Resample15: k=33 
+    ## + Resample16: k= 5 
+    ## - Resample16: k= 5 
+    ## + Resample16: k= 7 
+    ## - Resample16: k= 7 
+    ## + Resample16: k= 9 
+    ## - Resample16: k= 9 
+    ## + Resample16: k=11 
+    ## - Resample16: k=11 
+    ## + Resample16: k=13 
+    ## - Resample16: k=13 
+    ## + Resample16: k=15 
+    ## - Resample16: k=15 
+    ## + Resample16: k=17 
+    ## - Resample16: k=17 
+    ## + Resample16: k=19 
+    ## - Resample16: k=19 
+    ## + Resample16: k=21 
+    ## - Resample16: k=21 
+    ## + Resample16: k=23 
+    ## - Resample16: k=23 
+    ## + Resample16: k=25 
+    ## - Resample16: k=25 
+    ## + Resample16: k=27 
+    ## - Resample16: k=27 
+    ## + Resample16: k=29 
+    ## - Resample16: k=29 
+    ## + Resample16: k=31 
+    ## - Resample16: k=31 
+    ## + Resample16: k=33 
+    ## - Resample16: k=33 
+    ## + Resample17: k= 5 
+    ## - Resample17: k= 5 
+    ## + Resample17: k= 7 
+    ## - Resample17: k= 7 
+    ## + Resample17: k= 9 
+    ## - Resample17: k= 9 
+    ## + Resample17: k=11 
+    ## - Resample17: k=11 
+    ## + Resample17: k=13 
+    ## - Resample17: k=13 
+    ## + Resample17: k=15 
+    ## - Resample17: k=15 
+    ## + Resample17: k=17 
+    ## - Resample17: k=17 
+    ## + Resample17: k=19 
+    ## - Resample17: k=19 
+    ## + Resample17: k=21 
+    ## - Resample17: k=21 
+    ## + Resample17: k=23 
+    ## - Resample17: k=23 
+    ## + Resample17: k=25 
+    ## - Resample17: k=25 
+    ## + Resample17: k=27 
+    ## - Resample17: k=27 
+    ## + Resample17: k=29 
+    ## - Resample17: k=29 
+    ## + Resample17: k=31 
+    ## - Resample17: k=31 
+    ## + Resample17: k=33 
+    ## - Resample17: k=33 
+    ## + Resample18: k= 5 
+    ## - Resample18: k= 5 
+    ## + Resample18: k= 7 
+    ## - Resample18: k= 7 
+    ## + Resample18: k= 9 
+    ## - Resample18: k= 9 
+    ## + Resample18: k=11 
+    ## - Resample18: k=11 
+    ## + Resample18: k=13 
+    ## - Resample18: k=13 
+    ## + Resample18: k=15 
+    ## - Resample18: k=15 
+    ## + Resample18: k=17 
+    ## - Resample18: k=17 
+    ## + Resample18: k=19 
+    ## - Resample18: k=19 
+    ## + Resample18: k=21 
+    ## - Resample18: k=21 
+    ## + Resample18: k=23 
+    ## - Resample18: k=23 
+    ## + Resample18: k=25 
+    ## - Resample18: k=25 
+    ## + Resample18: k=27 
+    ## - Resample18: k=27 
+    ## + Resample18: k=29 
+    ## - Resample18: k=29 
+    ## + Resample18: k=31 
+    ## - Resample18: k=31 
+    ## + Resample18: k=33 
+    ## - Resample18: k=33 
+    ## + Resample19: k= 5 
+    ## - Resample19: k= 5 
+    ## + Resample19: k= 7 
+    ## - Resample19: k= 7 
+    ## + Resample19: k= 9 
+    ## - Resample19: k= 9 
+    ## + Resample19: k=11 
+    ## - Resample19: k=11 
+    ## + Resample19: k=13 
+    ## - Resample19: k=13 
+    ## + Resample19: k=15 
+    ## - Resample19: k=15 
+    ## + Resample19: k=17 
+    ## - Resample19: k=17 
+    ## + Resample19: k=19 
+    ## - Resample19: k=19 
+    ## + Resample19: k=21 
+    ## - Resample19: k=21 
+    ## + Resample19: k=23 
+    ## - Resample19: k=23 
+    ## + Resample19: k=25 
+    ## - Resample19: k=25 
+    ## + Resample19: k=27 
+    ## - Resample19: k=27 
+    ## + Resample19: k=29 
+    ## - Resample19: k=29 
+    ## + Resample19: k=31 
+    ## - Resample19: k=31 
+    ## + Resample19: k=33 
+    ## - Resample19: k=33 
+    ## + Resample20: k= 5 
+    ## - Resample20: k= 5 
+    ## + Resample20: k= 7 
+    ## - Resample20: k= 7 
+    ## + Resample20: k= 9 
+    ## - Resample20: k= 9 
+    ## + Resample20: k=11 
+    ## - Resample20: k=11 
+    ## + Resample20: k=13 
+    ## - Resample20: k=13 
+    ## + Resample20: k=15 
+    ## - Resample20: k=15 
+    ## + Resample20: k=17 
+    ## - Resample20: k=17 
+    ## + Resample20: k=19 
+    ## - Resample20: k=19 
+    ## + Resample20: k=21 
+    ## - Resample20: k=21 
+    ## + Resample20: k=23 
+    ## - Resample20: k=23 
+    ## + Resample20: k=25 
+    ## - Resample20: k=25 
+    ## + Resample20: k=27 
+    ## - Resample20: k=27 
+    ## + Resample20: k=29 
+    ## - Resample20: k=29 
+    ## + Resample20: k=31 
+    ## - Resample20: k=31 
+    ## + Resample20: k=33 
+    ## - Resample20: k=33 
+    ## + Resample21: k= 5 
+    ## - Resample21: k= 5 
+    ## + Resample21: k= 7 
+    ## - Resample21: k= 7 
+    ## + Resample21: k= 9 
+    ## - Resample21: k= 9 
+    ## + Resample21: k=11 
+    ## - Resample21: k=11 
+    ## + Resample21: k=13 
+    ## - Resample21: k=13 
+    ## + Resample21: k=15 
+    ## - Resample21: k=15 
+    ## + Resample21: k=17 
+    ## - Resample21: k=17 
+    ## + Resample21: k=19 
+    ## - Resample21: k=19 
+    ## + Resample21: k=21 
+    ## - Resample21: k=21 
+    ## + Resample21: k=23 
+    ## - Resample21: k=23 
+    ## + Resample21: k=25 
+    ## - Resample21: k=25 
+    ## + Resample21: k=27 
+    ## - Resample21: k=27 
+    ## + Resample21: k=29 
+    ## - Resample21: k=29 
+    ## + Resample21: k=31 
+    ## - Resample21: k=31 
+    ## + Resample21: k=33 
+    ## - Resample21: k=33 
+    ## + Resample22: k= 5 
+    ## - Resample22: k= 5 
+    ## + Resample22: k= 7 
+    ## - Resample22: k= 7 
+    ## + Resample22: k= 9 
+    ## - Resample22: k= 9 
+    ## + Resample22: k=11 
+    ## - Resample22: k=11 
+    ## + Resample22: k=13 
+    ## - Resample22: k=13 
+    ## + Resample22: k=15 
+    ## - Resample22: k=15 
+    ## + Resample22: k=17 
+    ## - Resample22: k=17 
+    ## + Resample22: k=19 
+    ## - Resample22: k=19 
+    ## + Resample22: k=21 
+    ## - Resample22: k=21 
+    ## + Resample22: k=23 
+    ## - Resample22: k=23 
+    ## + Resample22: k=25 
+    ## - Resample22: k=25 
+    ## + Resample22: k=27 
+    ## - Resample22: k=27 
+    ## + Resample22: k=29 
+    ## - Resample22: k=29 
+    ## + Resample22: k=31 
+    ## - Resample22: k=31 
+    ## + Resample22: k=33 
+    ## - Resample22: k=33 
+    ## + Resample23: k= 5 
+    ## - Resample23: k= 5 
+    ## + Resample23: k= 7 
+    ## - Resample23: k= 7 
+    ## + Resample23: k= 9 
+    ## - Resample23: k= 9 
+    ## + Resample23: k=11 
+    ## - Resample23: k=11 
+    ## + Resample23: k=13 
+    ## - Resample23: k=13 
+    ## + Resample23: k=15 
+    ## - Resample23: k=15 
+    ## + Resample23: k=17 
+    ## - Resample23: k=17 
+    ## + Resample23: k=19 
+    ## - Resample23: k=19 
+    ## + Resample23: k=21 
+    ## - Resample23: k=21 
+    ## + Resample23: k=23 
+    ## - Resample23: k=23 
+    ## + Resample23: k=25 
+    ## - Resample23: k=25 
+    ## + Resample23: k=27 
+    ## - Resample23: k=27 
+    ## + Resample23: k=29 
+    ## - Resample23: k=29 
+    ## + Resample23: k=31 
+    ## - Resample23: k=31 
+    ## + Resample23: k=33 
+    ## - Resample23: k=33 
+    ## + Resample24: k= 5 
+    ## - Resample24: k= 5 
+    ## + Resample24: k= 7 
+    ## - Resample24: k= 7 
+    ## + Resample24: k= 9 
+    ## - Resample24: k= 9 
+    ## + Resample24: k=11 
+    ## - Resample24: k=11 
+    ## + Resample24: k=13 
+    ## - Resample24: k=13 
+    ## + Resample24: k=15 
+    ## - Resample24: k=15 
+    ## + Resample24: k=17 
+    ## - Resample24: k=17 
+    ## + Resample24: k=19 
+    ## - Resample24: k=19 
+    ## + Resample24: k=21 
+    ## - Resample24: k=21 
+    ## + Resample24: k=23 
+    ## - Resample24: k=23 
+    ## + Resample24: k=25 
+    ## - Resample24: k=25 
+    ## + Resample24: k=27 
+    ## - Resample24: k=27 
+    ## + Resample24: k=29 
+    ## - Resample24: k=29 
+    ## + Resample24: k=31 
+    ## - Resample24: k=31 
+    ## + Resample24: k=33 
+    ## - Resample24: k=33 
+    ## + Resample25: k= 5 
+    ## - Resample25: k= 5 
+    ## + Resample25: k= 7 
+    ## - Resample25: k= 7 
+    ## + Resample25: k= 9 
+    ## - Resample25: k= 9 
+    ## + Resample25: k=11 
+    ## - Resample25: k=11 
+    ## + Resample25: k=13 
+    ## - Resample25: k=13 
+    ## + Resample25: k=15 
+    ## - Resample25: k=15 
+    ## + Resample25: k=17 
+    ## - Resample25: k=17 
+    ## + Resample25: k=19 
+    ## - Resample25: k=19 
+    ## + Resample25: k=21 
+    ## - Resample25: k=21 
+    ## + Resample25: k=23 
+    ## - Resample25: k=23 
+    ## + Resample25: k=25 
+    ## - Resample25: k=25 
+    ## + Resample25: k=27 
+    ## - Resample25: k=27 
+    ## + Resample25: k=29 
+    ## - Resample25: k=29 
+    ## + Resample25: k=31 
+    ## - Resample25: k=31 
+    ## + Resample25: k=33 
+    ## - Resample25: k=33 
+    ## Aggregating results
+    ## Selecting tuning parameters
+    ## Fitting k = 11 on full training set
+
 ``` r
 ctrl <- trainControl(method = "repeatedcv",   # 10fold cross validation
                      number = 5,                            # do 5 repititions of cv
-                     summaryFunction=twoClassSummary,   # Use AUC to pick the best model
-                     classProbs=TRUE,
-                     allowParallel = TRUE)
+                     summaryFunction = twoClassSummary, # Use AUC to pick the best model
+                     classProbs = TRUE,
+                     allowParallel = TRUE,
+                     verboseIter = TRUE)
 m_cv_ROC <- train(wbcd_train, wbcd_train_labels,
       method = "knn",
       metric = "ROC",
       trControl = ctrl)
+```
 
+    ## + Fold1.Rep1: k=5 
+    ## - Fold1.Rep1: k=5 
+    ## + Fold1.Rep1: k=7 
+    ## - Fold1.Rep1: k=7 
+    ## + Fold1.Rep1: k=9 
+    ## - Fold1.Rep1: k=9 
+    ## + Fold2.Rep1: k=5 
+    ## - Fold2.Rep1: k=5 
+    ## + Fold2.Rep1: k=7 
+    ## - Fold2.Rep1: k=7 
+    ## + Fold2.Rep1: k=9 
+    ## - Fold2.Rep1: k=9 
+    ## + Fold3.Rep1: k=5 
+    ## - Fold3.Rep1: k=5 
+    ## + Fold3.Rep1: k=7 
+    ## - Fold3.Rep1: k=7 
+    ## + Fold3.Rep1: k=9 
+    ## - Fold3.Rep1: k=9 
+    ## + Fold4.Rep1: k=5 
+    ## - Fold4.Rep1: k=5 
+    ## + Fold4.Rep1: k=7 
+    ## - Fold4.Rep1: k=7 
+    ## + Fold4.Rep1: k=9 
+    ## - Fold4.Rep1: k=9 
+    ## + Fold5.Rep1: k=5 
+    ## - Fold5.Rep1: k=5 
+    ## + Fold5.Rep1: k=7 
+    ## - Fold5.Rep1: k=7 
+    ## + Fold5.Rep1: k=9 
+    ## - Fold5.Rep1: k=9 
+    ## Aggregating results
+    ## Selecting tuning parameters
+    ## Fitting k = 9 on full training set
+
+``` r
 m_cv
 ```
 
@@ -299,28 +1142,28 @@ m_cv
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (10 fold) 
-    ## Summary of sample sizes: 422, 423, 422, 422, 422, 422, ... 
+    ## Summary of sample sizes: 422, 422, 422, 422, 422, 422, ... 
     ## Resampling results across tuning parameters:
     ## 
     ##   k   Accuracy   Kappa    
-    ##    5  0.9658649  0.9286890
-    ##    7  0.9679926  0.9332873
-    ##    9  0.9658649  0.9287556
-    ##   11  0.9637373  0.9240054
-    ##   13  0.9679926  0.9327690
-    ##   15  0.9680389  0.9330166
-    ##   17  0.9595282  0.9149693
-    ##   19  0.9637835  0.9241066
-    ##   21  0.9574006  0.9106573
-    ##   23  0.9552729  0.9062024
-    ##   25  0.9574006  0.9108126
-    ##   27  0.9616559  0.9194243
-    ##   29  0.9552729  0.9058983
-    ##   31  0.9552729  0.9059750
-    ##   33  0.9531452  0.9014433
+    ##    5  0.9637835  0.9242593
+    ##    7  0.9637835  0.9239493
+    ##    9  0.9659112  0.9286337
+    ##   11  0.9595282  0.9152727
+    ##   13  0.9616559  0.9195769
+    ##   15  0.9637835  0.9236466
+    ##   17  0.9616559  0.9192669
+    ##   19  0.9574006  0.9104324
+    ##   21  0.9552729  0.9056620
+    ##   23  0.9552729  0.9060540
+    ##   25  0.9595282  0.9148120
+    ##   27  0.9595282  0.9143458
+    ##   29  0.9595282  0.9143458
+    ##   31  0.9595282  0.9145059
+    ##   33  0.9552729  0.9054413
     ## 
-    ## Accuracy was used to select the optimal model using  the largest value.
-    ## The final value used for the model was k = 15.
+    ## Accuracy was used to select the optimal model using the largest value.
+    ## The final value used for the model was k = 9.
 
 To get tons of details about the model and how it was tuned:
 
@@ -367,17 +1210,17 @@ confusionMatrix(m_cv_ROC_prediction, wbcd_test_labels)
 m_cv_ROC_prediction_probs <- predict(m_cv_ROC,wbcd_test, type = "prob") # you need the prob option to get ROC
 #head(m_cv_ROC_prediction_probs)
 
-ROC <- roc(predictor=m_cv_ROC_prediction_probs$Malignant,
-               response=wbcd_test_labels,
-               levels=rev(levels(wbcd_test_labels)))
+ROC <- roc(predictor = m_cv_ROC_prediction_probs$Malignant,
+               response = wbcd_test_labels,
+               levels = rev(levels(wbcd_test_labels)))
 
 ROC$auc
 ```
 
-    ## Area under the curve: 0.998
+    ## Area under the curve: 0.9994
 
 ``` r
-plot(ROC,main="ROC for kNN")
+plot(ROC,main = "ROC for kNN")
 ```
 
-![](kNN_Cancer_files/figure-markdown_github/unnamed-chunk-14-1.png)
+![](kNN_Cancer_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->

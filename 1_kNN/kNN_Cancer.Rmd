@@ -28,6 +28,9 @@ library(caret)
 library(e1071)
 #install.packages("pROC") # to make ROC plots
 library(pROC)	
+library(visdat) # better data exploration with vis_dat
+library(assertr) # mkae assert statements for better data quality
+library(dplyr)
 ```
 
 
@@ -37,7 +40,7 @@ https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wis
 and original data can be found under
 https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
 ```{r}
-wbcd <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/1_kNN/wisc_bc_data.csv", stringsAsFactors = FALSE)
+wbcd <- read.csv(file = "C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/1_kNN/wisc_bc_data.csv", stringsAsFactors = FALSE)
 
 
 dim(wbcd)
@@ -49,6 +52,28 @@ summary(wbcd)
 wbcd <- wbcd[-1]
 
 ```
+
+
+Lets try a better visualization with visdat
+```{r}
+vis_dat(wbcd)
+```
+
+```{r}
+vis_miss(wbcd)
+```
+
+I'd like to make one asser statement regarding the radius of the tumers
+
+```{r}
+invisible(
+  wbcd %>% 
+    verify(c( "B", "M") %in% .$diagnosis) %>% 
+          assert(within_bounds(0,Inf), radius_mean) 
+)
+```
+
+
 
 Convert diagnosis into factors
 
@@ -121,7 +146,7 @@ modelLookup("knn")
 Let us do the tuning with some values for k
 
 ```{r}
-m<- train(wbcd_train,  wbcd_train_labels, method = "knn")
+m <- train(wbcd_train,  wbcd_train_labels, method = "knn")
 m
 ```
 
@@ -137,8 +162,8 @@ m_boot_ROC <- train(wbcd_train, wbcd_train_labels, method = "knn",  trControl = 
 
 ctrl <- trainControl(method = "repeatedcv",   # 10fold cross validation
                      number = 5,							# do 5 repititions of cv
-                     summaryFunction=twoClassSummary,	# Use AUC to pick the best model
-                     classProbs=TRUE,
+                     summaryFunction = twoClassSummary,	# Use AUC to pick the best model
+                     classProbs = TRUE,
                      allowParallel = TRUE,
                      verboseIter = TRUE)
 m_cv_ROC <- train(wbcd_train, wbcd_train_labels,
@@ -165,11 +190,11 @@ confusionMatrix(m_cv_ROC_prediction, wbcd_test_labels)
 m_cv_ROC_prediction_probs <- predict(m_cv_ROC,wbcd_test, type = "prob") # you need the prob option to get ROC
 #head(m_cv_ROC_prediction_probs)
 
-ROC <- roc(predictor=m_cv_ROC_prediction_probs$Malignant,
-               response=wbcd_test_labels,
-               levels=rev(levels(wbcd_test_labels)))
+ROC <- roc(predictor = m_cv_ROC_prediction_probs$Malignant,
+               response = wbcd_test_labels,
+               levels = rev(levels(wbcd_test_labels)))
 
 ROC$auc
 
-plot(ROC,main="ROC for kNN")
+plot(ROC,main = "ROC for kNN")
 ```

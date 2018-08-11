@@ -2,32 +2,15 @@
 title: "kNN_Cancer"
 author: "mzakaria"
 date: "April 19, 2018"
-output: html_document
+#output: html_document
+always_allow_html: yes # this is for wordcloud2 output
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 Required packages
 ```{r}
@@ -35,12 +18,15 @@ Required packages
 library(class)
 #install.packages("gmodels") # for CrossTable function at the evaluation
 library(gmodels)
+library(visdat) # better data exploration with vis_dat
+library(assertr) # mkae assert statements for better data quality
+library(dplyr)
 ```
 
 
 ```{r}
 #plot(cars)
-wbcd <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/1_kNN/wisc_bc_data.csv", stringsAsFactors = FALSE)
+wbcd <- read.csv(file = "C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/1_kNN/wisc_bc_data.csv", stringsAsFactors = FALSE)
 
 str(wbcd)
 summary(wbcd)
@@ -50,3 +36,25 @@ summary(wbcd)
 wbcd <- wbcd[-1]
 
 ```
+
+Lets try a better visualization with visdat
+
+```{r}
+vis_dat(wbcd)
+```
+
+```{r}
+vis_miss(wbcd)
+```
+
+
+I'd like to make one asser statement regarding the radius of the tumers
+
+```{r}
+invisible(
+  wbcd %>% 
+    verify(c( "B", "M") %in% .$diagnosis) %>% 
+          assert(within_bounds(0,Inf), radius_mean) 
+)
+```
+
