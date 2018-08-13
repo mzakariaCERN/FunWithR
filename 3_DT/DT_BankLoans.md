@@ -195,7 +195,7 @@ summary(credit_model)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Thu Aug 02 18:54:31 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Mon Aug 13 18:16:27 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -560,7 +560,7 @@ summary(credit_model_rules)
     ## C5.0.default(x = credit_train[-21], y = credit_train$default, rules = TRUE)
     ## 
     ## 
-    ## C5.0 [Release 2.07 GPL Edition]      Thu Aug 02 18:54:32 2018
+    ## C5.0 [Release 2.07 GPL Edition]      Mon Aug 13 18:16:27 2018
     ## -------------------------------
     ## 
     ## Class specified by attribute `outcome'
@@ -1102,25 +1102,67 @@ ROCR::performance(pred_cv_ROC, 'auc')
 
 ``` r
 # plot ROC for each method
-roc_dt_1   <- data.frame(fpr=unlist(perf_dt_1@x.values), tpr=unlist(perf_dt_1@y.values))
+roc_dt_1   <- data.frame(fpr = unlist(perf_dt_1@x.values), tpr = unlist(perf_dt_1@y.values))
 roc_dt_1$method <- "DT 1"
-roc_dt_10 <- data.frame(fpr=unlist(perf_dt_10@x.values), tpr=unlist(perf_dt_10@y.values))
+roc_dt_10 <- data.frame(fpr = unlist(perf_dt_10@x.values), tpr = unlist(perf_dt_10@y.values))
 roc_dt_10$method <- "DT 10"
-roc_dt_cv_ROC <- data.frame(fpr=unlist(perf_dt_cv_ROC@x.values), tpr=unlist(perf_dt_cv_ROC@y.values))
+roc_dt_cv_ROC <- data.frame(fpr = unlist(perf_dt_cv_ROC@x.values), tpr = unlist(perf_dt_cv_ROC@y.values))
 roc_dt_cv_ROC$method <- "DT CV ROC"
 
 rbind(roc_dt_1, roc_dt_10, roc_dt_cv_ROC) %>%
-  ggplot(data=., aes(x=fpr, y=tpr, linetype=method, color=method)) + 
+  ggplot(data = ., aes(x = fpr, y = tpr, linetype = method, color = method)) + 
   geom_line() +
-  geom_abline(a=1, b=0, linetype=2) +
-  scale_x_continuous(labels=scales::percent, lim=c(0,1)) +
-  scale_y_continuous(labels=scales::percent, lim=c(0,1)) +
-  theme(legend.position=c(0.8,0.2), legend.title=element_blank())
+  geom_abline(a = 1, b = 0, linetype = 2) +
+  scale_x_continuous(labels = scales::percent, lim = c(0,1)) +
+  scale_y_continuous(labels = scales::percent, lim = c(0,1)) +
+  theme(legend.position = c(0.8,0.2), legend.title = element_blank())
 ```
 
     ## Warning: Ignoring unknown parameters: a, b
 
 ![](DT_BankLoans_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+Next we apply bagging to see how combining weak learners (decision trees
+in this case) gives a good predictor as C5.0
+
+``` r
+library("ipred")
+set.seed(300)
+mybag <- bagging(default ~ . , data = credit, nbagg = 25)
+credit_pred <- predict(mybag, credit)
+table(credit_pred, credit$default)
+```
+
+    ##            
+    ## credit_pred  No YES
+    ##         No  700   0
+    ##         YES   0 300
+
+Let us see how 10-fold CV will fair with this bagging model (notice the
+name of the method in cares is treebag)
+
+``` r
+library(caret)
+set.seed(300)
+ctrl <- trainControl(method = "cv", number  = 10)
+train(default ~ ., data = credit, method = "treebag", trControl = ctrl)
+```
+
+    ## Bagged CART 
+    ## 
+    ## 1000 samples
+    ##   20 predictor
+    ##    2 classes: 'No', 'YES' 
+    ## 
+    ## No pre-processing
+    ## Resampling: Cross-Validated (10 fold) 
+    ## Summary of sample sizes: 900, 900, 900, 900, 900, 900, ... 
+    ## Resampling results:
+    ## 
+    ##   Accuracy  Kappa   
+    ##   0.747     0.362158
+
+\#TODO add ROC
 
 > References  
 > <https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html>  
