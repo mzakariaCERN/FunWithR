@@ -34,7 +34,7 @@ library(dplyr)
 Pulling the data: The credit data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: https://github.com/stedy/Machine-Learning-with-R-datasets/blob/master/credit.csv and original data can be found under https://archive.ics.uci.edu/ml
 
 ```{r getting data}
-credit <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/3_DT/Data/credit.csv", stringsAsFactors = FALSE)
+credit <- read.csv(file = "C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/3_DT/Data/credit.csv", stringsAsFactors = TRUE)
 str(credit)
 
 summary(credit)
@@ -335,6 +335,21 @@ train(default ~ ., data = credit, method = "treebag", trControl = ctrl)
 ```
 
 #TODO add ROC 
+
+
+```{r Boosting}
+#install.packages("adabag")
+credit$default <- as.factor(credit$default)
+library(adabag)
+set.seed(300)
+m_adaboost <- boosting(default ~ . , data = credit)
+p_adaboost <- predict(m_adaboost, credit)
+# here we will not get a vector with predictions. but and object, and the predictions will be stored under class
+str(p_adaboost)
+head(p_adaboost)
+```
+
+
 
 >References  
 >https://cran.r-project.org/web/packages/C50/vignettes/C5.0.html  
