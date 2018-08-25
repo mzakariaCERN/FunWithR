@@ -349,6 +349,60 @@ str(p_adaboost)
 head(p_adaboost)
 ```
 
+using 10-fold cv
+```{r}
+set.seed(300)
+adaboost_cv <- boosting.cv(default ~ . , data = credit)
+
+```
+
+```{r}
+adaboost_cv$confusion
+```
+
+We can find the kappy statistic using vcd package
+```{r}
+install.packages("vcd")
+library(vcd)
+Kappa(adaboost_cv$confusion)
+```
+
+## Applying Random Forest
+
+```{r}
+#install.packages("randomForest")
+library(randomForest)
+set.seed(300)
+rf <- randomForest(default ~ . , data = credit)
+rf
+```
+Notice that the out of bag estimate is different than the other estimates we have seen so far. Unlike the resubstitution error, it is an unbiased estimate of the test set error. and it can be a good indicator for future performance. OOB is computed during the reconstruction of the RF, using any example not selected to build that ensamble 
+
+next we evaluate RF using CV
+```{r}
+library(caret)
+ctrl <- trainControl(method = "repeatedCV", number = 10, repeats = 10) 
+grid_rf <- expand.grid(.mtry = c(2,4,8, 16))
+set.seed(300)
+m_rf <- train(default ~ . , data = credit, method = "rf", metric = "Kappa", trControl = ctrl, tuneGrid = grid_rf)
+```
+
+Compare that to a boosted tree
+```{r}
+grid_c50 <- expand.grid(.model = "tree", .trials = c(10, 20, 30, 40), .winnow = "FALSE")
+set.seed(300)
+m_c50 <- train(default ~ . , data = credit, method = "C5.0", metric = "Kappa", trControl = ctrl, tuneGrid = grid_c50)
+```
+
+```{r}
+m_rf
+
+```
+
+
+```{r}
+m_c50
+```
 
 
 >References  
