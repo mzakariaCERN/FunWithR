@@ -1,0 +1,40 @@
+---
+title: "R Notebook"
+output: github_document
+---
+
+
+This notebook plays a bit with web scraping. 
+
+```{r}
+#install.packages("rvest")
+library(rvest)
+```
+
+
+```{r}
+packt_page <- read_html("https://www.packtpub.com")
+packt_page
+```
+
+If we want to scrape the papge title, we inspect the output of packt_page and we see there is only one title per page, wrapped withing <title> and <\title> tages.
+
+
+```{r}
+html_node(packt_page, "title")
+```
+
+To convert this into plain text, we run the function below:
+```{r}
+html_node(packt_page, "title") %>% html_text()
+```
+
+Another example: Scrap a list of all R-packages on CRAN
+
+```{r}
+cran_ml <- read_html("http://cran.r-project.org/web/views/MachineLearning.html")
+cran_ml
+```
+
+
+
