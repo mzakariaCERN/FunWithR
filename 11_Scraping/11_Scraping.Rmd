@@ -36,5 +36,15 @@ cran_ml <- read_html("http://cran.r-project.org/web/views/MachineLearning.html")
 cran_ml
 ```
 
+Because we expect more than one result, we use "nodes" instead of "node"
+
+```{r}
+ml_packages <- html_nodes(cran_ml, "a")
+head(ml_packages, n = 7)
+```
 
 
+## Parsing XML documents
+XML is a plain text, human-readable, structured markup language upon which many document formats have been based. It employs a tagging structure in some ways similar to HTML, but is far stricter about formatting. For this reason, it is a popular online format to store structured datasets. 
+
+Recently, the xm12 package has surfaced as an easier and more R-like interface to the libxm12 library. see package github for more details and examples. 
