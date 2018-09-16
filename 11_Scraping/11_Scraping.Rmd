@@ -48,3 +48,52 @@ head(ml_packages, n = 7)
 XML is a plain text, human-readable, structured markup language upon which many document formats have been based. It employs a tagging structure in some ways similar to HTML, but is far stricter about formatting. For this reason, it is a popular online format to store structured datasets. 
 
 Recently, the xm12 package has surfaced as an easier and more R-like interface to the libxm12 library. see package github for more details and examples. 
+
+
+## Parsing JSON from API 
+Lets take an example on how to get the altitude and the latitude for the effel tower from google API
+
+```{r}
+#install.packages("httr")
+library(httr)
+map_search <- GET("https://maps.googleapis.com/maps/api/geocode/json",query = list(address = "Effel Tower"))
+map_search
+
+
+```
+
+To access the resulting JSON, which the httr package parsed automatically, we use content() function:
+
+```{r}
+content(map_search)
+```
+
+To access these contents individually, refer to them using the list syntax:
+
+```{r}
+content(map_search)$`results`[[1]]$formatted_address
+```
+
+## Converting from JASON to R
+
+```{r}
+#install.packages("rjson")
+library(rjson)
+ml_book <- list(book_title = "Machine Learning with R", author = "Brett Lantz")
+toJSON(ml_book)
+ml_book_json <- "{\"title\": \"Machine Learning with R\", 
+\"Author\": \"Brett Lantz\",
+\"publisher\": { 
+\"name\": \"Packt Publishing\",
+\"url\": \"https://www.packtpub.com\"
+},
+\"topics\": [\"R\", \"machine learning\", \"data mining\"],
+\"MSRP\": 54.99
+}"
+```
+
+```{r}
+ml_book_r <- fromJSON(ml_book_json)
+str(ml_book_r)
+```
+
