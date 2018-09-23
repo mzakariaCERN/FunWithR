@@ -1,0 +1,16 @@
+---
+title: "Network Analysis for Karate data"
+author: "Mohammed Zakaria"
+output: github_document
+
+---
+
+This notbook follows the instructions at Lantz' "Machine Learning with R", 2nd ed. Ch12. 
+
+```{r}
+#install.packages("igraph")
+library(igraph)
+karate <- read.graph("karate.txt", "edgelist", directed = FALSE) # directed is set false b/c friendship is a two way street!
+plot(karate)
+```
+
