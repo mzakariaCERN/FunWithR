@@ -14,3 +14,15 @@ karate <- read.graph("karate.txt", "edgelist", directed = FALSE) # directed is s
 plot(karate)
 ```
 
+We can use igraph to calculate graph metrics. In particular, we can find the degree of the node, which measures how many nodes it is linked to
+```{r}
+degree(karate)
+```
+
+Because some connections are more important than others, a variety of network measures have been developed to measure node connectivity with this consideration. A network metric called "betweeness centrality" is intended to capture the number of shortest paths between nodes that pass through each node. Nodes that are more central to the entire graph will have higher betweeness centrality value, because they act as a bridge between the other nodes.
+
+```{r}
+betweenness(karate)
+```
+
+As nodes 1 and 34 have much greater betweeness value than the others, they are more central to the karate club's friendship network.  These two individuals might be the glue that holds the network together. Suppose we were attempting to build a model predicting who would win an election for the club's president. the fact that nodes 1 and 34 are well connected suggests that they may have the social capital needed for such leadership role. 
