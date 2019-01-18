@@ -1,6 +1,7 @@
 ---
-title: "using CART and model trees to estimate quality of wine"
-output: html_notebook
+title: "Using CART and model trees to estimate quality of wine"
+author: "Mohammed Zakaria"
+output: github_document
 ---
 
 
@@ -20,8 +21,15 @@ check.packages <- function(pkg){
 ```
 
 ```{r}
-check.packages("rpart")
-
+#check.packages("rpart")
+library(rpart)
+#install.packages("MASS")
+#library(MASS)
+#install.packages("pbkrtest")
+#check.packages("caret") # failed installing it
+#install.packages("caret")
+#library(caret)
+library(caret)
 ```
 
 

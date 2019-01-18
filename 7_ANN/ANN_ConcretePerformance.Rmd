@@ -1,11 +1,13 @@
 ---
 title: "Artificial  Neural Networks to estimate concrete performance"
-output: html_notebook
+author: "Mohammed Zakaria"
+output: github_document
 ---
 
 
 ```{r}
-check.packages("neuralnet")
+#check.packages("neuralnet")
+library(neuralnet)
 ```
 
 
