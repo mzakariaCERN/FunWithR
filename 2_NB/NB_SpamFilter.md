@@ -5,32 +5,74 @@ Mohammed Zakaria
 Required packages
 
 ``` r
+#install.packages("slam")
+library(slam)
+```
+
+    ## Warning: package 'slam' was built under R version 3.5.2
+
+``` r
 #install.packages("class") # for kNN classification
 #library(class)
 #install.packages("gmodels") # for CrossTable function at the evaluation
 library(gmodels)
 #install.packages("caret") # for model tuning
 library(caret)
+```
+
+    ## Warning: package 'caret' was built under R version 3.5.1
+
+    ## Warning: package 'ggplot2' was built under R version 3.5.1
+
+``` r
 #install.packages("e1071") # to give us Naive Bayes 
 library(e1071)
 #install.packages("pROC") # to make ROC plots
 library(pROC)   
 #install.packages("tm") # to handle text data
 library(tm)
+```
+
+    ## Warning: package 'tm' was built under R version 3.5.2
+
+    ## Warning: package 'NLP' was built under R version 3.5.2
+
+``` r
 #install.packages("SnowballC") # for steaming
 library(SnowballC)
+```
+
+    ## Warning: package 'SnowballC' was built under R version 3.5.2
+
+``` r
 #install.packages("wordcloud2") # to create word cloud
 library(wordcloud2)
 ```
 
-    ## Warning: package 'wordcloud2' was built under R version 3.4.4
+    ## Warning: package 'wordcloud2' was built under R version 3.5.2
 
 ``` r
 #install.packages("widgetframe")
 #library(widgetframe)
-#devtools::install_github('ramnathv/htmlwidgets')
+devtools::install_github('ramnathv/htmlwidgets')
+
+#install.packages("worldcloud") ## Need to go to tools  -> install packages
 library(wordcloud)
+```
+
+    ## Warning: package 'wordcloud' was built under R version 3.5.2
+
+    ## Warning: package 'RColorBrewer' was built under R version 3.5.2
+
+``` r
 library(klaR) # nb library used by caret
+```
+
+    ## Warning: package 'klaR' was built under R version 3.5.1
+
+    ## Warning: package 'MASS' was built under R version 3.5.1
+
+``` r
 library(ROCR) # another way to do ROC
 #install.packages("ggplot2")
 library(ggplot2)
@@ -40,10 +82,14 @@ library(dplyr)
 #library(styler) # introduces better code style
 ```
 
-Pulling the data: The cancer data is from Brett Lantz's "Machine Learning with R" a repo for the data is under this link: <https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv> and original data can be found under <https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/>
+Pulling the data: The cancer data is from Brett Lantz’s “Machine
+Learning with R” a repo for the data is under this link:
+<https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv>
+and original data can be found under
+<https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/>
 
 ``` r
-sms_raw <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/2_NB/Data/sms_spam.csv", stringsAsFactors = FALSE)
+sms_raw <- read.csv(file = "C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/2_NB/Data/sms_spam.csv", stringsAsFactors = FALSE)
 
 
 dim(sms_raw)
@@ -68,7 +114,8 @@ summary(sms_raw)
     ##  Class :character   Class :character  
     ##  Mode  :character   Mode  :character
 
-We see there are two features. And the feature type has a categorical variables. So we need to convert it to factor
+We see there are two features. And the feature type has a categorical
+variables. So we need to convert it to factor
 
 ``` r
 sms_raw$type <- as.factor(sms_raw$type)
@@ -86,7 +133,10 @@ table(sms_raw$type)
     ##  ham spam 
     ## 4827  747
 
-After installing (loading) tm library, we need to create a container for all the text we are dealing with. This is called a corpus. WE will use VCorpus (for volatile corpus: corpus stored in memove, compare it to PCorpus, which is stored on disk).
+After installing (loading) tm library, we need to create a container for
+all the text we are dealing with. This is called a corpus. WE will use
+VCorpus (for volatile corpus: corpus stored in memove, compare it to
+PCorpus, which is stored on disk).
 
 ``` r
 sms_corpus <- VCorpus(VectorSource(sms_raw$text))
@@ -95,7 +145,9 @@ typeof(sms_corpus)
 
     ## [1] "list"
 
-corpus can read from pdf of MS word using readerControl parameter. Check it out! Notice also that corpus is a list objects. So we can manipulate it as such.
+corpus can read from pdf of MS word using readerControl parameter. Check
+it out\! Notice also that corpus is a list objects. So we can manipulate
+it as such.
 
 ``` r
 print(sms_corpus)
@@ -128,7 +180,9 @@ inspect(sms_corpus[1:3])
     ## Metadata:  7
     ## Content:  chars: 155
 
-To see one message, we need to grab that element in from the list, and conver it to characters
+To see one message, we need to grab that element in from the list, and
+conver it to
+    characters
 
 ``` r
 as.character(sms_corpus[[1]])
@@ -148,7 +202,8 @@ lapply(sms_corpus[1:2], as.character)
     ## $`2`
     ## [1] "Ok lar... Joking wif u oni..."
 
-Next, we need to clean the text from special characters, capital letters etc, and convert it into separate words.
+Next, we need to clean the text from special characters, capital letters
+etc, and convert it into separate words.
 
 First, convert to lower case
 
@@ -156,7 +211,9 @@ First, convert to lower case
 sms_corpus_clean <- tm_map(sms_corpus, content_transformer(tolower))
 ```
 
-remember the first message starts with an upper case letter. Let us take a look now
+remember the first message starts with an upper case letter. Let us take
+a look
+    now
 
 ``` r
 as.character(sms_corpus_clean[[1]])
@@ -164,20 +221,24 @@ as.character(sms_corpus_clean[[1]])
 
     ## [1] "go until jurong point, crazy.. available only in bugis n great world la e buffet... cine there got amore wat..."
 
-next thing, is to remove numbers from SMS. Though some might be useful for the sender/receiver. It doesn't play much value in spam/ham classification.
+next thing, is to remove numbers from SMS. Though some might be useful
+for the sender/receiver. It doesn’t play much value in spam/ham
+classification.
 
 ``` r
 sms_corpus_clean <- tm_map(sms_corpus_clean, removeNumbers) # no need for content_tranformer b/c removeNumbers is built in tm. to see other
 # built in functions type getTransformations()
 ```
 
-Next we remove filler (stop) words suc as: 'and', 'or', and 'but'
+Next we remove filler (stop) words suc as: ‘and’, ‘or’, and ‘but’
 
 ``` r
 sms_corpus_clean <- tm_map(sms_corpus_clean, removeWords, stopwords())
 ```
 
-Notice that stoprwords returns a vector of the words we need to consider as such. We can thus add a remove words from the list to modify the selection
+Notice that stoprwords returns a vector of the words we need to consider
+as such. We can thus add a remove words from the list to modify the
+selection
 
 Next, we remove any punctuation
 
@@ -185,7 +246,9 @@ Next, we remove any punctuation
 sms_corpus_clean <- tm_map(sms_corpus_clean, removePunctuation)
 ```
 
-Notice that this function will join words that have punctuation marks between them without any space. Ex: "Hi...Hi" will become "HiHi" To fix this we can create a function like
+Notice that this function will join words that have punctuation marks
+between them without any space. Ex: “Hi…Hi” will become “HiHi” To fix
+this we can create a function like
 
 ``` r
 replacePunctuation <- function(x){gsub("[[:punct:]]", " ", x)}
@@ -193,7 +256,8 @@ replacePunctuation <- function(x){gsub("[[:punct:]]", " ", x)}
 
 the above function can be used with tm\_map
 
-Next, we return all words to their root (AKA: steaming). To do this install and/or load SnowballC
+Next, we return all words to their root (AKA: steaming). To do this
+install and/or load SnowballC
 
 ``` r
 sms_corpus_clean <- tm_map(sms_corpus_clean, stemDocument)
@@ -205,7 +269,10 @@ next, to remove any extra white space
 sms_corpus_clean <- tm_map(sms_corpus_clean, stripWhitespace)
 ```
 
-Finally, we need to convert the messages into word (AKA tokenization). We will convert the corpus into Document Term Matrix: rows are SMS messages, and columns are word. Think of it as creating dummy variables for each word.
+Finally, we need to convert the messages into word (AKA tokenization).
+We will convert the corpus into Document Term Matrix: rows are SMS
+messages, and columns are word. Think of it as creating dummy variables
+for each word.
 
 ``` r
 sms_dtm <- DocumentTermMatrix(sms_corpus_clean)
@@ -213,13 +280,15 @@ sms_dtm <- DocumentTermMatrix(sms_corpus_clean)
 sms_dtm
 ```
 
-    ## <<DocumentTermMatrix (documents: 5574, terms: 6604)>>
-    ## Non-/sparse entries: 42631/36768065
+    ## <<DocumentTermMatrix (documents: 5574, terms: 6611)>>
+    ## Non-/sparse entries: 42653/36807061
     ## Sparsity           : 100%
     ## Maximal term length: 40
     ## Weighting          : term frequency (tf)
 
-Notice that we could have create a DTM from the raw corpus with all the pre-processing in one command
+Notice that we could have create a DTM from the raw corpus with all the
+pre-processing in one
+command
 
 ``` r
 sms_dtm2 <- DocumentTermMatrix(sms_corpus, control = list(tolower = TRUE, removeNumbers = TRUE, stopwords = TRUE, removePunctuation = TRUE, steaming = TRUE))
@@ -227,13 +296,16 @@ sms_dtm2 <- DocumentTermMatrix(sms_corpus, control = list(tolower = TRUE, remove
 sms_dtm2
 ```
 
-    ## <<DocumentTermMatrix (documents: 5574, terms: 8364)>>
-    ## Non-/sparse entries: 44221/46576715
+    ## <<DocumentTermMatrix (documents: 5574, terms: 8371)>>
+    ## Non-/sparse entries: 44243/46615711
     ## Sparsity           : 100%
     ## Maximal term length: 40
     ## Weighting          : term frequency (tf)
 
-notice there are minor differences between the two matrices. this is mainly due to cleaning the corpus after spliting it into words in the second option. it also uses a slightly different choice for stop words. To fortce it to use the same stopwords:
+notice there are minor differences between the two matrices. this is
+mainly due to cleaning the corpus after spliting it into words in the
+second option. it also uses a slightly different choice for stop words.
+To fortce it to use the same stopwords:
 
 ``` r
 stopWords = function(x){removeWords(x, stopwords())}
@@ -241,7 +313,8 @@ stopWords = function(x){removeWords(x, stopwords())}
 
 and replace stopwrods = TRUE with that function
 
-Next step is splitting the data into training and testing. Since the data is randomized as is, no need to randomize it
+Next step is splitting the data into training and testing. Since the
+data is randomized as is, no need to randomize it
 
 ``` r
 sms_dtm_train <- sms_dtm[1:4169,]
@@ -269,31 +342,47 @@ prop.table(table(sms_test_labels))
     ##       ham      spam 
     ## 0.8697509 0.1302491
 
-create a word cloud. Lantz uses package wordcount. I will replicate that here and use another package: wordcloud2 that gives js plots with interactive elements
+create a word cloud. Lantz uses package wordcount. I will replicate that
+here and use another package: wordcloud2 that gives js plots with
+interactive elements
 
 ``` r
 wordcloud(sms_corpus_clean, min.freq = 50, random.order = FALSE)
 ```
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-20-1.png)
+![](NB_SpamFilter_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 Let us do a cloud for only spam and ham
 
 ``` r
 spam <- subset(sms_raw, type == "spam")
 ham <- subset(sms_raw, type = "ham")
-wordcloud(spam$text, max.words = 40, scale = c(3, .5))
+wordcloud(spam$text, max.words = 40,  min.freq = 40, scale = c(3, .5))
 ```
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-21-1.png)
+    ## Warning in tm_map.SimpleCorpus(corpus, tm::removePunctuation):
+    ## transformation drops documents
+
+    ## Warning in tm_map.SimpleCorpus(corpus, function(x) tm::removeWords(x,
+    ## tm::stopwords())): transformation drops documents
+
+![](NB_SpamFilter_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 ``` r
-wordcloud(ham$text, max.words = 40, scale = c(3, .5))
+wordcloud(ham$text, max.words = 40,  min.freq = 40, scale = c(3, .5))
 ```
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-21-2.png)
+    ## Warning in tm_map.SimpleCorpus(corpus, tm::removePunctuation):
+    ## transformation drops documents
+    
+    ## Warning in tm_map.SimpleCorpus(corpus, tm::removePunctuation):
+    ## transformation drops documents
 
-Next I will use wordcount2. Which needs a data frame with word and frequency. which can be prepared from a TermDocumentMatrix (TDM, and not DTM)
+![](NB_SpamFilter_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->
+
+Next I will use wordcount2. Which needs a data frame with word and
+frequency. which can be prepared from a TermDocumentMatrix (TDM, and not
+DTM)
 
 ``` r
 myTdm <-
@@ -314,16 +403,22 @@ myTdm <-
   wc2 <- wordcloud2(FreqMat, minSize = 50)
 ```
 
-We can also do similar plots with ham and spam messages to compare between them. Notice that you need to set always\_allow\_html: yes in yaml and you can only see the interactive image in html. so it was difficult to deploy on github.
+We can also do similar plots with ham and spam messages to compare
+between them. Notice that you need to set always\_allow\_html: yes in
+yaml and you can only see the interactive image in html. so it was
+difficult to deploy on github.
 
-Since the TDM has one feature per word, we have over 6000 features. Many of these features for words that were mentioned once or twice. These are unlikely to be useful in the classification. so we set a frequency filter to remove any word mentioned less than 5 times.
+Since the TDM has one feature per word, we have over 6000 features. Many
+of these features for words that were mentioned once or twice. These are
+unlikely to be useful in the classification. so we set a frequency
+filter to remove any word mentioned less than 5 times.
 
 ``` r
 sms_freq_words <- findFreqTerms(sms_dtm_train, 5)
 str(sms_freq_words)
 ```
 
-    ##  chr [1:1158] "â€“" "abiola" "abl" "abt" "accept" "access" "account" ...
+    ##  chr [1:1159] "â£wk" "â\200¦" "â\200“" "abiola" "abl" "abt" "accept" ...
 
 remove every column that matches this vector
 
@@ -332,7 +427,10 @@ sms_dtm_freq_train <- sms_dtm_train[, sms_freq_words]
 sms_dtm_freq_test  <- sms_dtm_test[, sms_freq_words]
 ```
 
-NB classifiers typically use categorical features. This poses an issue for sparce matrices (DTM) since the cell are numeric and measure the number of times a word appears in the same massage. To change it to categorical we convert it to yes/no
+NB classifiers typically use categorical features. This poses an issue
+for sparce matrices (DTM) since the cell are numeric and measure the
+number of times a word appears in the same massage. To change it to
+categorical we convert it to yes/no
 
 ``` r
 convert_counts <- function(x) {
@@ -347,7 +445,8 @@ sms_train <- apply(sms_dtm_freq_train, 2, convert_counts)
 sms_test <-  apply(sms_dtm_freq_test, 2, convert_counts)
 ```
 
-Next we build a Naive Bayes model to find the probability of the message being a spam or a ham based on the presence of words.
+Next we build a Naive Bayes model to find the probability of the message
+being a spam or a ham based on the presence of words.
 
 ``` r
 sms_classifier <- naiveBayes(sms_train, sms_train_labels)
@@ -359,7 +458,8 @@ making a prediction
 sms_test_pred <- predict(sms_classifier, sms_test)
 ```
 
-using CrossTables() for evaluation
+using CrossTables() for
+evaluation
 
 ``` r
 CrossTable(sms_test_pred, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, dnn = c('predicted','actual'))
@@ -403,7 +503,7 @@ perf_nb <- performance(pred, measure = 'tpr', x.measure = 'fpr')
 plot(perf_nb)
 ```
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-30-1.png)
+![](NB_SpamFilter_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 ``` r
 performance(pred, 'auc')
@@ -444,7 +544,7 @@ data.frame(predicted = probs[, "spam"], actual = sms_test_labels) %>%
 
     ## Warning: Ignoring unknown parameters: a, b
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-31-1.png)
+![](NB_SpamFilter_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 They points are distributed evenly. So no sign of over confidence.
 
@@ -457,9 +557,11 @@ data.frame(predicted = probs, actual = sms_test_labels) %>%
   theme(legend.position = c(0.8, 0.8))
 ```
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-32-1.png)
+![](NB_SpamFilter_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
-One way to improve on the model, is to set laplace more than zero. this way words with zero occurance in either class will not have an indisputable say of the classification
+One way to improve on the model, is to set laplace more than zero. this
+way words with zero occurance in either class will not have an
+indisputable say of the classification
 
 ``` r
 sms_classifier2 <- naiveBayes(sms_train, sms_train_labels, lablace = 2)
@@ -498,10 +600,10 @@ CrossTable(sms_test_pred2, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, 
     ## 
 
 ``` r
-probs_2 <- predict(sms_classifier2, sms_test, type="raw")
+probs_2 <- predict(sms_classifier2, sms_test, type = "raw")
 # plot ROC curve
 pred <- prediction(probs_2[, "spam"], sms_test_labels)
-perf_nb_2 <- performance(pred, measure='tpr', x.measure='fpr')
+perf_nb_2 <- performance(pred, measure = 'tpr', x.measure = 'fpr')
 #plot(perf_nb_2)
 performance(pred, 'auc')
 ```
@@ -568,9 +670,10 @@ roc_nb   <-
 
     ## Warning: Ignoring unknown parameters: a, b
 
-![](NB_SpamFilter_files/figure-markdown_github/unnamed-chunk-37-1.png)
+![](NB_SpamFilter_files/figure-gfm/unnamed-chunk-37-1.png)<!-- -->
 
-Next we need to investigate if hypertuning can get us a better result. First, let us see what caret has to say about Naive Bayes
+Next we need to investigate if hypertuning can get us a better result.
+First, let us see what caret has to say about Naive Bayes
 
 ``` r
 modelLookup("nb")
@@ -581,17 +684,18 @@ modelLookup("nb")
     ## 2    nb usekernel    Distribution Type  FALSE     TRUE      TRUE
     ## 3    nb    adjust Bandwidth Adjustment  FALSE     TRUE      TRUE
 
-So we have 3 parameters to tune
+So we have 3 parameters to
+tune
 
 ``` r
-sms_classifier3<- train(sms_train, sms_train_labels, method = "nb", verbose = FALSE)
+sms_classifier3 <- train(sms_train, sms_train_labels, method = "nb", verbose = FALSE)
 sms_classifier3
 ```
 
     ## Naive Bayes 
     ## 
     ## 4169 samples
-    ## 1158 predictors
+    ## 1159 predictors
     ##    2 classes: 'ham', 'spam' 
     ## 
     ## No pre-processing
@@ -599,14 +703,14 @@ sms_classifier3
     ## Summary of sample sizes: 4169, 4169, 4169, 4169, 4169, 4169, ... 
     ## Resampling results across tuning parameters:
     ## 
-    ##   usekernel  Accuracy   Kappa    
-    ##   FALSE      0.9837345  0.9237371
-    ##    TRUE      0.9837345  0.9237371
+    ##   usekernel  Accuracy   Kappa   
+    ##   FALSE      0.9808795  0.911412
+    ##    TRUE      0.9808795  0.911412
     ## 
     ## Tuning parameter 'fL' was held constant at a value of 0
     ## Tuning
     ##  parameter 'adjust' was held constant at a value of 1
-    ## Accuracy was used to select the optimal model using  the largest value.
+    ## Accuracy was used to select the optimal model using the largest value.
     ## The final values used for the model were fL = 0, usekernel = FALSE
     ##  and adjust = 1.
 
@@ -642,43 +746,69 @@ CrossTable(sms_test_pred3, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, 
     ## 
     ## 
 
-I turned the verbose flag off, the output is very large. if you turn it on, you notice the first few messages are: predictions failed for Resample01: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical function model fit failed for Resample01: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : (subscript) logical subscript too long predictions failed for Resample02: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical function model fit failed for Resample02: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : (subscript) logical subscript too long predictions failed for Resample03: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical function model fit failed for Resample03: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : (subscript) logical subscript too long predictions failed for Resample04: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical function model fit failed for Resample04: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : (subscript) logical subscript too long predictions failed for Resample05: usekernel= TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical function model fit failed for Resample05: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, , !num, value = 1) : (subscript) logical subscript too long
+I turned the verbose flag off, the output is very large. if you turn it
+on, you notice the first few messages are: predictions failed for
+Resample01: usekernel= TRUE, fL=0, adjust=1 Error in
+log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical
+function model fit failed for Resample01: usekernel=FALSE, fL=0,
+adjust=1 Error in `[<-`(`*tmp*`, , \!num, value = 1) : (subscript)
+logical subscript too long predictions failed for Resample02: usekernel=
+TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) :
+non-numeric argument to mathematical function model fit failed for
+Resample02: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, ,
+\!num, value = 1) : (subscript) logical subscript too long predictions
+failed for Resample03: usekernel= TRUE, fL=0, adjust=1 Error in
+log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical
+function model fit failed for Resample03: usekernel=FALSE, fL=0,
+adjust=1 Error in `[<-`(`*tmp*`, , \!num, value = 1) : (subscript)
+logical subscript too long predictions failed for Resample04: usekernel=
+TRUE, fL=0, adjust=1 Error in log(sapply(1:nattribs, tempfoo)) :
+non-numeric argument to mathematical function model fit failed for
+Resample04: usekernel=FALSE, fL=0, adjust=1 Error in `[<-`(`*tmp*`, ,
+\!num, value = 1) : (subscript) logical subscript too long predictions
+failed for Resample05: usekernel= TRUE, fL=0, adjust=1 Error in
+log(sapply(1:nattribs, tempfoo)) : non-numeric argument to mathematical
+function model fit failed for Resample05: usekernel=FALSE, fL=0,
+adjust=1 Error in `[<-`(`*tmp*`, , \!num, value = 1) : (subscript)
+logical subscript too long
 
-which is bother some. we are not getting an output ofr most of the tuning choices, except the kernel
+which is bother some. we are not getting an output ofr most of the
+tuning choices, except the kernel
 
 ``` r
 trellis.par.set(caretTheme())
 densityplot(sms_classifier3, pch = "|")
 ```
 
-![](NB_SpamFilter_files/figure-markdown_github/distributions%20of%20the%20tuning%20parameters%20across%20tuning%20parameters.-1.png)
+![](NB_SpamFilter_files/figure-gfm/distributions%20of%20the%20tuning%20parameters%20across%20tuning%20parameters.-1.png)<!-- -->
 
-if you check str(sms\_classifier3) default method is boot, let us try cv
+if you check str(sms\_classifier3) default method is boot, let us try
+cv
 
 ``` r
-sms_classifier4<- train(sms_train, sms_train_labels, method = "nb", trControl=trainControl(method='cv',number=10));
+sms_classifier4 <- train(sms_train, sms_train_labels, method = "nb", trControl = trainControl(method = 'cv',number = 10));
 sms_classifier4
 ```
 
     ## Naive Bayes 
     ## 
     ## 4169 samples
-    ## 1158 predictors
+    ## 1159 predictors
     ##    2 classes: 'ham', 'spam' 
     ## 
     ## No pre-processing
     ## Resampling: Cross-Validated (10 fold) 
-    ## Summary of sample sizes: 3752, 3753, 3753, 3752, 3751, 3752, ... 
+    ## Summary of sample sizes: 3751, 3752, 3752, 3753, 3753, 3752, ... 
     ## Resampling results across tuning parameters:
     ## 
     ##   usekernel  Accuracy   Kappa    
-    ##   FALSE      0.9822415  0.9204073
-    ##    TRUE      0.9822415  0.9204073
+    ##   FALSE      0.9818805  0.9195525
+    ##    TRUE      0.9818805  0.9195525
     ## 
     ## Tuning parameter 'fL' was held constant at a value of 0
     ## Tuning
     ##  parameter 'adjust' was held constant at a value of 1
-    ## Accuracy was used to select the optimal model using  the largest value.
+    ## Accuracy was used to select the optimal model using the largest value.
     ## The final values used for the model were fL = 0, usekernel = FALSE
     ##  and adjust = 1.
 
@@ -716,15 +846,23 @@ CrossTable(sms_test_pred4, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, 
 
 Trying to use ROC, not sure why we get an error
 
-ctrl &lt;- trainControl(method = "cv",
-summaryFunction=twoClassSummary, classProbs=TRUE, allowParallel = FALSE) m\_cv\_ROC &lt;- train(sms\_train, sms\_train\_labels, method = "nb", metric = "ROC", trControl = ctrl)
+ctrl \<- trainControl(method = “cv”,  
+summaryFunction=twoClassSummary, classProbs=TRUE, allowParallel = FALSE)
+m\_cv\_ROC \<- train(sms\_train, sms\_train\_labels, method = “nb”,
+metric = “ROC”, trControl = ctrl)
 
-m\_cv\_ROC sms\_test\_pred5 &lt;- predict(m\_cv\_ROC, sms\_test) CrossTable(sms\_test\_pred5, sms\_test\_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
+m\_cv\_ROC sms\_test\_pred5 \<- predict(m\_cv\_ROC, sms\_test)
+CrossTable(sms\_test\_pred5, sms\_test\_labels, prop.chisq = FALSE,
+prop.t = FALSE, prop.r = FALSE, dnn = c(‘predicted’,‘actual’))
 
-sometimes we get this error: task 1 failed - "non-numeric argument to mathematical function". changed to cv, and removed parallel. it seems to work!
+sometimes we get this error: task 1 failed - “non-numeric argument to
+mathematical function”. changed to cv, and removed parallel. it seems to
+work\!
 
-trellis.par.set(caretTheme()) densityplot(m\_cv\_ROC, pch = "|")
+trellis.par.set(caretTheme()) densityplot(m\_cv\_ROC, pch = “|”)
 
-> References
-> 1. <https://rpubs.com/jhofman/nb_vs_lr>
-> 2. <https://topepo.github.io/caret/model-training-and-tuning.html>
+> References  
+> 1\. <https://rpubs.com/jhofman/nb_vs_lr>  
+> 2\. <https://topepo.github.io/caret/model-training-and-tuning.html> 3.
+> <https://www.datasciencecentral.com/profiles/blogs/find-out-what-celebrities-tweet-about-the-most-1>
+> To create a word cloud from pub. twitter accounts

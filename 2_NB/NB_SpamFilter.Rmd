@@ -22,6 +22,8 @@ output: github_document
 
 Required packages
 ```{r Install and load needed packages, message=FALSE, warning=TRUE}
+#install.packages("slam")
+library(slam)
 #install.packages("class") # for kNN classification
 #library(class)
 #install.packages("gmodels") # for CrossTable function at the evaluation
@@ -40,7 +42,9 @@ library(SnowballC)
 library(wordcloud2)
 #install.packages("widgetframe")
 #library(widgetframe)
-#devtools::install_github('ramnathv/htmlwidgets')
+devtools::install_github('ramnathv/htmlwidgets')
+
+#install.packages("worldcloud") ## Need to go to tools  -> install packages
 library(wordcloud)
 library(klaR) # nb library used by caret
 library(ROCR) # another way to do ROC
@@ -59,7 +63,7 @@ https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wis
 and original data can be found under
 https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
 ```{r}
-sms_raw <- read.csv(file="C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/2_NB/Data/sms_spam.csv", stringsAsFactors = FALSE)
+sms_raw <- read.csv(file = "C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/2_NB/Data/sms_spam.csv", stringsAsFactors = FALSE)
 
 
 dim(sms_raw)
@@ -223,8 +227,8 @@ Let us do a cloud for only spam and ham
 ```{r}
 spam <- subset(sms_raw, type == "spam")
 ham <- subset(sms_raw, type = "ham")
-wordcloud(spam$text, max.words = 40, scale = c(3, .5))
-wordcloud(ham$text, max.words = 40, scale = c(3, .5))
+wordcloud(spam$text, max.words = 40,  min.freq = 40, scale = c(3, .5))
+wordcloud(ham$text, max.words = 40,  min.freq = 40, scale = c(3, .5))
 ```
 
 
@@ -355,10 +359,10 @@ CrossTable(sms_test_pred2, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, 
 
 
 ```{r}
-probs_2 <- predict(sms_classifier2, sms_test, type="raw")
+probs_2 <- predict(sms_classifier2, sms_test, type = "raw")
 # plot ROC curve
 pred <- prediction(probs_2[, "spam"], sms_test_labels)
-perf_nb_2 <- performance(pred, measure='tpr', x.measure='fpr')
+perf_nb_2 <- performance(pred, measure = 'tpr', x.measure = 'fpr')
 #plot(perf_nb_2)
 performance(pred, 'auc')
 ```
@@ -418,7 +422,7 @@ modelLookup("nb")
 So we have 3 parameters to tune
 
 ```{r Tuning 3 parameters with caret default, message=FALSE, warning=FALSE, paged.print=FALSE}
-sms_classifier3<- train(sms_train, sms_train_labels, method = "nb", verbose = FALSE)
+sms_classifier3 <- train(sms_train, sms_train_labels, method = "nb", verbose = FALSE)
 sms_classifier3
 sms_test_pred3 <- predict(sms_classifier3, sms_test)
 CrossTable(sms_test_pred3, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
@@ -467,7 +471,7 @@ if you check str(sms_classifier3) default method is boot, let us try cv
 
 
 ```{r Tuning_CV, message=FALSE, warning=FALSE, paged.print=FALSE}
-sms_classifier4<- train(sms_train, sms_train_labels, method = "nb", trControl=trainControl(method='cv',number=10));
+sms_classifier4 <- train(sms_train, sms_train_labels, method = "nb", trControl = trainControl(method = 'cv',number = 10));
 sms_classifier4
 sms_test_pred4 <- predict(sms_classifier4, sms_test)
 CrossTable(sms_test_pred4, sms_test_labels, prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE, dnn = c('predicted','actual'))
@@ -503,3 +507,4 @@ densityplot(m_cv_ROC, pch = "|")
 >References  
 >1. https://rpubs.com/jhofman/nb_vs_lr   
 >2. https://topepo.github.io/caret/model-training-and-tuning.html
+>3. https://www.datasciencecentral.com/profiles/blogs/find-out-what-celebrities-tweet-about-the-most-1 To create a word cloud from pub. twitter accounts
