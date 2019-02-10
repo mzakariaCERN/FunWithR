@@ -62,7 +62,7 @@ a repo for the data is under this link:
 https://github.com/mzakariaCERN/Machine-Learning-with-R-datasets/blob/master/wisc_bc_data.csv
 and original data can be found under
 https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/
-```{r}
+```{r, Load the csv file with a summary output}
 sms_raw <- read.csv(file = "C:/Users/mkzak/Documents/GitHub/FunWithR/FunWithR/2_NB/Data/sms_spam.csv", stringsAsFactors = FALSE)
 
 
