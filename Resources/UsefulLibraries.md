@@ -33,5 +33,9 @@ Here I list interesting R packages to keep record
     assumptions about data. Example: That the age is not negative\! or
     that rows are
     unique  
-    [examle](https://daranzolin.github.io/2018-01-19-preeda/)  
+    [example](https://daranzolin.github.io/2018-01-19-preeda/)  
     [link](https://cran.r-project.org/web/packages/assertr/vignettes/assertr.html)
+
+5.  skimr a frictionless approach to summary statistics that displays
+    summary statistics the user can skim quickly to understand their
+    data [link](https://ropensci.org/blog/2017/07/11/skimr/)
